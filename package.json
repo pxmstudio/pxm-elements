@@ -1,6 +1,6 @@
 {
   "name": "@pixelmakers/elements",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "A collection of custom web components by PixelMakers",
   "main": "dist/index.js",

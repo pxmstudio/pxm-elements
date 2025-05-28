@@ -16,6 +16,32 @@ Or install individual components:
 npm install @pixelmakers/elements/phone-input
 ```
 
+## CDN Usage
+
+You can use the components directly from a CDN. For the best experience, we recommend using the main package:
+
+```html
+<!-- Import the entire package -->
+<script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.1/dist/index.js"></script>
+
+<!-- Use the component -->
+<pxm-phone-input>
+  <input type="tel" name="phone">
+</pxm-phone-input>
+```
+
+Or if you prefer to use just the phone input component:
+
+```html
+<!-- Import just the phone input component -->
+<script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.1/dist/phone-input.js"></script>
+
+<!-- Use the component -->
+<pxm-phone-input>
+  <input type="tel" name="phone">
+</pxm-phone-input>
+```
+
 ## Components
 
 ### Phone Input
