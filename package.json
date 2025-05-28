@@ -1,0 +1,46 @@
+{
+  "name": "@pxm/elements",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A collection of custom web components by PixelMakers",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./phone-input": {
+      "import": "./dist/phone-input.js",
+      "types": "./dist/phone-input.d.ts"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "web-components",
+    "custom-elements",
+    "phone-input"
+  ],
+  "author": "PixelMakers",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.15.23",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5"
+  },
+  "dependencies": {
+    "intl-tel-input": "^25.3.1"
+  },
+  "peerDependencies": {
+    "intl-tel-input": "^25.3.1"
+  }
+}
