@@ -8,8 +8,12 @@ async function main() {
     
     // If we're using CDN, use absolute path for imports
     if (currentScript?.src) {
+      // Extract version from the current script URL
+      const versionMatch = currentScript.src.match(/@([^/]+)/);
+      const version = versionMatch ? versionMatch[1] : '0.1.2';
       const baseUrl = currentScript.src.split('/').slice(0, -1).join('/');
-      await import(`${baseUrl}/phone-input.js`);
+      // Use the full package name and version in the import path
+      await import(`${baseUrl}/elements@${version}/dist/phone-input.js`);
     } else {
       // Local development
       await import("./logic/forms/phone-input");

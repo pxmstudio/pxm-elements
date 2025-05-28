@@ -22,7 +22,7 @@ You can use the components directly from a CDN. For the best experience, we reco
 
 ```html
 <!-- Import the entire package -->
-<script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.1/dist/index.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.2/dist/index.js"></script>
 
 <!-- Use the component -->
 <pxm-phone-input>
@@ -34,7 +34,7 @@ Or if you prefer to use just the phone input component:
 
 ```html
 <!-- Import just the phone input component -->
-<script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.1/dist/phone-input.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.2/dist/phone-input.js"></script>
 
 <!-- Use the component -->
 <pxm-phone-input>
