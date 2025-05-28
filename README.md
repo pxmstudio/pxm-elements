@@ -1,4 +1,4 @@
-# @pxm/elements
+# @pixelmakers/elements
 
 A collection of custom web components by PixelMakers. This package provides reusable, accessible, and customizable web components that can be used in any modern web application.
 
@@ -7,13 +7,13 @@ A collection of custom web components by PixelMakers. This package provides reus
 You can install the entire package:
 
 ```bash
-npm install @pxm/elements
+npm install @pixelmakers/elements
 ```
 
 Or install individual components:
 
 ```bash
-npm install @pxm/elements/phone-input
+npm install @pixelmakers/elements/phone-input
 ```
 
 ## Components
@@ -27,7 +27,7 @@ A customizable phone input component with international phone number formatting 
 ```html
 <!-- Import the component -->
 <script type="module">
-  import '@pxm/elements/phone-input';
+  import '@pixelmakers/elements/phone-input';
 </script>
 
 <!-- Use the component -->
