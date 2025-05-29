@@ -373,7 +373,7 @@ export class ModalManager {
         const thumbnailsToCreateSlides = mainThumbnailsOnly.slice(0, -1);
 
         // Create slides from main thumbnails using the template structure
-        thumbnailsToCreateSlides.forEach((thumb, index) => {
+        thumbnailsToCreateSlides.forEach((thumb) => {
             const img = safeQuerySelector<HTMLImageElement>(thumb, 'img');
             if (!img) return;
 
