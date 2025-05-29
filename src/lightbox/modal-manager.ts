@@ -344,8 +344,25 @@ export class ModalManager {
         const swiperWrapper = safeQuerySelector(this.modal, '[data-target-swiper-wrapper]');
         if (!swiperWrapper) return;
 
-        // Clear existing slides
-        swiperWrapper.innerHTML = '';
+        // Get the template slide
+        const templateSlide = safeQuerySelector(swiperWrapper, '[data-target-swiper-slide]');
+        if (!templateSlide) return;
+
+        // Store template slide and image for reference
+        const templateImg = templateSlide.querySelector('img[data-target-img]') as HTMLImageElement;
+        if (!templateImg) return;
+
+        // Store the original template classes to ensure they're preserved
+        const originalSlideClasses = templateSlide.className;
+        const originalImgClasses = templateImg.className;
+
+        // Clear existing slides except the template
+        const existingSlides = swiperWrapper.querySelectorAll('[data-target-swiper-slide]');
+        existingSlides.forEach(slide => {
+            if (slide !== templateSlide) {
+                slide.remove();
+            }
+        });
 
         // Filter out thumbnails that are inside the modal (like the template)
         const mainThumbnailsOnly = Array.from(this.mainThumbnails).filter(thumb => {
@@ -355,28 +372,65 @@ export class ModalManager {
         // Exclude the last item as it's typically a template (-1)
         const thumbnailsToCreateSlides = mainThumbnailsOnly.slice(0, -1);
 
-        // Create slides from main thumbnails only (excluding modal template and last template)
-        thumbnailsToCreateSlides.forEach((thumb) => {
+        // Create slides from main thumbnails using the template structure
+        thumbnailsToCreateSlides.forEach((thumb, index) => {
             const img = safeQuerySelector<HTMLImageElement>(thumb, 'img');
             if (!img) return;
 
             const fullSrc = img.getAttribute('data-full-src') || img.src;
 
-            // Create slide
-            const slide = document.createElement('div');
-            slide.setAttribute('data-target-swiper-slide', '');
-            slide.className = 'swiper-slide';
+            // Clone the template slide completely
+            const slide = templateSlide.cloneNode(true) as HTMLElement;
 
-            // Create image element
-            const slideImg = document.createElement('img');
-            slideImg.src = fullSrc;
-            slideImg.alt = img.alt;
-            slideImg.setAttribute('data-target-img', '');
-            slideImg.className = img.className;
+            // Ensure the slide maintains its original classes
+            slide.className = originalSlideClasses;
 
-            slide.appendChild(slideImg);
+            // Find the image in the cloned slide
+            const slideImg = slide.querySelector('img[data-target-img]') as HTMLImageElement;
+            if (slideImg) {
+                // Restore original image classes
+                slideImg.className = originalImgClasses;
+
+                // Only update the image source and alt - nothing else
+                slideImg.src = fullSrc;
+                slideImg.alt = img.alt || '';
+
+                // Create a defensive mechanism to preserve classes
+                const preserveClasses = () => {
+                    if (slideImg.className !== originalImgClasses) {
+                        slideImg.className = originalImgClasses;
+                    }
+                };
+
+                // Set up a mutation observer to watch for class changes
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                            preserveClasses();
+                        }
+                    });
+                });
+
+                // Start observing the image for class changes
+                observer.observe(slideImg, { 
+                    attributes: true, 
+                    attributeFilter: ['class'] 
+                });
+
+                // Also set up a timeout to restore classes after a delay
+                setTimeout(preserveClasses, 100);
+                setTimeout(preserveClasses, 500);
+                setTimeout(() => {
+                    // Stop observing after 2 seconds
+                    observer.disconnect();
+                }, 2000);
+            }
+
             swiperWrapper.appendChild(slide);
         });
+
+        // Remove the template slide after we're done
+        templateSlide.remove();
     }
 
     /**
@@ -529,6 +583,13 @@ export class ModalManager {
         const cloneImg = safeQuerySelector<HTMLImageElement>(clone, 'img');
 
         if (originalImg && cloneImg) {
+            // Preserve the template's classes
+            const templateClasses = template.className;
+            if (templateClasses) {
+                clone.className = templateClasses;
+            }
+
+            // Copy image attributes
             copyImageAttributes(originalImg, cloneImg);
             return clone;
         }

@@ -48,13 +48,13 @@ export class PxmLightbox extends HTMLElement {
 
             // Initialize component managers
             this.zoomManager = new ZoomManager(
-                this.configManager.getConfig(), 
+                this.configManager.getConfig(),
                 this.zoomMode
             );
 
             this.modalManager = new ModalManager(
-                this, 
-                this.configManager.getConfig(), 
+                this,
+                this.configManager.getConfig(),
                 this.thumbnails
             );
 
@@ -148,7 +148,7 @@ export class PxmLightbox extends HTMLElement {
      */
     public refreshThumbnails(): void {
         const newThumbnails = safeQuerySelectorAll(
-            this, 
+            this,
             this.configManager.get('thumbnailSelector')
         );
         this.eventManager.addThumbnailEvents(newThumbnails);
@@ -159,12 +159,12 @@ export class PxmLightbox extends HTMLElement {
      */
     private initializeThumbnails(): NodeListOf<Element> {
         const thumbnails = safeQuerySelectorAll(
-            this, 
+            this,
             this.configManager.get('thumbnailSelector')
         );
 
         if (thumbnails.length === 0) {
-            console.warn('No thumbnails found with selector:', 
+            console.warn('No thumbnails found with selector:',
                 this.configManager.get('thumbnailSelector'));
         }
 
@@ -176,12 +176,12 @@ export class PxmLightbox extends HTMLElement {
      */
     private initializeTargetImage(): HTMLImageElement | null {
         const targetImage = safeQuerySelector<HTMLImageElement>(
-            this, 
+            this,
             this.configManager.get('targetSelector')
         );
 
         if (!targetImage) {
-            console.warn('No target image found with selector:', 
+            console.warn('No target image found with selector:',
                 this.configManager.get('targetSelector'));
         }
 
@@ -193,7 +193,7 @@ export class PxmLightbox extends HTMLElement {
      */
     private initializeStyles(): void {
         const config = this.configManager.getConfig();
-        
+
         // Set CSS variables for potential customization
         this.style.setProperty('--pxm-lightbox-zoom-size', `${config.zoomSize}px`);
         this.style.setProperty('--pxm-lightbox-zoom-border', '2px solid #333');

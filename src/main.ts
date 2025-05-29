@@ -14,10 +14,10 @@ async function importComponent(selector: string, componentName: string) {
     const version = versionMatch ? versionMatch[1] : '0.1.3';
     const baseUrl = currentScript.src.split('/').slice(0, -1).join('/');
     // Use the full package name and version in the import path
-    await import(`${baseUrl}/elements@${version}/dist/${componentName}.js`);
+    await import(/* @vite-ignore */ `${baseUrl}/elements@${version}/dist/${componentName}.js`);
   } else {
     // Local development
-    await import(`./${componentName}`);
+    await import(/* @vite-ignore */ `./${componentName}`);
   }
 }
 
