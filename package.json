@@ -17,6 +17,10 @@
     "./phone-input": {
       "import": "./dist/phone-input.js",
       "types": "./dist/phone-input.d.ts"
+    },
+    "./lightbox": {
+      "import": "./dist/lightbox.js",
+      "types": "./dist/lightbox.d.ts"
     }
   },
   "scripts": {
@@ -38,7 +42,9 @@
     "vite": "^6.3.5"
   },
   "dependencies": {
-    "intl-tel-input": "^25.3.1"
+    "intl-tel-input": "^25.3.1",
+    "medium-zoom": "^1.1.0",
+    "swiper": "^11.2.8"
   },
   "peerDependencies": {
     "intl-tel-input": "^25.3.1"

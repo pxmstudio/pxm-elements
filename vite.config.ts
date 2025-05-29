@@ -19,7 +19,8 @@ export default defineConfig({
         lib: {
             entry: {
                 index: resolve(__dirname, "src/main.ts"),
-                "phone-input": resolve(__dirname, "src/logic/forms/phone-input/index.ts")
+                "phone-input": resolve(__dirname, "src/phone-input/index.ts"),
+                "lightbox": resolve(__dirname, "src/lightbox/index.ts")
             },
             formats: ["es"],
             fileName: (format, entryName) => `${entryName}.js`
