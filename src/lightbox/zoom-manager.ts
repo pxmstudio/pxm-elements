@@ -271,14 +271,6 @@ export class ZoomManager {
     }
 
     /**
-     * Show the zoom overlay
-     */
-    private showZoomOverlay(): void {
-        this.zoomOverlay.style.display = "block";
-        this.zoomOverlay.style.opacity = "1";
-    }
-
-    /**
      * Hide the zoom overlay
      */
     private hideZoomOverlay(): void {
