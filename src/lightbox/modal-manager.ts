@@ -34,6 +34,7 @@ export class ModalManager {
     private previousSlideImage: HTMLImageElement | null = null;
     private swiperPrevHandler?: (event: Event) => void;
     private swiperNextHandler?: (event: Event) => void;
+    private isAnimating: boolean = false;
 
     constructor(
         lightboxElement: HTMLElement,
@@ -52,6 +53,9 @@ export class ModalManager {
 
         if (this.modal) {
             this.initializeModal();
+            // Add transition styles to modal
+            this.modal.style.transition = 'opacity 200ms ease-in-out';
+            this.modal.style.opacity = '0';
         }
     }
 
@@ -91,28 +95,46 @@ export class ModalManager {
     }
 
     /**
-     * Open the modal
+     * Open the modal with fade animation
      */
     public async openModal(): Promise<void> {
-        if (!this.modal) return;
+        if (!this.modal || this.isAnimating) return;
 
+        this.isAnimating = true;
         this.modal.style.display = 'flex';
         toggleBodyScrollLock(true);
+
+        // Trigger fade in animation
+        requestAnimationFrame(() => {
+            this.modal!.style.opacity = '1';
+        });
 
         // Initialize swiper after modal is visible
         if (this.isSwiperEnabled && !this.swiperInstance) {
             await this.initializeSwiper();
         }
+
+        // Reset animation flag after transition completes
+        setTimeout(() => {
+            this.isAnimating = false;
+        }, 200);
     }
 
     /**
-     * Close the modal
+     * Close the modal with fade animation
      */
     public closeModal(): void {
-        if (!this.modal) return;
+        if (!this.modal || this.isAnimating) return;
 
-        this.modal.style.display = 'none';
-        toggleBodyScrollLock(false);
+        this.isAnimating = true;
+        this.modal.style.opacity = '0';
+
+        // Wait for fade out animation to complete before hiding
+        setTimeout(() => {
+            this.modal!.style.display = 'none';
+            toggleBodyScrollLock(false);
+            this.isAnimating = false;
+        }, 200);
     }
 
     /**
@@ -674,6 +696,10 @@ export class ModalManager {
                 }
                 this.swiperNextHandler = undefined;
             }
+
+            // Reset modal styles
+            this.modal.style.transition = '';
+            this.modal.style.opacity = '';
         }
 
         this.closeModal();
