@@ -86,8 +86,14 @@ export function setImageCursor(image: HTMLImageElement | null, cursor: string): 
  * Get the full-size image URL from a thumbnail
  */
 export function getFullSizeImageUrl(thumbnail: Element): string | null {
+    // Check if the thumbnail element itself is an image
+    if (thumbnail.tagName === 'IMG') {
+        return (thumbnail as HTMLImageElement).getAttribute('data-full-img-src') || null;
+    }
+    
+    // Otherwise, look for an img child element (backwards compatibility)
     const img = thumbnail.querySelector('img');
-    return img?.getAttribute('data-full-src') || null;
+    return img?.getAttribute('data-full-img-src') || null;
 }
 
 /**
@@ -95,7 +101,7 @@ export function getFullSizeImageUrl(thumbnail: Element): string | null {
  */
 export function copyImageAttributes(source: HTMLImageElement, target: HTMLImageElement): void {
     target.src = source.src;
-    target.setAttribute('data-full-src', source.getAttribute('data-full-src') || '');
+    target.setAttribute('data-full-img-src', source.getAttribute('data-full-img-src') || '');
     target.alt = source.alt;
 }
 

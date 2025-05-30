@@ -14,7 +14,8 @@ const DEFAULT_CONFIG: LightboxConfig = {
     zoomSelector: "[data-zoom-overlay]",
     modalSelector: "[data-modal]",
     zoomSize: 150,
-    zoomLevel: 2
+    zoomLevel: 2,
+    fadeAnimationDuration: 200
 };
 
 /**
@@ -48,12 +49,17 @@ export class ConfigManager {
         const mode = this.parseMode(element.getAttribute("data-mode"));
         const zoomSize = this.parseNumber(element.getAttribute("data-zoom-size"), DEFAULT_CONFIG.zoomSize);
         const zoomLevel = this.parseNumber(element.getAttribute("data-zoom-level"), DEFAULT_CONFIG.zoomLevel);
+        const fadeAnimationDuration = this.parseNumber(
+            element.getAttribute("data-fade-duration"),
+            DEFAULT_CONFIG.fadeAnimationDuration
+        );
 
         return {
             ...DEFAULT_CONFIG,
             mode,
             zoomSize,
-            zoomLevel
+            zoomLevel,
+            fadeAnimationDuration
         };
     }
 

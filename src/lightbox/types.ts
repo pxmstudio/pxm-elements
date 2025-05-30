@@ -13,6 +13,7 @@ export interface LightboxConfig {
     modalSelector: string;
     zoomSize: number;
     zoomLevel: number;
+    fadeAnimationDuration: number;
 }
 
 export interface ZoomStyles {

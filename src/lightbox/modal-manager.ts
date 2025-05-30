@@ -54,7 +54,7 @@ export class ModalManager {
         if (this.modal) {
             this.initializeModal();
             // Add transition styles to modal
-            this.modal.style.transition = 'opacity 200ms ease-in-out';
+            this.modal.style.transition = `opacity ${this.config.fadeAnimationDuration}ms ease-in-out`;
             this.modal.style.opacity = '0';
         }
     }
@@ -117,7 +117,7 @@ export class ModalManager {
         // Reset animation flag after transition completes
         setTimeout(() => {
             this.isAnimating = false;
-        }, 200);
+        }, this.config.fadeAnimationDuration);
     }
 
     /**
@@ -134,7 +134,7 @@ export class ModalManager {
             this.modal!.style.display = 'none';
             toggleBodyScrollLock(false);
             this.isAnimating = false;
-        }, 200);
+        }, this.config.fadeAnimationDuration);
     }
 
     /**
@@ -396,10 +396,21 @@ export class ModalManager {
 
         // Create slides from main thumbnails using the template structure
         thumbnailsToCreateSlides.forEach((thumb) => {
-            const img = safeQuerySelector<HTMLImageElement>(thumb, 'img');
-            if (!img) return;
-
-            const fullSrc = img.getAttribute('data-full-src') || img.src;
+            let img: HTMLImageElement | null = null;
+            let fullSrc: string | null = null;
+            
+            // Check if thumbnail is direct img element or wrapper div
+            if (thumb.tagName === 'IMG') {
+                img = thumb as HTMLImageElement;
+                fullSrc = img.getAttribute('data-full-img-src') || img.src;
+            } else {
+                img = safeQuerySelector<HTMLImageElement>(thumb, 'img');
+                if (img) {
+                    fullSrc = img.getAttribute('data-full-img-src') || img.src;
+                }
+            }
+            
+            if (!img || !fullSrc) return;
 
             // Clone the template slide completely
             const slide = templateSlide.cloneNode(true) as HTMLElement;
@@ -576,7 +587,7 @@ export class ModalManager {
     }
 
     /**
-     * Clone main thumbnails to modal (excluding the last one)
+     * Clone main thumbnails to modal (excluding modal template)
      */
     private cloneMainThumbnails(container: Element, template: Element): void {
         // Filter out thumbnails that are inside the modal (like the template)
@@ -587,7 +598,7 @@ export class ModalManager {
         // Exclude the last item as it's typically a template (-1)
         const thumbnailsToClone = mainThumbnailsOnly.slice(0, -1);
 
-        // Clone thumbnails from main lightbox only (excluding modal template and last template)
+        // Clone thumbnails from main lightbox (excluding modal template and last template)
         thumbnailsToClone.forEach((thumb) => {
             const clone = this.createModalThumbnailClone(template, thumb);
             if (clone) {
@@ -601,8 +612,22 @@ export class ModalManager {
      */
     private createModalThumbnailClone(template: Element, mainThumb: Element): Element | null {
         const clone = template.cloneNode(true) as Element;
-        const originalImg = safeQuerySelector<HTMLImageElement>(mainThumb, 'img');
-        const cloneImg = safeQuerySelector<HTMLImageElement>(clone, 'img');
+        let originalImg: HTMLImageElement | null = null;
+        let cloneImg: HTMLImageElement | null = null;
+        
+        // Handle both direct img elements and wrapper divs
+        if (mainThumb.tagName === 'IMG') {
+            originalImg = mainThumb as HTMLImageElement;
+        } else {
+            originalImg = safeQuerySelector<HTMLImageElement>(mainThumb, 'img');
+        }
+        
+        // Find the image in the cloned template
+        if (clone.tagName === 'IMG') {
+            cloneImg = clone as HTMLImageElement;
+        } else {
+            cloneImg = safeQuerySelector<HTMLImageElement>(clone, 'img');
+        }
 
         if (originalImg && cloneImg) {
             // Preserve the template's classes

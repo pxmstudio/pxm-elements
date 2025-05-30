@@ -48,12 +48,8 @@ src/lightbox/
   <img data-target-img src="main-image.jpg" alt="Main image" />
   
   <!-- Thumbnail gallery -->
-  <div data-thumb-item>
-    <img src="thumb1.jpg" data-full-src="full1.jpg" alt="Thumbnail 1" />
-  </div>
-  <div data-thumb-item>
-    <img src="thumb2.jpg" data-full-src="full2.jpg" alt="Thumbnail 2" />
-  </div>
+  <img data-thumb-item src="thumb1.jpg" data-full-img-src="full1.jpg" alt="Thumbnail 1" />
+  <img data-thumb-item src="thumb2.jpg" data-full-img-src="full2.jpg" alt="Thumbnail 2" />
   
   <!-- Modal overlay (optional) -->
   <div data-modal style="display: none;">
@@ -63,7 +59,7 @@ src/lightbox/
         <img data-target-img src="main-image.jpg" alt="Modal image" />
         <div data-modal-thumbnails>
           <!-- Template thumbnail - will be cloned -->
-          <div data-thumb-item><img /></div>
+          <img data-thumb-item />
         </div>
         <button data-close>×</button>
       </div>
@@ -82,6 +78,7 @@ Configure the lightbox using data attributes:
 | `data-zoom-mode` | `"cursor-area"` \| `"none"` | `"cursor-area"` | Zoom functionality mode |
 | `data-zoom-size` | number | `150` | Size of zoom overlay in pixels |
 | `data-zoom-level` | number | `2` | Zoom magnification level |
+| `data-fade-duration` | number | `200` | Modal fade animation duration in milliseconds |
 | `data-target-swiper` | `"on"` \| `"off"` | `"off"` | Enable Swiper slider in modal |
 
 ### Swiper Mode
@@ -128,12 +125,8 @@ import 'swiper/css/pagination';
   <img data-target-img src="main-image.jpg" alt="Main image" />
   
   <!-- Thumbnail gallery (used to populate swiper slides) -->
-  <div data-thumb-item>
-    <img src="thumb1.jpg" data-full-src="full1.jpg" alt="Thumbnail 1" />
-  </div>
-  <div data-thumb-item>
-    <img src="thumb2.jpg" data-full-src="full2.jpg" alt="Thumbnail 2" />
-  </div>
+  <img data-thumb-item src="thumb1.jpg" data-full-img-src="full1.jpg" alt="Thumbnail 1" />
+  <img data-thumb-item src="thumb2.jpg" data-full-img-src="full2.jpg" alt="Thumbnail 2" />
   
   <!-- Modal with Swiper structure -->
   <div data-modal style="display: none;">
@@ -153,7 +146,7 @@ import 'swiper/css/pagination';
         
         <!-- Traditional thumbnails (not used in swiper mode) -->
         <div data-modal-thumbnails style="display: none;">
-          <div data-thumb-item><img /></div>
+          <img data-thumb-item />
         </div>
         
         <button data-close>×</button>

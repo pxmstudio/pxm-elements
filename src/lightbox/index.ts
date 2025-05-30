@@ -15,13 +15,13 @@
  * Usage:
  * <pxm-lightbox data-mode="modal" data-zoom-mode="cursor-area">
  *   <img data-target-img src="main-image.jpg" />
- *   <div data-thumb-item><img src="thumb1.jpg" data-full-src="full1.jpg" /></div>
- *   <div data-thumb-item><img src="thumb2.jpg" data-full-src="full2.jpg" /></div>
+ *   <img data-thumb-item src="thumb1.jpg" data-full-img-src="full1.jpg" />
+ *   <img data-thumb-item src="thumb2.jpg" data-full-img-src="full2.jpg" />
  *   
  *   <div data-modal>
  *     <img data-target-img src="main-image.jpg" />
  *     <div data-modal-thumbnails>
- *       <div data-thumb-item><img /></div>
+ *       <img data-thumb-item />
  *     </div>
  *     <button data-close>Close</button>
  *   </div>
