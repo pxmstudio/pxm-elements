@@ -15,6 +15,7 @@ Or install individual components:
 ```bash
 npm install @pixelmakers/elements/phone-input
 npm install @pixelmakers/elements/lightbox
+npm install @pixelmakers/elements/video
 ```
 
 ## CDN Usage
@@ -33,6 +34,8 @@ You can use the components directly from a CDN. For the best experience, we reco
 <pxm-lightbox>
   <!-- Lightbox content -->
 </pxm-lightbox>
+
+<pxm-video src="https://www.youtube.com/watch?v=dQw4w9WgXcQ"></pxm-video>
 ```
 
 Or if you prefer to use individual components:
@@ -44,6 +47,9 @@ Or if you prefer to use individual components:
 <!-- Import just the lightbox component -->
 <script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.3/dist/lightbox.js"></script>
 
+<!-- Import just the video component -->
+<script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.3/dist/video.js"></script>
+
 <!-- Use the components -->
 <pxm-phone-input>
   <input type="tel" name="phone">
@@ -52,6 +58,8 @@ Or if you prefer to use individual components:
 <pxm-lightbox>
   <!-- Lightbox content -->
 </pxm-lightbox>
+
+<pxm-video src="https://www.youtube.com/watch?v=dQw4w9WgXcQ"></pxm-video>
 ```
 
 ## Components
@@ -152,6 +160,56 @@ Example:
   </div>
 </pxm-lightbox>
 ```
+
+### Video
+
+A customizable video component that supports multiple video sources including YouTube, Vimeo, Mux, and MP4. Provides thumbnail generation and lazy loading capabilities.
+
+#### Usage
+
+```html
+<!-- Import the component -->
+<script type="module">
+  import '@pixelmakers/elements/video';
+</script>
+
+<!-- Basic usage -->
+<pxm-video src="https://www.youtube.com/watch?v=dQw4w9WgXcQ"></pxm-video>
+
+<!-- With custom thumbnail -->
+<pxm-video 
+  src="https://vimeo.com/123456789"
+  thumbnail="path/to/thumbnail.jpg">
+</pxm-video>
+```
+
+#### Features
+
+- Multiple video source support (YouTube, Vimeo, Mux, MP4)
+- Automatic thumbnail generation
+- Custom thumbnail support
+- Lazy loading (video only loads when played)
+- Responsive design
+- Keyboard navigation
+- Accessible
+- Customizable styling
+
+#### Configuration
+
+The video component accepts the following attributes:
+
+- `src`: URL of the video source (required)
+- `type`: Type of video ('youtube', 'vimeo', 'mux', 'mp4', 'other')
+- `thumbnail`: URL of a custom thumbnail image
+- `autoplay`: Whether to autoplay the video when loaded
+- `muted`: Whether the video should be muted by default
+- `controls`: Whether to show video controls
+- `width`: Width of the video container
+- `height`: Height of the video container
+- `title`: Title of the video (for accessibility)
+- `description`: Description of the video (for accessibility)
+
+For more detailed documentation, see the [video component README](src/video/README.md).
 
 ## Development
 

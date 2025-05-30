@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] - 2023-10-25
+- Added new pxm-video component with the following features:
+  - Support for multiple video sources (YouTube, Vimeo, Mux, MP4)
+  - Automatic thumbnail generation for all supported sources
+  - Custom thumbnail support with data-thumbnail attribute
+  - Responsive design with customizable dimensions
+  - Accessible controls and ARIA labels
+  - Configurable autoplay, muted state, and controls
 - Implemented fade in/out animations for modal open/close using CSS transitions in ModalManager.
 - Modified close button handling in EventManager to call ModalManager.closeModal(), ensuring the fade-out animation is triggered.
 - Added support for customizable fade duration via the new data attribute `data-fade-duration` in LightboxConfig, DEFAULT_CONFIG, and ConfigManager.

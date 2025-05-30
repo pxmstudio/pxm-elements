@@ -24,6 +24,7 @@ async function importComponent(selector: string, componentName: string) {
 async function main() {
   await importComponent("pxm-phone-input", "phone-input");
   await importComponent("pxm-lightbox", "lightbox");
+  await importComponent("pxm-video", "video");
 }
 
 if (window.Webflow && window.Webflow.length === 0) {
