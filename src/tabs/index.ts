@@ -21,9 +21,6 @@ class PxmTabs extends HTMLElement {
         this.triggersWrap = this.querySelector("pxm-triggers") as HTMLElement;
         this.triggers = this.triggersWrap.querySelectorAll("[data-tab]");
         this.panels = this.querySelectorAll("pxm-panel");
-
-        console.log(this.triggers);
-        console.log(this.panels);
     }
 
     connectedCallback() {
