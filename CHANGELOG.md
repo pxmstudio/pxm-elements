@@ -14,6 +14,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Smooth transitions between tabs
   - Focus management
   - TypeScript support
+- Added new pxm-accordion component with the following features:
+  - Smooth expand/collapse animations
+  - Keyboard navigation (arrow keys, home, end, enter/space)
+  - Full ARIA support for accessibility
+  - Configurable icon rotation
+  - Support for multiple open sections
+  - Customizable animation duration
+  - Focus management
+  - TypeScript support
 
 ## [0.1.7] - 2023-10-25
 - Added new pxm-video component with the following features:

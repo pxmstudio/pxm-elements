@@ -16,6 +16,7 @@ Or install individual components:
 npm install @pixelmakers/elements/phone-input
 npm install @pixelmakers/elements/lightbox
 npm install @pixelmakers/elements/video
+npm install @pixelmakers/elements/accordion
 ```
 
 ## CDN Usage
@@ -36,6 +37,10 @@ You can use the components directly from a CDN. For the best experience, we reco
 </pxm-lightbox>
 
 <pxm-video src="https://www.youtube.com/watch?v=dQw4w9WgXcQ"></pxm-video>
+
+<pxm-accordion>
+  <!-- Accordion content -->
+</pxm-accordion>
 ```
 
 Or if you prefer to use individual components:
@@ -50,6 +55,9 @@ Or if you prefer to use individual components:
 <!-- Import just the video component -->
 <script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.3/dist/video.js"></script>
 
+<!-- Import just the accordion component -->
+<script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.3/dist/accordion.js"></script>
+
 <!-- Use the components -->
 <pxm-phone-input>
   <input type="tel" name="phone">
@@ -60,6 +68,10 @@ Or if you prefer to use individual components:
 </pxm-lightbox>
 
 <pxm-video src="https://www.youtube.com/watch?v=dQw4w9WgXcQ"></pxm-video>
+
+<pxm-accordion>
+  <!-- Accordion content -->
+</pxm-accordion>
 ```
 
 ## Components
@@ -210,6 +222,51 @@ The video component accepts the following attributes:
 - `description`: Description of the video (for accessibility)
 
 For more detailed documentation, see the [video component README](src/video/README.md).
+
+### Accordion
+
+A simple, accessible accordion component that allows users to expand/collapse content sections. The component provides smooth animations, keyboard navigation, and full accessibility support.
+
+#### Usage
+
+```html
+<!-- Import the component -->
+<script type="module">
+  import '@pixelmakers/elements/accordion';
+</script>
+
+<!-- Basic usage -->
+<pxm-accordion>
+  <div data-accordion-item>
+    <button data-accordion-trigger>
+      Section 1
+      <span data-accordion-icon aria-hidden="true">▼</span>
+    </button>
+    <div data-accordion-content>
+      Content for section 1
+    </div>
+  </div>
+</pxm-accordion>
+```
+
+#### Features
+
+- Keyboard navigation support
+- Full accessibility (ARIA) support
+- Configurable icon rotation
+- Support for multiple open sections
+- Customizable animation duration
+- Responsive design
+
+#### Configuration
+
+The accordion component accepts the following attributes:
+
+- `allow-multiple`: Whether multiple sections can be open at once (default: false)
+- `animation-duration`: Duration of expand/collapse animation in milliseconds (default: 300)
+- `icon-rotation`: Degrees to rotate the icon when expanded (default: 90)
+
+For more detailed documentation, see the [accordion component README](src/accordion/README.md).
 
 ## Development
 
