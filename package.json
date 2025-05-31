@@ -21,6 +21,18 @@
     "./lightbox": {
       "import": "./dist/lightbox.js",
       "types": "./dist/lightbox.d.ts"
+    },
+    "./accordion": {
+      "import": "./dist/accordion.js",
+      "types": "./dist/accordion.d.ts"
+    },
+    "./tabs": {
+      "import": "./dist/tabs.js",
+      "types": "./dist/tabs.d.ts"
+    },
+    "./video": {
+      "import": "./dist/video.js",
+      "types": "./dist/video.d.ts"
     }
   },
   "scripts": {
@@ -39,7 +51,8 @@
   "devDependencies": {
     "@types/node": "^22.15.23",
     "typescript": "~5.8.3",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "vite-plugin-dts": "^4.5.4"
   },
   "dependencies": {
     "intl-tel-input": "^25.3.1",
