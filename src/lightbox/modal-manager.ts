@@ -2,11 +2,10 @@
  * Modal functionality manager for the PXM Lightbox component
  */
 
-import type { LightboxConfig } from './types';
+import type { LightboxConfig, MediaType, MediaItem } from './types';
 import {
     safeQuerySelector,
     safeQuerySelectorAll,
-    copyImageAttributes,
     toggleBodyScrollLock
 } from './dom-utils';
 
@@ -23,6 +22,7 @@ declare global {
 export class ModalManager {
     private readonly modal: HTMLElement | null;
     private modalTargetImage: HTMLImageElement | null;
+    private modalTargetVideo: HTMLElement | null;
     private modalThumbnails: NodeListOf<Element>;
     private readonly config: LightboxConfig;
     private readonly mainThumbnails: NodeListOf<Element>;
@@ -46,9 +46,41 @@ export class ModalManager {
         this.isSwiperEnabled = lightboxElement.getAttribute('data-target-swiper') === 'on';
 
         this.modal = safeQuerySelector(lightboxElement, config.modalSelector);
-        this.modalTargetImage = this.modal ?
-            safeQuerySelector<HTMLImageElement>(this.modal, config.targetSelector) :
-            null;
+
+        // Initialize modal target elements
+        if (this.modal) {
+            // Look for image target specifically
+            this.modalTargetImage = safeQuerySelector<HTMLImageElement>(
+                this.modal,
+                `${config.targetSelector}[data-type="image"]`
+            );
+
+            // Fallback to generic target if it's an image
+            if (!this.modalTargetImage) {
+                const genericTarget = safeQuerySelector<HTMLImageElement>(this.modal, config.targetSelector);
+                if (genericTarget && genericTarget.tagName === 'IMG') {
+                    this.modalTargetImage = genericTarget;
+                }
+            }
+
+            // Look for video target specifically
+            this.modalTargetVideo = safeQuerySelector<HTMLElement>(
+                this.modal,
+                `${config.targetSelector}[data-type="video"]`
+            );
+
+            // Also look for pxm-video elements
+            if (!this.modalTargetVideo) {
+                this.modalTargetVideo = safeQuerySelector<HTMLElement>(
+                    this.modal,
+                    `pxm-video${config.targetSelector}`
+                );
+            }
+        } else {
+            this.modalTargetImage = null;
+            this.modalTargetVideo = null;
+        }
+
         this.modalThumbnails = document.querySelectorAll('*:not(*)'); // Empty NodeList initially
 
         if (this.modal) {
@@ -71,6 +103,13 @@ export class ModalManager {
      */
     public getModalTargetImage(): HTMLImageElement | null {
         return this.modalTargetImage;
+    }
+
+    /**
+     * Get the modal target video
+     */
+    public getModalTargetVideo(): HTMLElement | null {
+        return this.modalTargetVideo;
     }
 
     /**
@@ -138,14 +177,86 @@ export class ModalManager {
     }
 
     /**
-     * Update modal target image source
+     * Update modal target media
      */
-    public updateModalImage(imageSrc: string): void {
+    public updateModalMedia(mediaItem: MediaItem): void {
         if (this.isSwiperEnabled && this.swiperInstance) {
-            // Find the slide index for this image and navigate to it
-            this.navigateToSlide(imageSrc);
-        } else if (this.modalTargetImage) {
-            this.modalTargetImage.src = imageSrc;
+            // Find the slide index for this media and navigate to it
+            this.navigateToSlide(mediaItem);
+        } else {
+            // Regular modal mode - show/hide appropriate targets
+            if (mediaItem.type === 'image' && this.modalTargetImage) {
+                this.modalTargetImage.src = mediaItem.src;
+                // Show image target, hide video target
+                this.modalTargetImage.style.display = 'block';
+                if (this.modalTargetVideo) {
+                    this.modalTargetVideo.style.display = 'none';
+                }
+            } else if (mediaItem.type === 'video' && this.modalTargetVideo) {
+                this.updateVideoElement(this.modalTargetVideo, mediaItem);
+                // Show video target, hide image target
+                this.modalTargetVideo.style.display = 'block';
+                if (this.modalTargetImage) {
+                    this.modalTargetImage.style.display = 'none';
+                }
+            }
+        }
+    }
+
+    /**
+     * Update video element with new media item
+     */
+    private updateVideoElement(videoElement: HTMLElement, mediaItem: MediaItem, enableAutoplay: boolean = true): void {
+        videoElement.setAttribute('src', mediaItem.src);
+        if (mediaItem.videoType) {
+            videoElement.setAttribute('type', mediaItem.videoType);
+        }
+        if (mediaItem.title) {
+            videoElement.setAttribute('title', mediaItem.title);
+        }
+        if (mediaItem.description) {
+            videoElement.setAttribute('description', mediaItem.description);
+        }
+
+        // Ensure controls are enabled
+        videoElement.setAttribute('controls', 'true');
+
+        // Enable autoplay for modal videos
+        if (enableAutoplay) {
+            videoElement.setAttribute('autoplay', 'true');
+        }
+
+        // If we have thumbnail data, use it
+        if (mediaItem.thumbnail) {
+            videoElement.setAttribute('thumbnail', mediaItem.thumbnail);
+        }
+    }
+
+    /**
+     * Navigate to slide containing the specified media
+     */
+    private navigateToSlide(mediaItem: MediaItem): void {
+        if (!this.swiperInstance) return;
+
+        const slides = this.swiperInstance.slides;
+        for (let i = 0; i < slides.length; i++) {
+            const slide = slides[i];
+
+            if (mediaItem.type === 'image') {
+                // Look for image elements with data-target-img
+                const slideImg = slide.querySelector('img[data-target-img]') as HTMLImageElement;
+                if (slideImg && slideImg.src === mediaItem.src) {
+                    this.swiperInstance.slideTo(i);
+                    break;
+                }
+            } else if (mediaItem.type === 'video') {
+                // Look for pxm-video elements with data-target-video
+                const slideVideo = slide.querySelector('pxm-video[data-target-video]') as HTMLElement;
+                if (slideVideo && slideVideo.getAttribute('src') === mediaItem.src) {
+                    this.swiperInstance.slideTo(i);
+                    break;
+                }
+            }
         }
     }
 
@@ -358,137 +469,66 @@ export class ModalManager {
     }
 
     /**
-     * Create swiper slides from thumbnail images
+     * Create swiper slides from thumbnails
      */
     private createSwiperSlides(): void {
-        if (!this.modal) return;
+        const swiperContainer = safeQuerySelector(this.modal!, '[data-target-swiper]:not([data-target-swiper="on"])');
+        if (!swiperContainer) return;
 
-        const swiperWrapper = safeQuerySelector(this.modal, '[data-target-swiper-wrapper]');
+        const swiperWrapper = safeQuerySelector(swiperContainer, '.swiper-wrapper');
         if (!swiperWrapper) return;
 
-        // Get the template slide
-        const templateSlide = safeQuerySelector(swiperWrapper, '[data-target-swiper-slide]');
-        if (!templateSlide) return;
+        // Clear existing slides
+        swiperWrapper.innerHTML = '';
 
-        // Store template slide and image for reference
-        const templateImg = templateSlide.querySelector('img[data-target-img]') as HTMLImageElement;
-        if (!templateImg) return;
+        // Create slides from thumbnails
+        this.mainThumbnails.forEach((thumbnail) => {
+            const mediaType = thumbnail.getAttribute('data-type') as MediaType || 'image';
+            const fullSizeUrl = mediaType === 'video'
+                ? thumbnail.getAttribute('data-video-src')
+                : thumbnail.getAttribute('data-full-img-src');
+            if (!fullSizeUrl) return;
 
-        // Store the original template classes to ensure they're preserved
-        const originalSlideClasses = templateSlide.className;
-        const originalImgClasses = templateImg.className;
+            const slide = document.createElement('div');
+            slide.className = 'swiper-slide';
 
-        // Clear existing slides except the template
-        const existingSlides = swiperWrapper.querySelectorAll('[data-target-swiper-slide]');
-        existingSlides.forEach(slide => {
-            if (slide !== templateSlide) {
-                slide.remove();
-            }
-        });
-
-        // Filter out thumbnails that are inside the modal (like the template)
-        const mainThumbnailsOnly = Array.from(this.mainThumbnails).filter(thumb => {
-            return !thumb.closest(this.config.modalSelector);
-        });
-
-        // Exclude the last item as it's typically a template (-1)
-        const thumbnailsToCreateSlides = mainThumbnailsOnly.slice(0, -1);
-
-        // Create slides from main thumbnails using the template structure
-        thumbnailsToCreateSlides.forEach((thumb) => {
-            let img: HTMLImageElement | null = null;
-            let fullSrc: string | null = null;
-            
-            // Check if thumbnail is direct img element or wrapper div
-            if (thumb.tagName === 'IMG') {
-                img = thumb as HTMLImageElement;
-                fullSrc = img.getAttribute('data-full-img-src') || img.src;
+            if (mediaType === 'image') {
+                const img = document.createElement('img');
+                img.src = fullSizeUrl;
+                img.alt = thumbnail.getAttribute('alt') || '';
+                img.setAttribute('data-target-img', '');
+                img.setAttribute('data-type', 'image');
+                slide.appendChild(img);
             } else {
-                img = safeQuerySelector<HTMLImageElement>(thumb, 'img');
-                if (img) {
-                    fullSrc = img.getAttribute('data-full-img-src') || img.src;
+                const video = document.createElement('pxm-video');
+                video.setAttribute('src', fullSizeUrl);
+                video.setAttribute('type', thumbnail.getAttribute('data-video-type') || 'other');
+                video.setAttribute('data-type', 'video');
+                video.setAttribute('data-target-video', '');
+
+                // Enable controls so the video can be played
+                video.setAttribute('controls', 'true');
+
+                // Enable autoplay for modal videos
+                video.setAttribute('autoplay', 'true');
+
+                // Use the provided thumbnail image instead of auto-generating one
+                const thumbnailImg = safeQuerySelector<HTMLImageElement>(thumbnail, 'img');
+                if (thumbnailImg && thumbnailImg.src) {
+                    video.setAttribute('thumbnail', thumbnailImg.src);
                 }
-            }
-            
-            if (!img || !fullSrc) return;
 
-            // Clone the template slide completely
-            const slide = templateSlide.cloneNode(true) as HTMLElement;
-
-            // Ensure the slide maintains its original classes
-            slide.className = originalSlideClasses;
-
-            // Find the image in the cloned slide
-            const slideImg = slide.querySelector('img[data-target-img]') as HTMLImageElement;
-            if (slideImg) {
-                // Restore original image classes
-                slideImg.className = originalImgClasses;
-
-                // Only update the image source and alt - nothing else
-                slideImg.src = fullSrc;
-                slideImg.alt = img.alt || '';
-
-                // Create a defensive mechanism to preserve classes
-                const preserveClasses = () => {
-                    if (slideImg.className !== originalImgClasses) {
-                        slideImg.className = originalImgClasses;
-                    }
-                };
-
-                // Set up a mutation observer to watch for class changes
-                const observer = new MutationObserver((mutations) => {
-                    mutations.forEach((mutation) => {
-                        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                            preserveClasses();
-                        }
-                    });
-                });
-
-                // Start observing the image for class changes
-                observer.observe(slideImg, { 
-                    attributes: true, 
-                    attributeFilter: ['class'] 
-                });
-
-                // Also set up a timeout to restore classes after a delay
-                setTimeout(preserveClasses, 100);
-                setTimeout(preserveClasses, 500);
-                setTimeout(() => {
-                    // Stop observing after 2 seconds
-                    observer.disconnect();
-                }, 2000);
+                if (thumbnail.getAttribute('data-title')) {
+                    video.setAttribute('title', thumbnail.getAttribute('data-title')!);
+                }
+                if (thumbnail.getAttribute('data-description')) {
+                    video.setAttribute('description', thumbnail.getAttribute('data-description')!);
+                }
+                slide.appendChild(video);
             }
 
             swiperWrapper.appendChild(slide);
         });
-
-        // Remove the template slide after we're done
-        templateSlide.remove();
-    }
-
-    /**
-     * Navigate swiper to a specific image
-     */
-    private navigateToSlide(imageSrc: string): void {
-        if (!this.swiperInstance) return;
-
-        // Find the slide index that matches the image source
-        const slides = this.modal?.querySelectorAll('[data-target-swiper-slide] img');
-        if (!slides) return;
-
-        let targetIndex = 0;
-        slides.forEach((img, index) => {
-            if ((img as HTMLImageElement).src === imageSrc) {
-                targetIndex = index;
-            }
-        });
-
-        this.swiperInstance.slideTo(targetIndex);
-
-        // Update button states after navigation
-        setTimeout(() => {
-            this.updateNavigationButtonStates();
-        }, 100);
     }
 
     /**
@@ -514,6 +554,31 @@ export class ModalManager {
             // We just need to make sure the current slide image is accessible
             this.modalTargetImage = activeSlide;
         }
+
+        // Handle autoplay for video slides
+        this.handleVideoAutoplay();
+    }
+
+    /**
+     * Handle autoplay for active video slides
+     */
+    private handleVideoAutoplay(): void {
+        if (!this.swiperInstance) return;
+
+        const activeSlide = this.modal?.querySelector('.swiper-slide-active');
+        if (!activeSlide) return;
+
+        const videoElement = activeSlide.querySelector('pxm-video') as HTMLElement;
+        if (videoElement) {
+            // Ensure the video has autoplay enabled when it becomes active
+            videoElement.setAttribute('autoplay', 'true');
+
+            // Trigger a custom event to notify the video component to start playing
+            setTimeout(() => {
+                const playEvent = new CustomEvent('triggerPlay');
+                videoElement.dispatchEvent(playEvent);
+            }, 100);
+        }
     }
 
     /**
@@ -537,6 +602,41 @@ export class ModalManager {
         }
 
         return currentSlide;
+    }
+
+    /**
+     * Get current active slide media element (image or video)
+     */
+    public getCurrentSlideMedia(): HTMLElement | null {
+        if (!this.isSwiperEnabled || !this.swiperInstance) {
+            return this.modalTargetImage || this.modalTargetVideo;
+        }
+
+        const activeIndex = this.swiperInstance.activeIndex;
+        if (!this.swiperInstance.slides || activeIndex < 0) return null;
+
+        const activeSlideElement = this.swiperInstance.slides[activeIndex];
+        if (!activeSlideElement) return null;
+
+        // Check for image first
+        const slideImg = activeSlideElement.querySelector('img[data-target-img]') as HTMLImageElement;
+        if (slideImg) return slideImg;
+
+        // Then check for video
+        const slideVideo = activeSlideElement.querySelector('pxm-video[data-target-video]') as HTMLElement;
+        if (slideVideo) return slideVideo;
+
+        return null;
+    }
+
+    /**
+     * Get current active slide type
+     */
+    public getCurrentSlideType(): MediaType {
+        const currentMedia = this.getCurrentSlideMedia();
+        if (!currentMedia) return 'image';
+
+        return currentMedia.getAttribute('data-type') as MediaType || 'image';
     }
 
     /**
@@ -569,7 +669,7 @@ export class ModalManager {
         this.clearModalThumbnails(modalThumbnailsContainer, templateItem);
 
         // Clone thumbnails from main lightbox (excluding the last one)
-        this.cloneMainThumbnails(modalThumbnailsContainer, templateItem);
+        this.cloneMainThumbnails(modalThumbnailsContainer);
 
         // Update modal thumbnails reference
         this.modalThumbnails = safeQuerySelectorAll(
@@ -589,18 +689,49 @@ export class ModalManager {
     /**
      * Clone main thumbnails to modal (excluding modal template)
      */
-    private cloneMainThumbnails(container: Element, template: Element): void {
+    private cloneMainThumbnails(container: Element): void {
         // Filter out thumbnails that are inside the modal (like the template)
         const mainThumbnailsOnly = Array.from(this.mainThumbnails).filter(thumb => {
             return !thumb.closest(this.config.modalSelector);
         });
 
-        // Exclude the last item as it's typically a template (-1)
-        const thumbnailsToClone = mainThumbnailsOnly.slice(0, -1);
+        // Filter out template thumbnails more intelligently
+        // Look for thumbnails that appear to be templates (placeholder images, empty src, etc.)
+        const thumbnailsToClone = mainThumbnailsOnly.filter(thumb => {
+            // Check if it's a real thumbnail with actual content
+            if (thumb.getAttribute('data-type') === 'image') {
+                // For images, check if it has a real source
+                const imgSrc = thumb.getAttribute('data-full-img-src') ||
+                    (thumb instanceof HTMLImageElement ? thumb.src : null);
+                const img = thumb.tagName === 'IMG' ? thumb as HTMLImageElement :
+                    thumb.querySelector('img') as HTMLImageElement;
 
-        // Clone thumbnails from main lightbox (excluding modal template and last template)
+                // Skip if no valid image source or if it's a placeholder
+                if (!imgSrc || imgSrc.includes('placeholder')) return false;
+                if (img && (img.src.includes('placeholder') || !img.src)) return false;
+
+                return true;
+            } else if (thumb.getAttribute('data-type') === 'video') {
+                // For videos, check if it has a video source
+                const videoSrc = thumb.getAttribute('data-video-src');
+                return !!videoSrc; // Include if it has a video source
+            } else {
+                // For unknown types, check if it has content
+                const imgSrc = thumb.getAttribute('data-full-img-src');
+                const img = thumb.querySelector('img') as HTMLImageElement;
+
+                // Skip if it looks like a template
+                if (!imgSrc && (!img || !img.src || img.src.includes('placeholder'))) {
+                    return false;
+                }
+
+                return true;
+            }
+        });
+
+        // Clone filtered thumbnails to modal
         thumbnailsToClone.forEach((thumb) => {
-            const clone = this.createModalThumbnailClone(template, thumb);
+            const clone = this.createModalThumbnailClone(thumb);
             if (clone) {
                 container.appendChild(clone);
             }
@@ -608,40 +739,14 @@ export class ModalManager {
     }
 
     /**
-     * Create a modal thumbnail clone from main thumbnail
+     * Create a modal thumbnail clone by deep cloning the original main thumbnail element.
+     * This preserves any extra classes or attributes developers added to the main thumbnails.
      */
-    private createModalThumbnailClone(template: Element, mainThumb: Element): Element | null {
-        const clone = template.cloneNode(true) as Element;
-        let originalImg: HTMLImageElement | null = null;
-        let cloneImg: HTMLImageElement | null = null;
-        
-        // Handle both direct img elements and wrapper divs
-        if (mainThumb.tagName === 'IMG') {
-            originalImg = mainThumb as HTMLImageElement;
-        } else {
-            originalImg = safeQuerySelector<HTMLImageElement>(mainThumb, 'img');
-        }
-        
-        // Find the image in the cloned template
-        if (clone.tagName === 'IMG') {
-            cloneImg = clone as HTMLImageElement;
-        } else {
-            cloneImg = safeQuerySelector<HTMLImageElement>(clone, 'img');
-        }
-
-        if (originalImg && cloneImg) {
-            // Preserve the template's classes
-            const templateClasses = template.className;
-            if (templateClasses) {
-                clone.className = templateClasses;
-            }
-
-            // Copy image attributes
-            copyImageAttributes(originalImg, cloneImg);
-            return clone;
-        }
-
-        return null;
+    private createModalThumbnailClone(mainThumb: Element): Element | null {
+        const clone = mainThumb.cloneNode(true) as Element;
+        // Ensure the cloned thumbnail has the data-thumb-item attribute
+        clone.setAttribute('data-thumb-item', '');
+        return clone;
     }
 
     /**

@@ -4,6 +4,7 @@
 
 export type LightboxMode = "swap-target" | "modal";
 export type ZoomMode = "cursor-area" | "none";
+export type MediaType = "image" | "video";
 
 export interface LightboxConfig {
     mode: LightboxMode;
@@ -14,6 +15,11 @@ export interface LightboxConfig {
     zoomSize: number;
     zoomLevel: number;
     fadeAnimationDuration: number;
+    videoConfig?: {
+        autoplay: boolean;
+        muted: boolean;
+        controls: boolean;
+    };
 }
 
 export interface ZoomStyles {
@@ -44,8 +50,19 @@ export interface EventHandlers {
 export interface LightboxElements {
     thumbnails: NodeListOf<Element>;
     targetImage: HTMLImageElement | null;
+    targetVideo: HTMLElement | null;
     modal: HTMLElement | null;
     modalTargetImage: HTMLImageElement | null;
+    modalTargetVideo: HTMLElement | null;
     modalThumbnails: NodeListOf<Element>;
     zoomOverlay: HTMLDivElement;
+}
+
+export interface MediaItem {
+    type: MediaType;
+    src: string;
+    thumbnail?: string;
+    videoType?: 'youtube' | 'vimeo' | 'mux' | 'mp4' | 'other';
+    title?: string;
+    description?: string;
 } 

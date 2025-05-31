@@ -2,7 +2,7 @@
  * Event management for the PXM Lightbox component
  */
 
-import type { LightboxConfig } from './types';
+import type { LightboxConfig, MediaType, MediaItem } from './types';
 import { getFullSizeImageUrl, isInModal } from './dom-utils';
 import type { ZoomManager } from './zoom-manager';
 import type { ModalManager } from './modal-manager';
@@ -14,6 +14,7 @@ export class EventManager {
     private readonly config: LightboxConfig;
     private readonly thumbnails: NodeListOf<Element>;
     private readonly targetImage: HTMLImageElement | null;
+    private readonly targetVideo: HTMLElement | null;
     private readonly zoomManager: ZoomManager;
     private readonly modalManager: ModalManager;
 
@@ -27,12 +28,14 @@ export class EventManager {
         config: LightboxConfig,
         thumbnails: NodeListOf<Element>,
         targetImage: HTMLImageElement | null,
+        targetVideo: HTMLElement | null,
         zoomManager: ZoomManager,
         modalManager: ModalManager
     ) {
         this.config = config;
         this.thumbnails = thumbnails;
         this.targetImage = targetImage;
+        this.targetVideo = targetVideo;
         this.zoomManager = zoomManager;
         this.modalManager = modalManager;
 
@@ -193,71 +196,130 @@ export class EventManager {
 
         if (!thumbnail) return;
 
-        const fullSizeImageUrl = getFullSizeImageUrl(thumbnail);
-        if (!fullSizeImageUrl) return;
+        const mediaType = thumbnail.getAttribute('data-type') as MediaType || 'image';
+        const fullSizeUrl = getFullSizeImageUrl(thumbnail);
+        if (!fullSizeUrl) return;
+
+        // Extract thumbnail image for videos
+        let thumbnailSrc: string | undefined;
+        if (mediaType === 'video') {
+            const thumbnailImg = thumbnail.querySelector('img') as HTMLImageElement;
+            if (thumbnailImg && thumbnailImg.src) {
+                thumbnailSrc = thumbnailImg.src;
+            }
+        }
+
+        const mediaItem: MediaItem = {
+            type: mediaType,
+            src: fullSizeUrl,
+            thumbnail: thumbnailSrc,
+            videoType: thumbnail.getAttribute('data-video-type') as MediaItem['videoType'],
+            title: thumbnail.getAttribute('data-title') || undefined,
+            description: thumbnail.getAttribute('data-description') || undefined
+        };
 
         // Check if we're in modal mode and thumbnail is outside modal
         const inModal = isInModal(thumbnail, this.config.modalSelector);
         
         if (this.config.mode === "modal" && !inModal) {
             // In modal mode, clicking thumbnails outside modal should open modal
-            this.openModalWithImage(fullSizeImageUrl).catch(error => {
-                console.error('Failed to open modal with image:', error);
+            this.openModalWithMedia(mediaItem).catch(error => {
+                console.error('Failed to open modal with media:', error);
             });
         } else {
-            // Update the appropriate target image (modal or main)
-            this.updateTargetImage(thumbnail, fullSizeImageUrl);
+            // Update the appropriate target (modal or main)
+            this.updateTargetMedia(thumbnail, mediaItem);
         }
     }
 
     /**
-     * Open modal and update its image
+     * Open modal and update its media
      */
-    private async openModalWithImage(imageSrc: string): Promise<void> {
-        // Only update the modal target image, not the main target
-        this.modalManager.updateModalImage(imageSrc);
+    private async openModalWithMedia(mediaItem: MediaItem): Promise<void> {
+        // Update the modal target
+        this.modalManager.updateModalMedia(mediaItem);
         
         // Open the modal
         await this.modalManager.openModal();
 
-        // Setup zoom for the modal image after opening
-        // Use a longer delay for swiper to ensure initialization is complete
-        const delay = this.modalManager.isSwiperMode() ? 200 : 100;
-        setTimeout(() => {
-            this.setupModalImageZoom();
-        }, delay);
+        // Setup zoom for the modal image after opening (only for images)
+        if (mediaItem.type === 'image') {
+            const delay = this.modalManager.isSwiperMode() ? 200 : 100;
+            setTimeout(() => {
+                this.setupModalImageZoom();
+            }, delay);
+        }
     }
 
     /**
-     * Update target image based on context (modal or main)
+     * Update target media based on context (modal or main)
      */
-    private updateTargetImage(thumbnail: Element, imageSrc: string): void {
+    private updateTargetMedia(thumbnail: Element, mediaItem: MediaItem): void {
         const inModal = isInModal(thumbnail, this.config.modalSelector);
         
         if (inModal) {
-            // Handle modal context - works for both swiper and thumbnail navigation
+            // Handle modal context - enable autoplay for videos
             if (this.modalManager.isSwiperMode()) {
-                // In swiper mode, update modal image (will navigate to correct slide)
-                // This handles both swiper navigation and thumbnail clicks within modal
-                this.modalManager.updateModalImage(imageSrc);
-                // Setup zoom for current slide after navigation
-                setTimeout(() => {
-                    this.setupModalImageZoom();
-                }, 150); // Allow time for slide transition
+                // In swiper mode, update modal media
+                this.modalManager.updateModalMedia(mediaItem);
+                // Setup zoom for current slide after navigation (only for images)
+                if (mediaItem.type === 'image') {
+                    setTimeout(() => {
+                        this.setupModalImageZoom();
+                    }, 150);
+                }
             } else {
-                // Regular modal mode with thumbnail navigation only
-                const targetImg = this.modalManager.getModalTargetImage();
-                if (targetImg) {
-                    targetImg.src = imageSrc;
-                    this.zoomManager.setupZoomHandlers(targetImg);
+                // Regular modal mode
+                if (mediaItem.type === 'image') {
+                    const targetImg = this.modalManager.getModalTargetImage();
+                    if (targetImg) {
+                        targetImg.src = mediaItem.src;
+                        this.setupModalImageZoom();
+                    }
+                } else {
+                    const targetVideo = this.modalManager.getModalTargetVideo();
+                    if (targetVideo) {
+                        this.updateVideoElement(targetVideo, mediaItem, true); // Enable autoplay for modal videos
+                    }
                 }
             }
         } else {
-            // Handle main context (non-modal mode only)
-            if (this.targetImage && this.config.mode !== "modal") {
-                this.targetImage.src = imageSrc;
-                this.zoomManager.setupZoomHandlers(this.targetImage);
+            // Handle main context - no autoplay for main lightbox videos
+            if (mediaItem.type === 'image' && this.targetImage) {
+                this.targetImage.src = mediaItem.src;
+                this.setupTargetImageEvents();
+            } else if (mediaItem.type === 'video' && this.targetVideo) {
+                this.updateVideoElement(this.targetVideo, mediaItem, false); // No autoplay for main videos
             }
+        }
+    }
+
+    /**
+     * Update video element with new media item
+     */
+    private updateVideoElement(videoElement: HTMLElement, mediaItem: MediaItem, enableAutoplay: boolean = false): void {
+        videoElement.setAttribute('src', mediaItem.src);
+        if (mediaItem.videoType) {
+            videoElement.setAttribute('type', mediaItem.videoType);
+        }
+        if (mediaItem.title) {
+            videoElement.setAttribute('title', mediaItem.title);
+        }
+        if (mediaItem.description) {
+            videoElement.setAttribute('description', mediaItem.description);
+        }
+        
+        // Enable controls for video playback
+        videoElement.setAttribute('controls', 'true');
+        
+        // Enable autoplay if requested (typically for modal videos)
+        if (enableAutoplay) {
+            videoElement.setAttribute('autoplay', 'true');
+        }
+        
+        // Use custom thumbnail if provided
+        if (mediaItem.thumbnail) {
+            videoElement.setAttribute('thumbnail', mediaItem.thumbnail);
         }
     }
 

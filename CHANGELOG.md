@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2023-10-25
+## [0.1.7] - 2023-10-25
 - Added new pxm-video component with the following features:
   - Support for multiple video sources (YouTube, Vimeo, Mux, MP4)
   - Automatic thumbnail generation for all supported sources
@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added support for customizable fade duration via the new data attribute `data-fade-duration` in LightboxConfig, DEFAULT_CONFIG, and ConfigManager.
 - Updated thumbnail processing to reflect the new structure: removed the wrapper div and renamed the attribute from `data-full-src` to `data-full-img-src` (backward compatible).
 - Reverted thumbnail cloning logic in ModalManager to correctly use slice(0, -1), excluding only the modal template thumbnail while copying all main thumbnails.
+- Enhanced Lightbox functionality: The lightbox now supports video media items. ModalManager now displays and autoplays videos using the new pxm-video component.
 
 ## [0.1.0] - 2025-05-28
 

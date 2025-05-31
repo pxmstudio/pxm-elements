@@ -83,17 +83,23 @@ export function setImageCursor(image: HTMLImageElement | null, cursor: string): 
 }
 
 /**
- * Get the full-size image URL from a thumbnail
+ * Get the full size image URL from a thumbnail element
  */
-export function getFullSizeImageUrl(thumbnail: Element): string | null {
-    // Check if the thumbnail element itself is an image
-    if (thumbnail.tagName === 'IMG') {
-        return (thumbnail as HTMLImageElement).getAttribute('data-full-img-src') || null;
+export function getFullSizeImageUrl(element: Element): string | null {
+    // For images, use data-full-img-src
+    if (element.getAttribute('data-type') === 'image') {
+        return element.getAttribute('data-full-img-src') || 
+               (element instanceof HTMLImageElement ? element.src : null);
     }
     
-    // Otherwise, look for an img child element (backwards compatibility)
-    const img = thumbnail.querySelector('img');
-    return img?.getAttribute('data-full-img-src') || null;
+    // For videos, use data-video-src
+    if (element.getAttribute('data-type') === 'video') {
+        return element.getAttribute('data-video-src') || null;
+    }
+
+    // Fallback for backward compatibility
+    return element.getAttribute('data-full-img-src') || 
+           (element instanceof HTMLImageElement ? element.src : null);
 }
 
 /**
@@ -103,6 +109,56 @@ export function copyImageAttributes(source: HTMLImageElement, target: HTMLImageE
     target.src = source.src;
     target.setAttribute('data-full-img-src', source.getAttribute('data-full-img-src') || '');
     target.alt = source.alt;
+}
+
+/**
+ * Copy video attributes from source to target element
+ */
+export function copyVideoAttributes(source: Element, target: Element): void {
+    const videoSrc = source.getAttribute('data-video-src');
+    if (videoSrc) {
+        target.setAttribute('data-video-src', videoSrc);
+    }
+    
+    const videoType = source.getAttribute('data-video-type');
+    if (videoType) {
+        target.setAttribute('data-video-type', videoType);
+    }
+    
+    const title = source.getAttribute('data-title');
+    if (title) {
+        target.setAttribute('data-title', title);
+    }
+    
+    const description = source.getAttribute('data-description');
+    if (description) {
+        target.setAttribute('data-description', description);
+    }
+    
+    // Copy data-type attribute
+    target.setAttribute('data-type', 'video');
+}
+
+/**
+ * Copy media attributes (images or videos) from source to target
+ */
+export function copyMediaAttributes(source: Element, target: Element): void {
+    const mediaType = source.getAttribute('data-type');
+    
+    if (mediaType === 'video') {
+        copyVideoAttributes(source, target);
+    } else {
+        // Default to image handling
+        const sourceImg = source.tagName === 'IMG' ? source as HTMLImageElement : 
+                         source.querySelector('img') as HTMLImageElement;
+        const targetImg = target.tagName === 'IMG' ? target as HTMLImageElement : 
+                         target.querySelector('img') as HTMLImageElement;
+        
+        if (sourceImg && targetImg) {
+            copyImageAttributes(sourceImg, targetImg);
+        }
+        target.setAttribute('data-type', 'image');
+    }
 }
 
 /**
