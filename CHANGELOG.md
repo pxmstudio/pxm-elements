@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.8] - 2024-03-26
+- Added new pxm-tabs component with the following features:
+  - Flexible trigger elements (buttons, links, or any element with data-tab)
+  - Keyboard navigation (arrow keys, home, end)
+  - ARIA attributes for accessibility
+  - Initial tab selection via data-initial attribute
+  - Smooth transitions between tabs
+  - Focus management
+  - TypeScript support
+
 ## [0.1.7] - 2023-10-25
 - Added new pxm-video component with the following features:
   - Support for multiple video sources (YouTube, Vimeo, Mux, MP4)
