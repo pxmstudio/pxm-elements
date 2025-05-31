@@ -17,6 +17,7 @@ npm install @pixelmakers/elements/phone-input
 npm install @pixelmakers/elements/lightbox
 npm install @pixelmakers/elements/video
 npm install @pixelmakers/elements/accordion
+npm install @pixelmakers/elements/number-input
 ```
 
 ## CDN Usage
@@ -41,6 +42,12 @@ You can use the components directly from a CDN. For the best experience, we reco
 <pxm-accordion>
   <!-- Accordion content -->
 </pxm-accordion>
+
+<pxm-number-input>
+  <button data-minus>-</button>
+  <input type="number" min="0" max="100" step="1" value="0">
+  <button data-plus>+</button>
+</pxm-number-input>
 ```
 
 Or if you prefer to use individual components:
@@ -58,6 +65,9 @@ Or if you prefer to use individual components:
 <!-- Import just the accordion component -->
 <script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.3/dist/accordion.js"></script>
 
+<!-- Import just the number input component -->
+<script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.3/dist/number-input.js"></script>
+
 <!-- Use the components -->
 <pxm-phone-input>
   <input type="tel" name="phone">
@@ -72,6 +82,12 @@ Or if you prefer to use individual components:
 <pxm-accordion>
   <!-- Accordion content -->
 </pxm-accordion>
+
+<pxm-number-input>
+  <button data-minus>-</button>
+  <input type="number" min="0" max="100" step="1" value="0">
+  <button data-plus>+</button>
+</pxm-number-input>
 ```
 
 ## Components
@@ -267,6 +283,60 @@ The accordion component accepts the following attributes:
 - `icon-rotation`: Degrees to rotate the icon when expanded (default: 90)
 
 For more detailed documentation, see the [accordion component README](src/accordion/README.md).
+
+### Number Input
+
+A customizable number input component with increment/decrement controls. The component provides a user-friendly interface for numeric input with built-in validation and flexible styling options.
+
+#### Usage
+
+```html
+<!-- Import the component -->
+<script type="module">
+  import '@pixelmakers/elements/number-input';
+</script>
+
+<!-- Basic usage -->
+<pxm-number-input>
+  <button data-minus>-</button>
+  <input type="number" min="0" max="100" step="1" value="0">
+  <button data-plus>+</button>
+</pxm-number-input>
+
+<!-- With links as controls -->
+<pxm-number-input>
+  <a href="#" data-minus>-</a>
+  <input type="number" min="0" max="100" step="1" value="0">
+  <a href="#" data-plus>+</a>
+</pxm-number-input>
+```
+
+#### Features
+
+- Increment/decrement controls (buttons or links)
+- Min/max value constraints
+- Custom step size
+- Automatic disabled states for controls
+- Flexible styling options
+- Built-in validation
+- Keyboard support
+- Accessible design
+
+#### Configuration
+
+The number input component accepts the following attributes on the input element:
+
+- `min`: Minimum allowed value
+- `max`: Maximum allowed value
+- `step`: Step size for increment/decrement (default: 1)
+- `value`: Initial value (default: 0)
+- `disabled`: Whether the input is disabled
+
+The component requires two control elements with specific data attributes:
+- `data-minus`: Element that triggers value decrement
+- `data-plus`: Element that triggers value increment
+
+For more detailed documentation, see the [number input component README](src/number-input/README.md).
 
 ## Development
 

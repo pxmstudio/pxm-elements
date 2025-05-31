@@ -23,6 +23,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Customizable animation duration
   - Focus management
   - TypeScript support
+- Added new pxm-number-input component with the following features:
+  - Increment/decrement controls (buttons or links)
+  - Min/max value constraints
+  - Custom step size
+  - Automatic disabled states for controls
+  - Flexible styling options
+  - Built-in validation
+  - Keyboard support
+  - Accessible design
 
 ## [0.1.7] - 2023-10-25
 - Added new pxm-video component with the following features:

@@ -27,6 +27,7 @@ async function main() {
   await importComponent("pxm-video", "video");
   await importComponent("pxm-tabs", "tabs");
   await importComponent("pxm-accordion", "accordion");
+  await importComponent("pxm-number-input", "number-input");
 }
 
 if (window.Webflow && window.Webflow.length === 0) {

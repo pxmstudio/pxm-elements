@@ -31,7 +31,8 @@ export default defineConfig({
                 "lightbox": resolve(__dirname, "src/lightbox/index.ts"),
                 "accordion": resolve(__dirname, "src/accordion/index.ts"),
                 "tabs": resolve(__dirname, "src/tabs/index.ts"),
-                "video": resolve(__dirname, "src/video/index.ts")
+                "video": resolve(__dirname, "src/video/index.ts"),
+                "number-input": resolve(__dirname, "src/number-input/index.ts")
             },
             formats: ["es"],
             fileName: (format, entryName) => `${entryName}.js`

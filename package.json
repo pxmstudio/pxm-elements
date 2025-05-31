@@ -33,6 +33,10 @@
     "./video": {
       "import": "./dist/video.js",
       "types": "./dist/video.d.ts"
+    },
+    "./number-input": {
+      "import": "./dist/number-input.js",
+      "types": "./dist/number-input.d.ts"
     }
   },
   "scripts": {
