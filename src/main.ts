@@ -9,25 +9,42 @@ async function importComponent(selector: string, componentName: string) {
 
   // If we're using CDN, use absolute path for imports
   if (currentScript?.src) {
-    // Extract version from the current script URL
-    const versionMatch = currentScript.src.match(/elements@([^/]+)/);
-    const version = versionMatch ? versionMatch[1] : '0.1.3';
-    const baseUrl = currentScript.src.split('/').slice(0, -1).join('/');
-    // Use the full package name and version in the import path
-    await import(/* @vite-ignore */ `${baseUrl}/elements@${version}/dist/${componentName}.js`);
+    try {
+      // Extract version from the current script URL
+      const versionMatch = currentScript.src.match(/elements@([^/]+)/);
+      const version = versionMatch ? versionMatch[1] : '0.1.9';
+      // Construct the import path using the package name directly
+      const importPath = `https://cdn.jsdelivr.net/npm/@pixelmakers/elements@${version}/dist/${componentName}.js`;
+      await import(/* @vite-ignore */ importPath);
+    } catch (error) {
+      console.error(`Failed to load component ${componentName}:`, error);
+    }
   } else {
     // Local development
-    await import(/* @vite-ignore */ `./${componentName}`);
+    try {
+      await import(/* @vite-ignore */ `./${componentName}`);
+    } catch (error) {
+      console.error(`Failed to load component ${componentName}:`, error);
+    }
   }
 }
 
 async function main() {
-  await importComponent("pxm-phone-input", "phone-input");
-  await importComponent("pxm-lightbox", "lightbox");
-  await importComponent("pxm-video", "video");
-  await importComponent("pxm-tabs", "tabs");
-  await importComponent("pxm-accordion", "accordion");
-  await importComponent("pxm-number-input", "number-input");
+  // Only import components that are present in the DOM
+  const components = [
+    { selector: "pxm-phone-input", name: "phone-input" },
+    { selector: "pxm-lightbox", name: "lightbox" },
+    { selector: "pxm-video", name: "video" },
+    { selector: "pxm-tabs", name: "tabs" },
+    { selector: "pxm-accordion", name: "accordion" },
+    { selector: "pxm-number-input", name: "number-input" }
+  ];
+
+  for (const component of components) {
+    if (document.querySelector(component.selector)) {
+      await importComponent(component.selector, component.name);
+    }
+  }
 }
 
 if (window.Webflow && window.Webflow.length === 0) {

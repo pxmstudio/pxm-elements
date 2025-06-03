@@ -26,7 +26,7 @@ You can use the components directly from a CDN. For the best experience, we reco
 
 ```html
 <!-- Import the entire package -->
-<script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.3/dist/index.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.9/dist/index.js"></script>
 
 <!-- Use the components -->
 <pxm-phone-input>
@@ -54,19 +54,19 @@ Or if you prefer to use individual components:
 
 ```html
 <!-- Import just the phone input component -->
-<script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.3/dist/phone-input.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.9/dist/phone-input.js"></script>
 
 <!-- Import just the lightbox component -->
-<script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.3/dist/lightbox.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.9/dist/lightbox.js"></script>
 
 <!-- Import just the video component -->
-<script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.3/dist/video.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.9/dist/video.js"></script>
 
 <!-- Import just the accordion component -->
-<script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.3/dist/accordion.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.9/dist/accordion.js"></script>
 
 <!-- Import just the number input component -->
-<script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.3/dist/number-input.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.9/dist/number-input.js"></script>
 
 <!-- Use the components -->
 <pxm-phone-input>

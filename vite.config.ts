@@ -38,11 +38,16 @@ export default defineConfig({
             fileName: (format, entryName) => `${entryName}.js`
         },
         rollupOptions: {
-            external: ["intl-tel-input"],
+            external: ["intl-tel-input", "medium-zoom", "swiper"],
             output: {
                 globals: {
-                    "intl-tel-input": "intlTelInput"
-                }
+                    "intl-tel-input": "intlTelInput",
+                    "medium-zoom": "mediumZoom",
+                    "swiper": "Swiper"
+                },
+                preserveModules: false,
+                format: 'es',
+                exports: 'named'
             }
         },
         sourcemap: true,
