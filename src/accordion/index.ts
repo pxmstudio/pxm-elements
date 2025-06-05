@@ -18,7 +18,7 @@ interface AccordionState {
 export class PxmAccordion extends HTMLElement {
   private config: AccordionConfig;
   private state: AccordionState;
-  private items: NodeListOf<Element>;
+  private items!: NodeListOf<PxmAccordionItem>;
 
   /**
    * Observed attributes for the custom element
@@ -29,7 +29,7 @@ export class PxmAccordion extends HTMLElement {
 
   constructor() {
     super();
-    
+
     // Initialize configuration with defaults
     this.config = {
       allowMultiple: false,
@@ -41,9 +41,6 @@ export class PxmAccordion extends HTMLElement {
     this.state = {
       activeItems: new Set()
     };
-
-    // Initialize items
-    this.items = this.querySelectorAll('[data-accordion-item]');
 
     // Set ARIA role for the accordion
     this.setAttribute('role', 'list');
@@ -96,9 +93,11 @@ export class PxmAccordion extends HTMLElement {
    * Set up accordion items with event listeners
    */
   private setupItems(): void {
+    this.items = this.querySelectorAll('pxm-accordion-item');
+
     this.items.forEach((item, index) => {
-      const trigger = item.querySelector('[data-accordion-trigger]');
-      const content = item.querySelector('[data-accordion-content]');
+      const trigger = item.querySelector('pxm-accordion-trigger');
+      const content = item.querySelector('pxm-accordion-content');
 
       if (!trigger || !content) {
         console.warn('Accordion item missing required elements:', item);
@@ -116,7 +115,7 @@ export class PxmAccordion extends HTMLElement {
       trigger.setAttribute('id', `accordion-trigger-${index}`);
 
       // Set initial state
-      const isActive = item.getAttribute('data-active') === 'true';
+      const isActive = item.getAttribute('active') === 'true';
       if (isActive) {
         this.state.activeItems.add(index);
         this.expandItem(item, content as HTMLElement, trigger as HTMLElement);
@@ -163,7 +162,7 @@ export class PxmAccordion extends HTMLElement {
   private focusPreviousItem(currentIndex: number): void {
     const prevIndex = currentIndex - 1;
     if (prevIndex >= 0) {
-      const prevTrigger = this.items[prevIndex].querySelector('[data-accordion-trigger]') as HTMLElement;
+      const prevTrigger = this.items[prevIndex].querySelector('pxm-accordion-trigger') as HTMLElement;
       prevTrigger?.focus();
     }
   }
@@ -174,7 +173,7 @@ export class PxmAccordion extends HTMLElement {
   private focusNextItem(currentIndex: number): void {
     const nextIndex = currentIndex + 1;
     if (nextIndex < this.items.length) {
-      const nextTrigger = this.items[nextIndex].querySelector('[data-accordion-trigger]') as HTMLElement;
+      const nextTrigger = this.items[nextIndex].querySelector('pxm-accordion-trigger') as HTMLElement;
       nextTrigger?.focus();
     }
   }
@@ -183,7 +182,7 @@ export class PxmAccordion extends HTMLElement {
    * Focus the first accordion item
    */
   private focusFirstItem(): void {
-    const firstTrigger = this.items[0].querySelector('[data-accordion-trigger]') as HTMLElement;
+    const firstTrigger = this.items[0].querySelector('pxm-accordion-trigger') as HTMLElement;
     firstTrigger?.focus();
   }
 
@@ -191,7 +190,7 @@ export class PxmAccordion extends HTMLElement {
    * Focus the last accordion item
    */
   private focusLastItem(): void {
-    const lastTrigger = this.items[this.items.length - 1].querySelector('[data-accordion-trigger]') as HTMLElement;
+    const lastTrigger = this.items[this.items.length - 1].querySelector('pxm-accordion-trigger') as HTMLElement;
     lastTrigger?.focus();
   }
 
@@ -233,8 +232,8 @@ export class PxmAccordion extends HTMLElement {
         // Close all other items if multiple items are not allowed
         this.items.forEach((otherItem, otherIndex) => {
           if (otherIndex !== index && this.state.activeItems.has(otherIndex)) {
-            const otherContent = otherItem.querySelector('[data-accordion-content]');
-            const otherTrigger = otherItem.querySelector('[data-accordion-trigger]');
+            const otherContent = otherItem.querySelector('pxm-accordion-content');
+            const otherTrigger = otherItem.querySelector('pxm-accordion-trigger');
             const otherIcon = otherItem.querySelector('[data-accordion-icon]');
             if (otherContent && otherTrigger) {
               this.collapseItem(otherItem, otherContent as HTMLElement, otherTrigger as HTMLElement);
@@ -258,9 +257,9 @@ export class PxmAccordion extends HTMLElement {
    * Expand an accordion item
    */
   private expandItem(item: Element, content: HTMLElement, trigger: HTMLElement): void {
-    item.setAttribute('data-active', 'true');
+    item.setAttribute('active', 'true');
     trigger.setAttribute('aria-expanded', 'true');
-    content.style.maxHeight = `${content.scrollHeight}px`;
+    content.style.height = "auto";
     content.style.opacity = '1';
   }
 
@@ -268,11 +267,36 @@ export class PxmAccordion extends HTMLElement {
    * Collapse an accordion item
    */
   private collapseItem(item: Element, content: HTMLElement, trigger: HTMLElement): void {
-    item.setAttribute('data-active', 'false');
+    item.setAttribute('active', 'false');
     trigger.setAttribute('aria-expanded', 'false');
-    content.style.maxHeight = '0';
+    content.style.height = '0';
     content.style.opacity = '0';
   }
 }
 
+// Define the custom elements
 customElements.define('pxm-accordion', PxmAccordion);
+
+// Accordion Item Component
+class PxmAccordionItem extends HTMLElement {
+  constructor() {
+    super();
+  }
+}
+customElements.define('pxm-accordion-item', PxmAccordionItem);
+
+// Accordion Trigger Component
+class PxmAccordionTrigger extends HTMLElement {
+  constructor() {
+    super();
+  }
+}
+customElements.define('pxm-accordion-trigger', PxmAccordionTrigger);
+
+// Accordion Content Component
+class PxmAccordionContent extends HTMLElement {
+  constructor() {
+    super();
+  }
+}
+customElements.define('pxm-accordion-content', PxmAccordionContent);

@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.11] - 2024-03-27
+- Major refactoring of the lightbox component:
+  - Split into modular components for better maintainability
+  - Improved component communication and event handling
+  - Enhanced type safety and error handling
+  - Better initialization and cleanup processes
+  - More robust child component detection
+  - Simplified public API
+- Removed TypeScript declaration files (.d.ts) in favor of inline types
+- Updated package.json to remove type declarations from exports
+- Removed vite-plugin-dts dependency as it's no longer needed
+- Enhanced lightbox component with new features:
+  - Better event propagation and bubbling
+  - Improved modal synchronization
+  - More reliable component initialization
+  - Enhanced media item handling
+  - Better state management between inline and modal views
+
 ## [0.1.8] - 2024-03-26
 - Added new pxm-tabs component with the following features:
   - Flexible trigger elements (buttons, links, or any element with data-tab)

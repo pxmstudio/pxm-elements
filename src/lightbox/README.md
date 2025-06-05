@@ -74,7 +74,7 @@ Configure the lightbox using data attributes:
 
 | Attribute | Values | Default | Description |
 |-----------|--------|---------|-------------|
-| `data-mode` | `"modal"` \| `"swap-target"` | `"modal"` | Display mode for the lightbox |
+| `data-mode` | `"modal"` \| `"viewer"` | `"modal"` | Display mode for the lightbox |
 | `data-zoom-mode` | `"cursor-area"` \| `"none"` | `"cursor-area"` | Zoom functionality mode |
 | `data-zoom-size` | number | `150` | Size of zoom overlay in pixels |
 | `data-zoom-level` | number | `2` | Zoom magnification level |
@@ -179,7 +179,7 @@ await lightbox.openModal();
 lightbox.closeModal();
 
 // Get current state
-console.log(lightbox.getMode()); // "modal" | "swap-target"
+console.log(lightbox.getMode()); // "modal" | "viewer"
 console.log(lightbox.getZoomMode()); // "cursor-area" | "none"
 
 // Refresh thumbnails after dynamic content changes

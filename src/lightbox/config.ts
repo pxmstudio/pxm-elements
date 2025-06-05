@@ -67,7 +67,7 @@ export class ConfigManager {
      * Parse and validate lightbox mode
      */
     private parseMode(modeAttribute: string | null): LightboxMode {
-        if (modeAttribute === "swap-target" || modeAttribute === "modal") {
+        if (modeAttribute === "viewer" || modeAttribute === "modal") {
             return modeAttribute;
         }
         return DEFAULT_CONFIG.mode;

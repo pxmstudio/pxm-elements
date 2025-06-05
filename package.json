@@ -1,42 +1,34 @@
 {
   "name": "@pixelmakers/elements",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "type": "module",
   "description": "A collection of custom web components by PixelMakers",
   "main": "dist/index.js",
   "module": "dist/index.js",
-  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "import": "./dist/index.js"
     },
     "./phone-input": {
-      "import": "./dist/phone-input.js",
-      "types": "./dist/phone-input.d.ts"
+      "import": "./dist/phone-input.js"
     },
     "./lightbox": {
-      "import": "./dist/lightbox.js",
-      "types": "./dist/lightbox.d.ts"
+      "import": "./dist/lightbox.js"
     },
     "./accordion": {
-      "import": "./dist/accordion.js",
-      "types": "./dist/accordion.d.ts"
+      "import": "./dist/accordion.js"
     },
     "./tabs": {
-      "import": "./dist/tabs.js",
-      "types": "./dist/tabs.d.ts"
+      "import": "./dist/tabs.js"
     },
     "./video": {
-      "import": "./dist/video.js",
-      "types": "./dist/video.d.ts"
+      "import": "./dist/video.js"
     },
     "./number-input": {
-      "import": "./dist/number-input.js",
-      "types": "./dist/number-input.d.ts"
+      "import": "./dist/number-input.js"
     }
   },
   "scripts": {
@@ -55,8 +47,7 @@
   "devDependencies": {
     "@types/node": "^22.15.23",
     "typescript": "~5.8.3",
-    "vite": "^6.3.5",
-    "vite-plugin-dts": "^4.5.4"
+    "vite": "^6.3.5"
   },
   "dependencies": {
     "intl-tel-input": "^25.3.1",

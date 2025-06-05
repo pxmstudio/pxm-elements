@@ -2,7 +2,7 @@
  * Type definitions for the PXM Lightbox component
  */
 
-export type LightboxMode = "swap-target" | "modal";
+export type LightboxMode = "viewer" | "modal";
 export type ZoomMode = "cursor-area" | "none";
 export type MediaType = "image" | "video";
 

@@ -17,25 +17,29 @@ A simple, accessible accordion component that allows users to expand/collapse co
 
 ```html
 <pxm-accordion>
-  <div data-accordion-item>
-    <button data-accordion-trigger>
-      Section 1
-      <span data-accordion-icon aria-hidden="true">▼</span>
-    </button>
-    <div data-accordion-content>
+  <pxm-accordion-item>
+    <pxm-accordion-trigger>
+      <button type="button">
+        Section 1
+        <span data-accordion-icon aria-hidden="true">▼</span>
+      </button>
+    </pxm-accordion-trigger>
+    <pxm-accordion-content>
       Content for section 1
-    </div>
-  </div>
+    </pxm-accordion-content>
+  </pxm-accordion-item>
   
-  <div data-accordion-item>
-    <button data-accordion-trigger>
-      Section 2
-      <span data-accordion-icon aria-hidden="true">▼</span>
-    </button>
-    <div data-accordion-content>
+  <pxm-accordion-item>
+    <pxm-accordion-trigger>
+      <button type="button">
+        Section 2
+        <span data-accordion-icon aria-hidden="true">▼</span>
+      </button>
+    </pxm-accordion-trigger>
+    <pxm-accordion-content>
       Content for section 2
-    </div>
-  </div>
+    </pxm-accordion-content>
+  </pxm-accordion-item>
 </pxm-accordion>
 ```
 
@@ -47,11 +51,23 @@ A simple, accessible accordion component that allows users to expand/collapse co
   animation-duration="400"
   icon-rotation="180"
 >
-  <!-- Accordion items -->
+  <pxm-accordion-item active="false">
+    <pxm-accordion-trigger>
+      <button type="button">
+        Section 1
+        <span data-accordion-icon aria-hidden="true">▼</span>
+      </button>
+    </pxm-accordion-trigger>
+    <pxm-accordion-content>
+      Content for section 1
+    </pxm-accordion-content>
+  </pxm-accordion-item>
 </pxm-accordion>
 ```
 
 ## Attributes
+
+### PXM Accordion Attributes
 
 | Attribute | Type | Default | Description |
 |-----------|------|---------|-------------|
@@ -59,27 +75,35 @@ A simple, accessible accordion component that allows users to expand/collapse co
 | animation-duration | number | 300 | Duration of expand/collapse animation in milliseconds |
 | icon-rotation | number | 90 | Degrees to rotate the icon when expanded |
 
+### PXM Accordion Item Attributes
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| active | boolean | false | Whether the accordion item is expanded |
+
 ## Structure
 
 Each accordion item requires the following structure:
 
 ```html
-<div data-accordion-item>
-  <button data-accordion-trigger>
-    <!-- Trigger content -->
-    <span data-accordion-icon aria-hidden="true">▼</span>
-  </button>
-  <div data-accordion-content>
+<pxm-accordion-item>
+  <pxm-accordion-trigger>
+    <button type="button">
+      <!-- Trigger content -->
+      <span data-accordion-icon aria-hidden="true">▼</span>
+    </button>
+  </pxm-accordion-trigger>
+  <pxm-accordion-content>
     <!-- Content -->
-  </div>
-</div>
+  </pxm-accordion-content>
+</pxm-accordion-item>
 ```
 
 ### Required Elements
 
-- `data-accordion-item`: Container for each accordion section
-- `data-accordion-trigger`: Button that toggles the section
-- `data-accordion-content`: Content that is shown/hidden
+- `<pxm-accordion-item>`: Container for each accordion section
+- `<pxm-accordion-trigger>`: Container for the trigger button
+- `<pxm-accordion-content>`: Container for the content that is shown/hidden
 - `data-accordion-icon` (optional): Icon that rotates on toggle
 
 ## Accessibility

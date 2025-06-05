@@ -2,6 +2,8 @@
  * Extends the Window interface to include custom global properties used in the application.
  */
 interface Window {
+    Swiper?: any;
+
     /** Webflow API instance array */
     Webflow: any[];
     /** Environment variables exposed to the client */
@@ -28,7 +30,7 @@ interface Grecaptcha {
      */
     render(
         container: HTMLElement,
-        parameters: { sitekey: string; [key: string]: any },
+        parameters: { sitekey: string;[key: string]: any },
     ): number;
 
     /**

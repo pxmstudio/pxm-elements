@@ -1,80 +1,32 @@
 /**
  * Main PXM Lightbox component class
  * 
- * This class orchestrates all the lightbox functionality by delegating
- * specific responsibilities to specialized manager classes.
+ * This class orchestrates all the lightbox functionality by coordinating
+ * with the modular child components.
  */
 
 import type { LightboxMode, ZoomMode, MediaType, MediaItem } from './types';
-import { ConfigManager } from './config';
-import { ZoomManager } from './zoom-manager';
-import { ModalManager } from './modal-manager';
-import { EventManager } from './event-manager';
-import { safeQuerySelector, safeQuerySelectorAll } from './dom-utils';
+import { safeQuerySelector } from './dom-utils';
 
 /**
- * Main lightbox component that provides image and video gallery functionality
- * with optional modal view and zoom capabilities
+ * Main lightbox component that coordinates between inline and modal views
  */
 export class PxmLightbox extends HTMLElement {
-    // Core managers
-    private readonly configManager: ConfigManager;
-    private readonly zoomManager: ZoomManager;
-    private readonly modalManager: ModalManager;
-    private readonly eventManager: EventManager;
-
-    // DOM elements
-    private readonly thumbnails: NodeListOf<Element>;
-    private readonly targetImage: HTMLImageElement | null;
-    private readonly targetVideo: HTMLElement | null;
-
     // Component state
     private readonly mode: LightboxMode;
     private readonly zoomMode: ZoomMode;
     private currentMediaType: MediaType = 'image';
+    private inlineComponent: any = null;
+    private modalComponent: any = null;
+    private initialized: boolean = false;
 
     constructor() {
         super();
 
         try {
-            // Initialize configuration
-            this.configManager = new ConfigManager(this);
-            this.mode = this.configManager.get('mode');
-            this.zoomMode = this.configManager.parseZoomMode(
-                this.getAttribute("data-zoom-mode")
-            );
-
-            // Initialize DOM elements
-            this.thumbnails = this.initializeThumbnails();
-            this.targetImage = this.initializeTargetImage();
-            this.targetVideo = this.initializeTargetVideo();
-
-            // Determine current media type from thumbnails or targets
-            this.currentMediaType = this.determineInitialMediaType();
-
-            // Initialize component managers
-            this.zoomManager = new ZoomManager(
-                this.configManager.getConfig(),
-                this.zoomMode
-            );
-
-            this.modalManager = new ModalManager(
-                this,
-                this.configManager.getConfig(),
-                this.thumbnails
-            );
-
-            this.eventManager = new EventManager(
-                this.configManager.getConfig(),
-                this.thumbnails,
-                this.targetImage,
-                this.targetVideo,
-                this.zoomManager,
-                this.modalManager
-            );
-
-            // Setup CSS variables for styling
-            this.initializeStyles();
+            // Parse configuration from attributes
+            this.mode = (this.getAttribute('mode') as LightboxMode) || 'viewer';
+            this.zoomMode = (this.getAttribute('zoom-mode') as ZoomMode) || 'none';
 
         } catch (error) {
             console.error('Failed to initialize PxmLightbox:', error);
@@ -82,20 +34,162 @@ export class PxmLightbox extends HTMLElement {
         }
     }
 
+    connectedCallback() {
+        // Use a longer delay to ensure all child components are fully ready
+        setTimeout(() => {
+            this.initialize();
+        }, 100);
+    }
+
     /**
      * Called when element is removed from DOM
-     * Performs cleanup of all managers and event listeners
      */
     disconnectedCallback(): void {
-        try {
-            this.eventManager?.destroy();
-            this.modalManager?.destroy();
-            this.zoomManager?.destroy();
-        } catch (error) {
-            console.error('Error during PxmLightbox cleanup:', error);
+        this.cleanup();
+    }
+
+    private async initialize() {
+        if (this.initialized) return;
+
+        // Wait for child components to be available
+        await this.waitForChildComponents();
+        
+        this.findChildComponents();
+        this.setupComponentCommunication();
+        this.initializeStyles();
+        
+        this.initialized = true;
+    }
+
+    private async waitForChildComponents(): Promise<void> {
+        const maxAttempts = 200; // 10 seconds
+        let attempts = 0;
+
+        while (attempts < maxAttempts) {
+            const inline = safeQuerySelector(this, 'pxm-lightbox-inline');
+            const modal = safeQuerySelector(this, 'pxm-lightbox-modal');
+            
+            if (inline && (this.mode !== 'modal' || modal)) {
+                // Check if components are custom elements (not just HTMLElement)
+                const inlineReady = inline.constructor !== HTMLElement;
+                const modalReady = this.mode !== 'modal' || (modal && modal.constructor !== HTMLElement);
+                
+                if (inlineReady && modalReady) {
+                    return;
+                }
+            }
+
+            await new Promise(resolve => setTimeout(resolve, 50));
+            attempts++;
+        }
+
+        console.warn('Timeout waiting for child components to initialize');
+    }
+
+    private cleanup() {
+        // Child components will handle their own cleanup
+        this.removeComponentEventListeners();
+        this.initialized = false;
+    }
+
+    private findChildComponents() {
+        this.inlineComponent = safeQuerySelector(this, 'pxm-lightbox-inline');
+        this.modalComponent = safeQuerySelector(this, 'pxm-lightbox-modal');
+    }
+
+    private setupComponentCommunication() {
+        // Listen for media changes from inline component
+        if (this.inlineComponent) {
+            this.inlineComponent.addEventListener('media-changed', this.handleInlineMediaChange.bind(this));
+            this.inlineComponent.addEventListener('open-modal', this.handleOpenModalRequest.bind(this));
+        }
+
+        // Listen for modal events
+        if (this.modalComponent) {
+            this.modalComponent.addEventListener('modal-opened', this.handleModalOpened.bind(this));
+            this.modalComponent.addEventListener('modal-closed', this.handleModalClosed.bind(this));
+            this.modalComponent.addEventListener('modal-navigation', this.handleModalNavigation.bind(this));
         }
     }
 
+    private removeComponentEventListeners() {
+        if (this.inlineComponent) {
+            this.inlineComponent.removeEventListener('media-changed', this.handleInlineMediaChange);
+            this.inlineComponent.removeEventListener('open-modal', this.handleOpenModalRequest);
+        }
+
+        if (this.modalComponent) {
+            this.modalComponent.removeEventListener('modal-opened', this.handleModalOpened);
+            this.modalComponent.removeEventListener('modal-closed', this.handleModalClosed);
+            this.modalComponent.removeEventListener('modal-navigation', this.handleModalNavigation);
+        }
+    }
+
+    private handleInlineMediaChange(event: CustomEvent) {
+        this.currentMediaType = event.detail?.mediaItem?.type || 'image';
+        
+        // Sync with modal if needed
+        if (this.modalComponent && 'setMediaItems' in this.modalComponent && 'getMediaItems' in this.inlineComponent) {
+            const mediaItems = this.inlineComponent.getMediaItems?.() || [];
+            const currentIndex = this.inlineComponent.getCurrentIndex?.() || 0;
+            this.modalComponent.setMediaItems(mediaItems, currentIndex);
+        }
+
+        // Dispatch event for external listeners
+        this.dispatchEvent(new CustomEvent('lightbox-media-changed', {
+            detail: event.detail,
+            bubbles: true
+        }));
+    }
+
+    private handleModalOpened(event: CustomEvent) {
+        this.dispatchEvent(new CustomEvent('lightbox-modal-opened', {
+            detail: event.detail,
+            bubbles: true
+        }));
+    }
+
+    private handleModalClosed(event: CustomEvent) {
+        this.dispatchEvent(new CustomEvent('lightbox-modal-closed', {
+            detail: event.detail,
+            bubbles: true
+        }));
+    }
+
+    private handleModalNavigation(event: CustomEvent) {
+        // In modal mode, modal navigation should NOT sync back to inline
+        // This prevents infinite loops and unwanted inline updates
+        
+        // Only dispatch external event for listeners outside the lightbox
+        this.dispatchEvent(new CustomEvent('lightbox-modal-navigation', {
+            detail: event.detail,
+            bubbles: true
+        }));
+        
+        // DO NOT sync to inline component to prevent infinite loops
+    }
+
+    private handleOpenModalRequest(event: CustomEvent) {
+        if (this.mode === "modal" && this.modalComponent && 'open' in this.modalComponent) {
+            const { mediaItems, index } = event.detail;
+            this.modalComponent.open(mediaItems, index);
+        }
+    }
+
+    /**
+     * Initialize CSS custom properties for styling
+     */
+    private initializeStyles(): void {
+        // Set CSS variables for potential customization
+        this.style.setProperty('--pxm-lightbox-zoom-size', '200px');
+        this.style.setProperty('--pxm-lightbox-zoom-border', '2px solid #333');
+        this.style.setProperty('--pxm-lightbox-zoom-background', 'white');
+        this.style.setProperty('--pxm-lightbox-zoom-shadow', '0 0 10px rgba(0,0,0,0.3)');
+        this.style.setProperty('--pxm-lightbox-zoom-z-index', '999999');
+        this.style.setProperty('--pxm-lightbox-zoom-border-radius', '0');
+    }
+
+    // Public API methods
     /**
      * Get the current lightbox mode
      */
@@ -111,27 +205,6 @@ export class PxmLightbox extends HTMLElement {
     }
 
     /**
-     * Get the target image element
-     */
-    public getTargetImage(): HTMLImageElement | null {
-        return this.targetImage;
-    }
-
-    /**
-     * Get the target video element
-     */
-    public getTargetVideo(): HTMLElement | null {
-        return this.targetVideo;
-    }
-
-    /**
-     * Get all thumbnail elements
-     */
-    public getThumbnails(): NodeListOf<Element> {
-        return this.thumbnails;
-    }
-
-    /**
      * Get the current media type
      */
     public getCurrentMediaType(): MediaType {
@@ -139,59 +212,33 @@ export class PxmLightbox extends HTMLElement {
     }
 
     /**
-     * Update target media source programmatically
+     * Get current media item from inline component
      */
-    public updateTargetMedia(mediaItem: MediaItem, enableAutoplay: boolean = false): void {
-        this.currentMediaType = mediaItem.type;
-        
-        if (mediaItem.type === 'image' && this.targetImage) {
-            this.targetImage.src = mediaItem.src;
-            // Show image, hide video if present
-            this.targetImage.style.display = 'block';
-            if (this.targetVideo) {
-                this.targetVideo.style.display = 'none';
-            }
-            this.eventManager.setupImageZoomHandlers(this.targetImage);
-        } else if (mediaItem.type === 'video' && this.targetVideo) {
-            // Update video source and attributes
-            this.targetVideo.setAttribute('src', mediaItem.src);
-            if (mediaItem.videoType) {
-                this.targetVideo.setAttribute('type', mediaItem.videoType);
-            }
-            if (mediaItem.title) {
-                this.targetVideo.setAttribute('title', mediaItem.title);
-            }
-            if (mediaItem.description) {
-                this.targetVideo.setAttribute('description', mediaItem.description);
-            }
-            
-            // Enable controls for video playback
-            this.targetVideo.setAttribute('controls', 'true');
-            
-            // Enable autoplay if requested (typically for modal videos)
-            if (enableAutoplay) {
-                this.targetVideo.setAttribute('autoplay', 'true');
-            }
-            
-            // Use custom thumbnail if provided
-            if (mediaItem.thumbnail) {
-                this.targetVideo.setAttribute('thumbnail', mediaItem.thumbnail);
-            }
-            
-            // Show video, hide image if present
-            this.targetVideo.style.display = 'block';
-            if (this.targetImage) {
-                this.targetImage.style.display = 'none';
-            }
+    public getCurrentMediaItem(): MediaItem | null {
+        if (this.inlineComponent && 'getCurrentMediaItem' in this.inlineComponent) {
+            return this.inlineComponent.getCurrentMediaItem();
         }
+        return null;
+    }
+
+    /**
+     * Get all media items from inline component
+     */
+    public getMediaItems(): MediaItem[] {
+        if (this.inlineComponent && 'getMediaItems' in this.inlineComponent) {
+            return this.inlineComponent.getMediaItems();
+        }
+        return [];
     }
 
     /**
      * Open modal programmatically (if modal mode is enabled)
      */
     public async openModal(): Promise<void> {
-        if (this.mode === "modal" && this.modalManager.isModalAvailable()) {
-            await this.modalManager.openModal();
+        if (this.mode === "modal" && this.modalComponent && 'open' in this.modalComponent) {
+            const mediaItems = this.getMediaItems();
+            const currentIndex = this.inlineComponent?.getCurrentIndex?.() || 0;
+            this.modalComponent.open(mediaItems, currentIndex);
         }
     }
 
@@ -199,123 +246,39 @@ export class PxmLightbox extends HTMLElement {
      * Close modal programmatically
      */
     public closeModal(): void {
-        this.modalManager.closeModal();
-    }
-
-    /**
-     * Refresh thumbnail event listeners (useful for dynamic content)
-     */
-    public refreshThumbnails(): void {
-        const newThumbnails = safeQuerySelectorAll(
-            this,
-            this.configManager.get('thumbnailSelector')
-        );
-        this.eventManager.addThumbnailEvents(newThumbnails);
-    }
-
-    /**
-     * Initialize thumbnail elements
-     */
-    private initializeThumbnails(): NodeListOf<Element> {
-        const thumbnails = safeQuerySelectorAll(
-            this,
-            this.configManager.get('thumbnailSelector')
-        );
-
-        if (thumbnails.length === 0) {
-            console.warn('No thumbnails found with selector:',
-                this.configManager.get('thumbnailSelector'));
+        if (this.modalComponent && 'close' in this.modalComponent) {
+            this.modalComponent.close();
         }
-
-        return thumbnails;
     }
 
     /**
-     * Initialize target image element
+     * Update target media source programmatically
      */
-    private initializeTargetImage(): HTMLImageElement | null {
-        // Look for image target specifically
-        const imageTarget = safeQuerySelector<HTMLImageElement>(
-            this,
-            `${this.configManager.get('targetSelector')}[data-type="image"]`
-        );
-
-        // Fallback to generic target selector if no specific image target found
-        if (!imageTarget) {
-            const genericTarget = safeQuerySelector<HTMLImageElement>(
-                this,
-                this.configManager.get('targetSelector')
-            );
-            
-            // Only use generic target if it's actually an image element
-            if (genericTarget && genericTarget.tagName === 'IMG') {
-                return genericTarget;
+    public updateTargetMedia(mediaItem: MediaItem): void {
+        if (this.inlineComponent) {
+            const viewer = safeQuerySelector(this.inlineComponent, 'pxm-lightbox-viewer');
+            if (viewer && 'updateMedia' in viewer) {
+                (viewer as any).updateMedia(mediaItem);
             }
         }
-
-        return imageTarget;
     }
 
     /**
-     * Initialize target video element  
+     * Set current media index
      */
-    private initializeTargetVideo(): HTMLElement | null {
-        // Look for video target specifically
-        const videoTarget = safeQuerySelector<HTMLElement>(
-            this,
-            `${this.configManager.get('targetSelector')}[data-type="video"]`
-        );
-
-        // Also look for pxm-video elements that might be targets
-        if (!videoTarget) {
-            const pxmVideoTarget = safeQuerySelector<HTMLElement>(
-                this,
-                `pxm-video${this.configManager.get('targetSelector')}`
-            );
-            if (pxmVideoTarget) {
-                return pxmVideoTarget;
-            }
+    public setCurrentIndex(index: number): void {
+        if (this.inlineComponent && 'setCurrentIndex' in this.inlineComponent) {
+            this.inlineComponent.setCurrentIndex(index);
         }
-
-        return videoTarget;
     }
 
     /**
-     * Determine initial media type based on available targets and thumbnails
+     * Get current media index
      */
-    private determineInitialMediaType(): MediaType {
-        // Check if we have a visible target with data-type
-        if (this.targetImage && this.targetImage.style.display !== 'none') {
-            return 'image';
+    public getCurrentIndex(): number {
+        if (this.inlineComponent && 'getCurrentIndex' in this.inlineComponent) {
+            return this.inlineComponent.getCurrentIndex();
         }
-        if (this.targetVideo && this.targetVideo.style.display !== 'none') {
-            return 'video';
-        }
-
-        // Check first thumbnail's type
-        if (this.thumbnails.length > 0) {
-            const firstThumbType = this.thumbnails[0].getAttribute('data-type') as MediaType;
-            if (firstThumbType) {
-                return firstThumbType;
-            }
-        }
-
-        // Default to image
-        return 'image';
-    }
-
-    /**
-     * Initialize CSS custom properties for styling
-     */
-    private initializeStyles(): void {
-        const config = this.configManager.getConfig();
-
-        // Set CSS variables for potential customization
-        this.style.setProperty('--pxm-lightbox-zoom-size', `${config.zoomSize}px`);
-        this.style.setProperty('--pxm-lightbox-zoom-border', '2px solid #333');
-        this.style.setProperty('--pxm-lightbox-zoom-background', 'white');
-        this.style.setProperty('--pxm-lightbox-zoom-shadow', '0 0 10px rgba(0,0,0,0.3)');
-        this.style.setProperty('--pxm-lightbox-zoom-z-index', '999999');
-        this.style.setProperty('--pxm-lightbox-zoom-border-radius', '0');
+        return 0;
     }
 } 
