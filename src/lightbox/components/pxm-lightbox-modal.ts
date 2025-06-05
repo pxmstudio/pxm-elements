@@ -5,12 +5,10 @@
  */
 
 import type { MediaItem } from '../types';
-import { safeQuerySelector, safeQuerySelectorAll } from '../dom-utils';
+import { safeQuerySelector } from '../dom-utils';
 
 export class PxmLightboxModal extends HTMLElement {
     private isOpen: boolean = false;
-    private thumbsSwiper: boolean = false;
-    private viewerSwiper: boolean = false;
     private currentIndex: number = 0;
     private mediaItems: MediaItem[] = [];
     private closeButton: Element | null = null;
@@ -35,7 +33,7 @@ export class PxmLightboxModal extends HTMLElement {
     }
 
     attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-        if (oldValue !== newValue) {
+        if (oldValue !== newValue && PxmLightboxModal.observedAttributes.includes(name)) {
             this.parseAttributes();
             if (this.isConnected) {
                 this.initialize();
@@ -44,8 +42,20 @@ export class PxmLightboxModal extends HTMLElement {
     }
 
     private parseAttributes() {
-        this.thumbsSwiper = this.getAttribute('thumbs-swiper') === 'true';
-        this.viewerSwiper = this.getAttribute('viewer-swiper') === 'true';
+        // These attributes are used by child components
+        const thumbsSwiper = this.getAttribute('thumbs-swiper') === 'true';
+        const viewerSwiper = this.getAttribute('viewer-swiper') === 'true';
+        
+        // Update child components if needed
+        const thumbsComponent = safeQuerySelector(this, 'pxm-lightbox-modal-thumbs');
+        const viewerComponent = safeQuerySelector(this, 'pxm-lightbox-modal-viewer');
+        
+        if (thumbsComponent) {
+            thumbsComponent.setAttribute('data-swiper', thumbsSwiper.toString());
+        }
+        if (viewerComponent) {
+            viewerComponent.setAttribute('data-swiper', viewerSwiper.toString());
+        }
     }
 
     private initialize() {

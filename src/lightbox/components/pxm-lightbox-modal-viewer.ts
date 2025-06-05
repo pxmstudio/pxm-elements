@@ -210,6 +210,7 @@ export class PxmLightboxModalViewer extends HTMLElement {
             const slide = document.createElement('div');
             slide.setAttribute('data-swiper-slide', '');
             slide.className = 'swiper-slide slide-custom-class';
+            slide.setAttribute('data-index', index.toString());
             
             if (mediaItem.type === 'image') {
                 this.showImage(mediaItem, slide);

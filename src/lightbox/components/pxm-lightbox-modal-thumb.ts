@@ -32,7 +32,7 @@ export class PxmLightboxModalThumb extends HTMLElement {
     }
 
     attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-        if (oldValue !== newValue) {
+        if (oldValue !== newValue && PxmLightboxModalThumb.observedAttributes.includes(name)) {
             this.parseAttributes();
             this.updateDisplay();
         }
