@@ -23,7 +23,15 @@ class PxmPhoneInput extends HTMLElement {
     }
 
     async connectedCallback() {
+        try {
+            // Try to inject dependencies (will be ignored if not needed)
+            await injectComponentDependencies('phone-input');
+        } catch (error) {
+            console.warn('Failed to inject dependencies:', error);
+        }
+
         const { iti } = await import("./iti");
+        
         this.itiInstance = iti({
             input: this.input,
             initialCountry: this.dataset.initialCountry || "ae",
@@ -40,10 +48,5 @@ class PxmPhoneInput extends HTMLElement {
         });
     }
 }
-
-// Inject dependencies if requested (for CDN usage)
-injectComponentDependencies('phone-input').catch(error => {
-    console.warn('Failed to inject phone-input dependencies:', error);
-});
 
 customElements.define("pxm-phone-input", PxmPhoneInput);

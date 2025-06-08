@@ -3,4 +3,4 @@ export declare const iti: ({ input, initialCountry, separateDialCode, formatOnDi
     initialCountry?: string;
     separateDialCode?: boolean;
     formatOnDisplay?: boolean;
-}) => import("intl-tel-input").Iti;
+}) => any;

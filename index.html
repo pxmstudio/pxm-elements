@@ -7,7 +7,21 @@
     <title>Vite + TS</title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <h1>Component Testing</h1>
+      
+      <h2>Phone Input Test</h2>
+      <pxm-phone-input data-initial-country="us" data-separate-dial-code="true">
+        <input type="tel" name="phone" placeholder="Enter phone number">
+      </pxm-phone-input>
+      
+      <br><br>
+      
+      <h2>Number Input Test</h2>
+      <pxm-number-input>
+        <input type="number" name="quantity" placeholder="Enter quantity">
+      </pxm-number-input>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

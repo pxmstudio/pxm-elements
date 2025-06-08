@@ -8,7 +8,7 @@ function injectLink(href: string, rel: string = 'stylesheet', type?: string): vo
   link.rel = rel;
   link.href = href;
   if (type) link.type = type;
-  
+
   // Inject into head
   document.head.appendChild(link);
 }
@@ -27,51 +27,15 @@ function injectScript(src: string): Promise<void> {
     script.src = src;
     script.onload = () => resolve();
     script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
-    
+
     // Inject into head
     document.head.appendChild(script);
   });
 }
 
-// Function to get the current script tag that loaded this component
-function getCurrentComponentScript(componentName: string): HTMLScriptElement | null {
-  const scripts = document.getElementsByTagName('script');
-  
-  // First try to find a script with the specific component name
-  let currentScript = Array.from(scripts).find(script => 
-    script.src.includes(`@pixelmakers/elements`) && script.src.includes(`${componentName}.js`)
-  );
-  
-  // Fallback to any pixelmakers elements script (for index.js)
-  if (!currentScript) {
-    currentScript = Array.from(scripts).find(script =>
-      script.src.includes('@pixelmakers/elements')
-    );
-  }
-  
-  return currentScript || null;
-}
-
 // Function to inject dependencies for specific components
 export async function injectComponentDependencies(componentName: string): Promise<void> {
-  const currentScript = getCurrentComponentScript(componentName);
-  
-  // Check if we should inject dependencies
-  const shouldInjectDependencies = currentScript?.hasAttribute('data-inject-dependencies') || 
-                                   currentScript?.getAttribute('data-inject-dependencies') === 'true';
-  
-  if (!shouldInjectDependencies) return;
-
-  // Extract version from the current script URL
-  const versionMatch = currentScript?.src.match(/elements@([^/]+)/);
-  const version = versionMatch ? versionMatch[1] : '0.1.13';
-  
-  const baseUrl = `https://cdn.jsdelivr.net/npm/@pixelmakers/elements@${version}`;
-
   try {
-    // Always inject main CSS
-    injectLink(`${baseUrl}/dist/esm/elements.css`);
-
     // Component-specific dependencies
     switch (componentName) {
       case 'lightbox':
@@ -98,5 +62,6 @@ export async function injectComponentDependencies(componentName: string): Promis
     }
   } catch (error) {
     console.warn(`Failed to inject dependencies for ${componentName}:`, error);
+    throw error;
   }
 } 
