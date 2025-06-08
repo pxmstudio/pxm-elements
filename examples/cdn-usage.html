@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixelmakers Components - CDN Usage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .example {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        .example h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .info {
+            background: #f0f9ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎉 Pixelmakers Components - CDN Usage</h1>
+    
+    <div class="info">
+        <h3>✅ Direct UMD Usage - No Configuration Required!</h3>
+        <p>These components are loaded directly from CDN using UMD builds that bundle all dependencies. 
+        <strong>Just include the script tag and start using!</strong></p>
+        
+        <p><strong>File sizes (with bundled dependencies):</strong></p>
+        <ul>
+            <li>📦 accordion.js: 4.4KB (standalone)</li>
+            <li>📦 tabs.js: 2.3KB (standalone)</li>
+            <li>📦 video.js: 11KB (standalone)</li>
+            <li>📦 lightbox.js: 219KB (includes Swiper)</li>
+            <li>📦 phone-input.js: 295KB (includes intl-tel-input)</li>
+        </ul>
+    </div>
+
+    <!-- Direct UMD script includes - no module enabler needed! -->
+    <script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.11/dist/umd/accordion.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.11/dist/umd/tabs.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.11/dist/umd/video.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.11/dist/umd/lightbox.js"></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements@0.1.11/dist/umd/phone-input.js"></script> -->
+
+    <div class="example">
+        <h3>🪗 Accordion Component</h3>
+        <pxm-accordion allow-multiple="false">
+            <pxm-accordion-item>
+                <pxm-accordion-trigger>
+                    <span>What is Pixelmakers?</span>
+                    <span data-accordion-icon>+</span>
+                </pxm-accordion-trigger>
+                <pxm-accordion-content>
+                    <p>Pixelmakers is a web development company creating modern, accessible web components.</p>
+                </pxm-accordion-content>
+            </pxm-accordion-item>
+            
+            <pxm-accordion-item>
+                <pxm-accordion-trigger>
+                    <span>How does the UMD usage work?</span>
+                    <span data-accordion-icon>+</span>
+                </pxm-accordion-trigger>
+                <pxm-accordion-content>
+                    <p>Our UMD builds bundle all dependencies, so you can just include a script tag and start using the components immediately - no module system required!</p>
+                </pxm-accordion-content>
+            </pxm-accordion-item>
+            
+            <pxm-accordion-item>
+                <pxm-accordion-trigger>
+                    <span>What about bundle optimization?</span>
+                    <span data-accordion-icon>+</span>
+                </pxm-accordion-trigger>
+                <pxm-accordion-content>
+                    <p>For optimal bundle sizes in your build process, use our ESM builds with your bundler for automatic tree-shaking and dependency management!</p>
+                </pxm-accordion-content>
+            </pxm-accordion-item>
+        </pxm-accordion>
+    </div>
+
+    <div class="example">
+        <h3>🗂️ Tabs Component</h3>
+        <pxm-tabs>
+            <div role="tablist">
+                <button role="tab" aria-selected="true" data-tab="tab1">Features</button>
+                <button role="tab" data-tab="tab2">Benefits</button>
+                <button role="tab" data-tab="tab3">Usage</button>
+            </div>
+            
+            <div role="tabpanel" data-panel="tab1" aria-hidden="false">
+                <h4>🚀 Features</h4>
+                <ul>
+                    <li>Zero configuration CDN usage</li>
+                    <li>Self-contained UMD builds</li>
+                    <li>Modular ESM builds for bundlers</li>
+                    <li>TypeScript support</li>
+                    <li>Industry-standard distribution</li>
+                </ul>
+            </div>
+            
+            <div role="tabpanel" data-panel="tab2" aria-hidden="true">
+                <h4>💫 Benefits</h4>
+                <ul>
+                    <li>No complex build setup needed</li>
+                    <li>Works in any environment</li>
+                    <li>Optimized for both development and production</li>
+                    <li>Professional library distribution</li>
+                    <li>Universal browser compatibility</li>
+                </ul>
+            </div>
+            
+            <div role="tabpanel" data-panel="tab3" aria-hidden="true">
+                <h4>📖 Usage</h4>
+                <p>Just include the script tag and use the components in your HTML. It's that simple!</p>
+                <pre><code>&lt;script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/accordion.js"&gt;&lt;/script&gt;
+&lt;pxm-accordion&gt;...&lt;/pxm-accordion&gt;</code></pre>
+            </div>
+        </pxm-tabs>
+    </div>
+
+    <div class="example">
+        <h3>🎬 Video Component</h3>
+        <pxm-video>
+            <video controls width="100%" style="max-width: 400px;">
+                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </pxm-video>
+    </div>
+
+    <script>
+        // Test if components are available globally
+        console.log('🎉 Available Components:');
+        console.log('- PxmAccordion:', typeof window.PxmAccordion);
+        console.log('- PxmTabs:', typeof window.PxmTabs);
+        console.log('- PxmVideo:', typeof window.PxmVideo);
+        
+        // Add some styling for accordion icons
+        const style = document.createElement('style');
+        style.textContent = `
+            pxm-accordion-trigger {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 15px;
+                background: #f8f9fa;
+                border: 1px solid #dee2e6;
+                cursor: pointer;
+                font-weight: 500;
+            }
+            
+            pxm-accordion-trigger:hover {
+                background: #e9ecef;
+            }
+            
+            pxm-accordion-content {
+                padding: 15px;
+                border: 1px solid #dee2e6;
+                border-top: none;
+                background: white;
+            }
+            
+            pxm-accordion-item {
+                margin-bottom: 5px;
+            }
+            
+            [data-accordion-icon] {
+                transition: transform 0.3s ease;
+                font-weight: bold;
+                font-size: 18px;
+            }
+            
+            pxm-accordion-item[active="true"] [data-accordion-icon] {
+                transform: rotate(45deg);
+            }
+            
+            /* Tabs styling */
+            [role="tablist"] {
+                display: flex;
+                border-bottom: 2px solid #dee2e6;
+                margin-bottom: 20px;
+            }
+            
+            [role="tab"] {
+                padding: 12px 20px;
+                border: none;
+                background: none;
+                cursor: pointer;
+                font-size: 16px;
+                border-bottom: 3px solid transparent;
+                transition: all 0.3s ease;
+            }
+            
+            [role="tab"]:hover {
+                background: #f8f9fa;
+            }
+            
+            [role="tab"][aria-selected="true"] {
+                border-bottom-color: #007bff;
+                font-weight: 600;
+                color: #007bff;
+            }
+            
+            [role="tabpanel"] {
+                padding: 20px 0;
+            }
+            
+            [role="tabpanel"][aria-hidden="true"] {
+                display: none;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html> 

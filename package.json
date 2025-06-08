@@ -1,39 +1,55 @@
 {
   "name": "@pixelmakers/elements",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "type": "module",
   "description": "A collection of custom web components by PixelMakers",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
+  "main": "dist/umd/index.js",
+  "module": "dist/esm/index.js",
   "files": [
     "dist"
   ],
   "exports": {
     ".": {
-      "import": "./dist/index.js"
+      "import": "./dist/esm/index.js",
+      "require": "./dist/umd/index.js"
     },
     "./phone-input": {
-      "import": "./dist/phone-input.js"
+      "import": "./dist/esm/phone-input.js",
+      "require": "./dist/umd/phone-input.js"
     },
     "./lightbox": {
-      "import": "./dist/lightbox.js"
+      "import": "./dist/esm/lightbox.js",
+      "require": "./dist/umd/lightbox.js"
     },
     "./accordion": {
-      "import": "./dist/accordion.js"
+      "import": "./dist/esm/accordion.js",
+      "require": "./dist/umd/accordion.js"
     },
     "./tabs": {
-      "import": "./dist/tabs.js"
+      "import": "./dist/esm/tabs.js",
+      "require": "./dist/umd/tabs.js"
     },
     "./video": {
-      "import": "./dist/video.js"
+      "import": "./dist/esm/video.js",
+      "require": "./dist/umd/video.js"
     },
     "./number-input": {
-      "import": "./dist/number-input.js"
+      "import": "./dist/esm/number-input.js",
+      "require": "./dist/umd/number-input.js"
     }
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "npm run build:esm && npm run build:umd",
+    "build:esm": "tsc && vite build --config vite.config.esm.ts",
+    "build:umd": "npm run build:umd:accordion && npm run build:umd:tabs && npm run build:umd:video && npm run build:umd:lightbox && npm run build:umd:phone-input && npm run build:umd:number-input && npm run build:umd:index",
+    "build:umd:index": "vite build --config vite.config.umd.ts --mode index",
+    "build:umd:accordion": "vite build --config vite.config.umd.ts --mode accordion",
+    "build:umd:tabs": "vite build --config vite.config.umd.ts --mode tabs",
+    "build:umd:video": "vite build --config vite.config.umd.ts --mode video",
+    "build:umd:lightbox": "vite build --config vite.config.umd.ts --mode lightbox",
+    "build:umd:phone-input": "vite build --config vite.config.umd.ts --mode phone-input",
+    "build:umd:number-input": "vite build --config vite.config.umd.ts --mode number-input",
     "preview": "vite preview",
     "prepublishOnly": "npm run build"
   },
@@ -46,6 +62,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^22.15.23",
+    "terser": "^5.41.0",
     "typescript": "~5.8.3",
     "vite": "^6.3.5"
   },
