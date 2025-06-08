@@ -706,4 +706,10 @@ export class PxmVideo extends HTMLElement {
   }
 }
 
+// Inject dependencies if requested (for CDN usage)
+import { injectComponentDependencies } from '../dependency-injector';
+injectComponentDependencies('video').catch(error => {
+    console.warn('Failed to inject video dependencies:', error);
+});
+
 customElements.define('pxm-video', PxmVideo); 

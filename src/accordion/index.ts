@@ -280,6 +280,17 @@
     }
   }
 
+  // Inject dependencies if requested (for CDN usage)
+  async function injectAccordionDependencies() {
+    try {
+      const { injectComponentDependencies } = await import('../dependency-injector');
+      await injectComponentDependencies('accordion');
+    } catch (error) {
+      console.warn('Failed to inject accordion dependencies:', error);
+    }
+  }
+  injectAccordionDependencies();
+
   // Define the custom elements
   customElements.define('pxm-accordion', PxmAccordion);
 

@@ -144,4 +144,10 @@ class PxmNumberInput extends HTMLElement {
     }
 }
 
+// Inject dependencies if requested (for CDN usage)
+import { injectComponentDependencies } from '../dependency-injector';
+injectComponentDependencies('number-input').catch(error => {
+    console.warn('Failed to inject number-input dependencies:', error);
+});
+
 customElements.define("pxm-number-input", PxmNumberInput);

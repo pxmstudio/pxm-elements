@@ -1,3 +1,6 @@
+// Import dependency injector
+import { injectComponentDependencies } from '../dependency-injector';
+
 class PxmPhoneInput extends HTMLElement {
     input: HTMLInputElement;
     private itiInstance: any;
@@ -37,5 +40,10 @@ class PxmPhoneInput extends HTMLElement {
         });
     }
 }
+
+// Inject dependencies if requested (for CDN usage)
+injectComponentDependencies('phone-input').catch(error => {
+    console.warn('Failed to inject phone-input dependencies:', error);
+});
 
 customElements.define("pxm-phone-input", PxmPhoneInput);

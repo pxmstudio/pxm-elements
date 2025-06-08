@@ -1,9 +1,14 @@
 import { defineConfig } from "vite";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
+import { readFileSync } from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+// Read package.json to get the current version
+const packageJson = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf-8'));
+const PACKAGE_VERSION = packageJson.version;
 
 // Component entries mapping
 const componentEntries = {
@@ -52,6 +57,9 @@ export default defineConfig(({ mode }) => {
     }
 
     return {
+        define: {
+            __PACKAGE_VERSION__: JSON.stringify(PACKAGE_VERSION)
+        },
         plugins: [],
         build: {
             lib: {

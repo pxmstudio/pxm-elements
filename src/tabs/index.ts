@@ -120,4 +120,10 @@ class PxmTabs extends HTMLElement {
     }
 }
 
+// Inject dependencies if requested (for CDN usage)
+import { injectComponentDependencies } from '../dependency-injector';
+injectComponentDependencies('tabs').catch(error => {
+    console.warn('Failed to inject tabs dependencies:', error);
+});
+
 customElements.define("pxm-tabs", PxmTabs);

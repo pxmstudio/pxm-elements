@@ -1,3 +1,5 @@
+import { injectComponentDependencies } from './dependency-injector';
+
 async function importComponent(selector: string, componentName: string) {
   if (!document.querySelector(selector)) return;
 
@@ -10,11 +12,15 @@ async function importComponent(selector: string, componentName: string) {
   // If we're using CDN, use absolute path for imports
   if (currentScript?.src) {
     try {
-      // Extract version from the current script URL
+      // Extract version from the current script URL or use the build-time injected version
       const versionMatch = currentScript.src.match(/elements@([^/]+)/);
-      const version = versionMatch ? versionMatch[1] : '0.1.9';
+      const version = versionMatch ? versionMatch[1] : __PACKAGE_VERSION__;
+      
+      // Inject dependencies if requested
+      await injectComponentDependencies(componentName);
+      
       // Construct the import path using the package name directly
-      const importPath = `https://cdn.jsdelivr.net/npm/@pixelmakers/elements@${version}/dist/${componentName}.js`;
+      const importPath = `https://cdn.jsdelivr.net/npm/@pixelmakers/elements@${version}/dist/umd/${componentName}.js`;
       await import(/* @vite-ignore */ importPath);
     } catch (error) {
       console.error(`Failed to load component ${componentName}:`, error);

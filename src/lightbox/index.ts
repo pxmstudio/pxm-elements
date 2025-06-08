@@ -46,6 +46,9 @@
  * </pxm-lightbox>
  */
 
+// Import dependency injector
+import { injectComponentDependencies } from '../dependency-injector';
+
 // Import main lightbox component
 import { PxmLightbox } from './lightbox';
 
@@ -93,6 +96,11 @@ export { EventManager } from './event-manager';
 
 // Export utility functions
 export * from './dom-utils';
+
+// Inject dependencies if requested (for CDN usage)
+injectComponentDependencies('lightbox').catch(error => {
+    console.warn('Failed to inject lightbox dependencies:', error);
+});
 
 // Register all custom elements
 if (!customElements.get("pxm-lightbox")) {
