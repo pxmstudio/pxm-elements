@@ -1,6 +1,6 @@
 {
   "name": "@pixelmakers/elements",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "type": "module",
   "description": "A collection of custom web components by PixelMakers",
   "main": "dist/umd/index.js",
@@ -36,20 +36,19 @@
     "./number-input": {
       "import": "./dist/esm/number-input.js",
       "require": "./dist/umd/number-input.js"
+    },
+    "./toggle": {
+      "import": "./dist/esm/toggle.js",
+      "require": "./dist/umd/toggle.js"
     }
   },
   "scripts": {
     "dev": "vite",
-    "build": "npm run build:esm && npm run build:umd",
-    "build:esm": "tsc && vite build --config vite.config.esm.ts",
-    "build:umd": "npm run build:umd:index && npm run build:umd:accordion && npm run build:umd:tabs && npm run build:umd:video && npm run build:umd:lightbox && npm run build:umd:phone-input && npm run build:umd:number-input",
-    "build:umd:index": "vite build --config vite.config.umd.ts --mode index",
-    "build:umd:accordion": "vite build --config vite.config.umd.ts --mode accordion",
-    "build:umd:tabs": "vite build --config vite.config.umd.ts --mode tabs",
-    "build:umd:video": "vite build --config vite.config.umd.ts --mode video",
-    "build:umd:lightbox": "vite build --config vite.config.umd.ts --mode lightbox",
-    "build:umd:phone-input": "vite build --config vite.config.umd.ts --mode phone-input",
-    "build:umd:number-input": "vite build --config vite.config.umd.ts --mode number-input",
+    "build": "node scripts/build-components.js",
+    "build:esm": "node scripts/build-components.js esm",
+    "build:umd": "node scripts/build-components.js umd",
+    "test": "vitest",
+    "test:run": "vitest run",
     "preview": "vite preview",
     "prepublishOnly": "npm run build"
   },
@@ -62,9 +61,11 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^22.15.23",
+    "jsdom": "^25.0.1",
     "terser": "^5.41.0",
     "typescript": "~5.8.3",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "vitest": "^2.1.8"
   },
   "dependencies": {
     "intl-tel-input": "^25.3.1",

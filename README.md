@@ -1,35 +1,48 @@
-# Pixelmakers Elements
+# PXM Elements
 
 [![npm version](https://badge.fury.io/js/@pixelmakers%2Felements.svg)](https://badge.fury.io/js/@pixelmakers%2Felements)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Modern, accessible web components built with TypeScript. Ready for both CDN usage and npm installs.
+**Modern, accessible web components for everyone.** From no-code builders to seasoned developers.
+
+## Philosophy
+
+PXM Elements is built on three core principles:
+
+🎯 **Universal Compatibility** - Works everywhere: Webflow, Shopify, Astro, vanilla HTML, or any framework  
+🪶 **Lightweight & Simple** - Each component does one thing exceptionally well  
+🎨 **Unstyled by Design** - You control the look, we handle the behavior and accessibility
 
 ## Quick Start
 
-### CDN Usage (UMD)
-Perfect for prototypes, simple sites, or any project without a build system.
+### For No-Code/Low-Code Users (CDN)
+
+Drop this into your HTML and start using components immediately:
 
 ```html
 <!DOCTYPE html>
 <html>
+<head>
+    <title>My Project</title>
+</head>
 <body>
-    <!-- Include any component you need -->
-    <script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/accordion.js"></script>
-    
-    <!-- Use immediately -->
-    <pxm-accordion allow-multiple="false">
+    <!-- 1. Add component -->
+    <pxm-accordion>
         <pxm-accordion-item>
             <pxm-accordion-trigger>Click me!</pxm-accordion-trigger>
-            <pxm-accordion-content>Content here</pxm-accordion-content>
+            <pxm-accordion-content>This content toggles!</pxm-accordion-content>
         </pxm-accordion-item>
     </pxm-accordion>
+
+    <!-- 2. Include script (loads automatically) -->
+    <script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/accordion.js"></script>
 </body>
 </html>
 ```
 
-### NPM Installation (ESM)
-Perfect for modern applications with bundlers (Vite, Webpack, etc.).
+### For Developers (NPM)
+
+Install and import only what you need:
 
 ```bash
 npm install @pixelmakers/elements
@@ -38,95 +51,74 @@ npm install @pixelmakers/elements
 ```typescript
 // Import individual components for optimal tree-shaking
 import '@pixelmakers/elements/accordion';
-import '@pixelmakers/elements/lightbox';
-
-// Or with type information
-import { PxmAccordion } from '@pixelmakers/elements';
-```
-
-## Installation
-
-### Option 1: CDN (Recommended for simple projects)
-
-Include components directly from CDN - no build tools required:
-
-```html
-<!-- Core Components (lightweight) -->
-<script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/accordion.js"></script>     <!-- 4.4KB -->
-<script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/tabs.js"></script>         <!-- 2.3KB -->
-<script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/video.js"></script>        <!-- 11KB -->
-<script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/number-input.js"></script> <!-- 2.6KB -->
-
-<!-- Feature-rich Components (with bundled dependencies) -->
-<script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/lightbox.js"></script>     <!-- 219KB (includes Swiper) -->
-<script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/phone-input.js"></script>  <!-- 295KB (includes intl-tel-input) -->
-```
-
-**Benefits:**
-- ✅ Zero configuration
-- ✅ Self-contained (all dependencies included)
-- ✅ Works everywhere
-- ✅ No build tools required
-
-### Option 2: NPM (Recommended for applications)
-
-Install via npm for optimal bundle sizes and TypeScript support:
-
-```bash
-npm install @pixelmakers/elements
-```
-
-```typescript
-// Tree-shakable imports (recommended)
-import '@pixelmakers/elements/accordion';
 import '@pixelmakers/elements/tabs';
 
-// Or import with types
-import { PxmAccordion, PxmTabs } from '@pixelmakers/elements';
+// Or with TypeScript support
+import { PxmAccordion } from '@pixelmakers/elements/accordion';
 ```
 
-**Benefits:**
-- ✅ Tree-shaking (only bundle what you use)
-- ✅ TypeScript support
-- ✅ Optimal bundle sizes
-- ✅ Code splitting support
+## Why PXM Elements?
 
-## Usage Examples
+### 🚀 **Zero Configuration**
+- **CDN**: Works immediately, no build tools required
+- **NPM**: Tree-shakable imports, TypeScript support included
 
-### CDN Usage
+### 📱 **Accessibility First**
+- Full keyboard navigation
+- Screen reader support
+- ARIA attributes handled automatically
+- Follows WCAG guidelines
+
+### 🎨 **Your Design, Our Behavior**
+- No imposed styling - use your CSS framework
+- Semantic HTML structure
+- CSS custom properties for easy theming
+- Works with Tailwind, Bootstrap, or custom CSS
+
+### 🌍 **Universal Platform Support**
+- **Webflow**: Drop in custom code blocks
+- **Shopify**: Works in Liquid templates
+- **Astro**: Server-side rendering compatible
+- **React/Vue**: Framework adapters available
+- **WordPress**: Plugin-friendly
+
+## Components
+
+| Component | Size (UMD) | Size (ESM) | Description |
+|-----------|------------|------------|-------------|
+| [Accordion](src/accordion/README.md) | 5.6KB | 5.9KB | Collapsible content sections |
+| [Tabs](src/tabs/README.md) | 4.7KB | 4.3KB | Tabbed interface navigation |
+| [Toggle](src/toggle/README.md) | 2.7KB | 2.8KB | Boolean switch/checkbox |
+| [Number Input](src/number-input/README.md) | 4.1KB | 3.7KB | Enhanced number input with controls |
+| [Video](src/video/README.md) | 11.5KB | 16.3KB | Multi-platform video player |
+| [Phone Input](src/phone-input/README.md) | 3.2KB* | 1.4KB* | International phone number input |
+| [Lightbox](src/lightbox/README.md) | 67.5KB* | 91.8KB* | Image/media gallery with zoom |
+
+> *Sizes marked with * use external dependencies (loaded separately for NPM)
+
+## Usage Patterns
+
+### CDN Usage (Recommended for Webflow, Shopify, etc.)
+
+Each component is self-contained and can be loaded independently:
 
 ```html
-<!DOCTYPE html>
-<html>
-<head>
-    <title>My App</title>
-</head>
-<body>
-    <!-- Include components -->
-    <script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/accordion.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/tabs.js"></script>
-    
-    <!-- Use components -->
-    <pxm-accordion allow-multiple="false">
-        <pxm-accordion-item>
-            <pxm-accordion-trigger>Section 1</pxm-accordion-trigger>
-            <pxm-accordion-content>Content 1</pxm-accordion-content>
-        </pxm-accordion-item>
-    </pxm-accordion>
-    
-    <pxm-tabs>
-        <div role="tablist">
-            <button role="tab" data-tab="tab1">Tab 1</button>
-            <button role="tab" data-tab="tab2">Tab 2</button>
-        </div>
-        <div role="tabpanel" data-panel="tab1">Panel 1</div>
-        <div role="tabpanel" data-panel="tab2">Panel 2</div>
-    </pxm-tabs>
-</body>
-</html>
+<!-- Load only the components you need -->
+<script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/accordion.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/tabs.js"></script>
+
+<!-- Use immediately -->
+<pxm-accordion allow-multiple="true">
+    <pxm-accordion-item>
+        <pxm-accordion-trigger>Section 1</pxm-accordion-trigger>
+        <pxm-accordion-content>Content 1</pxm-accordion-content>
+    </pxm-accordion-item>
+</pxm-accordion>
 ```
 
-### NPM Usage
+### NPM Usage (Recommended for Applications)
+
+Tree-shakable imports ensure optimal bundle sizes:
 
 ```typescript
 // Individual imports (recommended)
@@ -134,198 +126,140 @@ import '@pixelmakers/elements/accordion';
 import '@pixelmakers/elements/tabs';
 
 // Dynamic imports for code splitting
-async function loadLightbox() {
-    const { PxmLightbox } = await import('@pixelmakers/elements/lightbox');
-    // Use component...
-}
+const loadLightbox = async () => {
+    await import('@pixelmakers/elements/lightbox');
+    // Component is now available
+};
 
 // TypeScript usage
-import { PxmAccordion } from '@pixelmakers/elements';
+import type { PxmAccordion } from '@pixelmakers/elements/accordion';
 
-const accordion = document.createElement('pxm-accordion') as PxmAccordion;
+const accordion = document.querySelector('pxm-accordion') as PxmAccordion;
 accordion.setAttribute('allow-multiple', 'true');
 ```
 
-## Components
+## Styling Guide
 
-### 🪗 Accordion
+PXM Elements provides zero styling - you're in complete control. Here are common patterns:
 
-Collapsible content sections with smooth animations and full accessibility support.
+### CSS Custom Properties
+
+```css
+/* Define your design tokens */
+:root {
+    --border-radius: 8px;
+    --transition-speed: 200ms;
+    --primary-color: #3b82f6;
+}
+
+/* Style components using data attributes and CSS selectors */
+pxm-accordion-trigger {
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: var(--border-radius);
+    background: white;
+    transition: all var(--transition-speed);
+}
+
+pxm-accordion-trigger:hover {
+    background: #f9fafb;
+}
+
+pxm-accordion-item[active="true"] pxm-accordion-trigger {
+    background: var(--primary-color);
+    color: white;
+}
+```
+
+### Tailwind CSS
 
 ```html
+<pxm-toggle class="relative inline-block w-12 h-6 bg-gray-300 rounded-full transition-colors duration-200 ease-in-out data-[state=checked]:bg-blue-500">
+    <span class="block w-5 h-5 bg-white rounded-full shadow transform transition-transform duration-200 ease-in-out translate-x-0.5 data-[state=checked]:translate-x-6"></span>
+</pxm-toggle>
+```
+
+### CSS-in-JS / Styled Components
+
+```javascript
+const StyledAccordion = styled(PxmAccordion)`
+    border: 1px solid ${props => props.theme.colors.border};
+    border-radius: ${props => props.theme.radii.md};
+    
+    pxm-accordion-trigger {
+        padding: ${props => props.theme.space[4]};
+        background: ${props => props.theme.colors.surface};
+        
+        &:hover {
+            background: ${props => props.theme.colors.surfaceHover};
+        }
+    }
+`;
+```
+
+## Platform Integration
+
+### Webflow
+
+1. Add a Custom Code block to your page
+2. Include the component script
+3. Add HTML structure in an Embed block
+
+```html
+<!-- In Custom Code (Head) -->
 <script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/accordion.js"></script>
 
-<pxm-accordion allow-multiple="false" animation-duration="300">
+<!-- In Embed block -->
+<pxm-accordion>
     <pxm-accordion-item>
-        <pxm-accordion-trigger>
-            <span>Section Title</span>
-            <span data-accordion-icon>+</span>
-        </pxm-accordion-trigger>
-        <pxm-accordion-content>
-            <p>Section content goes here...</p>
-        </pxm-accordion-content>
+        <pxm-accordion-trigger>FAQ Question</pxm-accordion-trigger>
+        <pxm-accordion-content>Answer content here</pxm-accordion-content>
     </pxm-accordion-item>
 </pxm-accordion>
 ```
 
-**Attributes:**
-- `allow-multiple`: Allow multiple sections open (default: `false`)
-- `animation-duration`: Animation duration in ms (default: `300`)
-- `icon-rotation`: Icon rotation degrees (default: `90`)
+### Shopify Liquid
 
-**Features:**
-- ✅ Keyboard navigation (Arrow keys, Enter, Space, Home, End)
-- ✅ ARIA accessibility
-- ✅ Smooth animations
-- ✅ Icon rotation
-
-### 📱 Phone Input
-
-International phone number input with country selection and validation.
-
-```html
-<script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/phone-input.js"></script>
-
-<pxm-phone-input 
-    data-initial-country="us"
-    data-separate-dial-code="true">
-    <input type="tel" name="phone" placeholder="Enter phone number">
-</pxm-phone-input>
-```
-
-**Attributes:**
-- `data-initial-country`: Initial country code (default: `"ae"`)
-- `data-separate-dial-code`: Show dial code separately (default: `false`)
-- `data-format-on-display`: Format while typing (default: `false`)
-
-**Features:**
-- ✅ 200+ countries
-- ✅ Auto-formatting
-- ✅ Validation
-- ✅ Accessible
-
-### 🖼️ Lightbox
-
-Modern image and media lightbox with touch gestures and keyboard navigation.
-
-```html
-<script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/lightbox.js"></script>
-
-<pxm-lightbox mode="modal" zoom-mode="cursor-area">
-    <pxm-lightbox-inline>
-        <pxm-lightbox-thumbs>
-            <pxm-lightbox-thumb data-full-image-src="image1-large.jpg">
-                <img src="image1-thumb.jpg" alt="Image 1">
-            </pxm-lightbox-thumb>
-        </pxm-lightbox-thumbs>
-        
-        <pxm-lightbox-viewer>
-            <img src="image1-large.jpg" alt="Main view">
-        </pxm-lightbox-viewer>
-    </pxm-lightbox-inline>
-</pxm-lightbox>
-```
-
-**Attributes:**
-- `mode`: `"viewer"` or `"modal"` (default: `"viewer"`)
-- `zoom-mode`: `"cursor-area"` or `"none"` (default: `"none"`)
-
-**Features:**
-- ✅ Touch gestures
-- ✅ Keyboard navigation
-- ✅ Zoom functionality
-- ✅ Swiper integration
-
-### 🗂️ Tabs
-
-Accessible tab component with keyboard navigation.
-
-```html
+```liquid
+<!-- In theme.liquid -->
 <script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/tabs.js"></script>
 
+<!-- In template -->
 <pxm-tabs>
-    <div role="tablist">
-        <button role="tab" aria-selected="true" data-tab="tab1">Tab 1</button>
-        <button role="tab" data-tab="tab2">Tab 2</button>
-        <button role="tab" data-tab="tab3">Tab 3</button>
-    </div>
+    <pxm-triggers>
+        {% for variant in product.variants %}
+            <button data-tab="variant-{{ variant.id }}">{{ variant.title }}</button>
+        {% endfor %}
+    </pxm-triggers>
     
-    <div role="tabpanel" data-panel="tab1">Content for tab 1</div>
-    <div role="tabpanel" data-panel="tab2" aria-hidden="true">Content for tab 2</div>
-    <div role="tabpanel" data-panel="tab3" aria-hidden="true">Content for tab 3</div>
+    {% for variant in product.variants %}
+        <pxm-panel data-tab="variant-{{ variant.id }}">
+            {{ variant.price | money }}
+        </pxm-panel>
+    {% endfor %}
 </pxm-tabs>
 ```
 
-**Features:**
-- ✅ ARIA accessibility
-- ✅ Keyboard navigation (Arrow keys, Home, End)
-- ✅ Automatic panel management
-- ✅ Flexible styling
+### Astro
 
-### 🎬 Video
+```astro
+---
+// Component works server-side
+---
 
-Multi-platform video component supporting YouTube, Vimeo, Mux, and MP4.
+<script>
+    import '@pixelmakers/elements/accordion';
+</script>
 
-```html
-<script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/video.js"></script>
-
-<!-- YouTube -->
-<pxm-video src="https://www.youtube.com/watch?v=dQw4w9WgXcQ"></pxm-video>
-
-<!-- With custom thumbnail -->
-<pxm-video 
-    src="https://vimeo.com/123456789"
-    thumbnail="custom-thumbnail.jpg"
-    title="Video Title">
-</pxm-video>
+<pxm-accordion>
+    <pxm-accordion-item>
+        <pxm-accordion-trigger>Server-rendered content</pxm-accordion-trigger>
+        <pxm-accordion-content>
+            This works with SSR!
+        </pxm-accordion-content>
+    </pxm-accordion-item>
+</pxm-accordion>
 ```
-
-**Attributes:**
-- `src`: Video URL (required)
-- `type`: `"youtube"`, `"vimeo"`, `"mux"`, `"mp4"`, or `"other"`
-- `thumbnail`: Custom thumbnail URL
-- `autoplay`: Auto-play video (default: `false`)
-- `muted`: Mute by default (default: `false`)
-
-**Features:**
-- ✅ Multiple platforms
-- ✅ Lazy loading
-- ✅ Custom thumbnails
-- ✅ Responsive design
-
-### 🔢 Number Input
-
-Enhanced number input with increment/decrement controls.
-
-```html
-<script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/number-input.js"></script>
-
-<pxm-number-input>
-    <button data-minus>-</button>
-    <input type="number" min="0" max="100" step="1" value="5">
-    <button data-plus>+</button>
-</pxm-number-input>
-```
-
-**Features:**
-- ✅ Min/max constraints
-- ✅ Custom step size
-- ✅ Auto-disable controls
-- ✅ Keyboard support
-
-## File Sizes
-
-| Component | CDN (UMD) | NPM (ESM) | Dependencies |
-|-----------|-----------|-----------|--------------|
-| Accordion | 4.4KB | 6.6KB | None |
-| Tabs | 2.3KB | 2.8KB | None |
-| Video | 11KB | 16KB | Medium Zoom |
-| Number Input | 2.6KB | 3.0KB | None |
-| **Lightbox** | **219KB** | **90KB** | Swiper (bundled/external) |
-| **Phone Input** | **295KB** | **1.2KB** | intl-tel-input (bundled/external) |
-
-> **CDN builds** include all dependencies for standalone usage  
-> **NPM builds** keep dependencies external for optimal bundling
 
 ## Browser Support
 
@@ -334,32 +268,56 @@ Enhanced number input with increment/decrement controls.
 - Safari 14+ ✅
 - Edge 90+ ✅
 
-All components use modern Web Components APIs (Custom Elements, Shadow DOM when beneficial).
+All components use modern Web Components APIs with graceful degradation.
 
-## TypeScript
+## TypeScript Support
 
 Full TypeScript support with exported types:
 
 ```typescript
-import { PxmAccordion, AccordionConfig } from '@pixelmakers/elements/accordion';
+import type { 
+    PxmAccordion, 
+    AccordionConfig,
+    PxmTabs,
+    TabsConfig 
+} from '@pixelmakers/elements';
 
-const accordion = document.createElement('pxm-accordion') as PxmAccordion;
+// Type-safe component usage
+const accordion = document.querySelector('pxm-accordion') as PxmAccordion;
 const config: AccordionConfig = {
     allowMultiple: true,
-    animationDuration: 500,
-    iconRotation: 180
+    animationDuration: 300
 };
+```
+
+## Performance
+
+### Bundle Sizes
+- **CDN**: Self-contained, cacheable across sites
+- **NPM**: Tree-shakable, only bundle what you use
+- **Dependencies**: Heavy deps (Swiper, intl-tel-input) are external for NPM builds
+
+### Loading Strategy
+```html
+<!-- Preload critical components -->
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/accordion.js" as="script">
+
+<!-- Load non-critical components lazily -->
+<script>
+    // Load lightbox only when needed
+    document.addEventListener('click', async (e) => {
+        if (e.target.matches('[data-lightbox]')) {
+            await import('https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/lightbox.js');
+        }
+    }, { once: true });
+</script>
 ```
 
 ## Contributing
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
-## Development
+### Development
 
 ```bash
 # Install dependencies
@@ -368,20 +326,19 @@ npm install
 # Start development server
 npm run dev
 
+# Run tests
+npm run test
+
 # Build library
 npm run build
-
-# Build ESM only
-npm run build:esm
-
-# Build UMD only  
-npm run build:umd
 ```
 
 ## Examples
 
+- **Live Examples**: [CodePen Collection](https://codepen.io/collection/pxm-elements)
 - **CDN Usage**: [examples/cdn-usage.html](examples/cdn-usage.html)
 - **NPM Usage**: [examples/npm-usage.ts](examples/npm-usage.ts)
+- **Webflow Project**: [Template Link](https://webflow.com/made-in-webflow/pxm-elements)
 
 ## License
 
@@ -389,4 +346,6 @@ MIT © [PixelMakers](https://pixelmakers.io)
 
 ---
 
-Made with ❤️ by the PixelMakers team 
+**Built with ❤️ for the web community**
+
+[Report Issues](https://github.com/pixelmakers/elements/issues) • [Discussions](https://github.com/pixelmakers/elements/discussions) • [Twitter](https://twitter.com/pixelmakers) 

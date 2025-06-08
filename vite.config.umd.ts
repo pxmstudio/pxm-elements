@@ -19,6 +19,7 @@ const componentEntries = {
     "tabs": resolve(__dirname, "src/tabs/index.ts"),
     "video": resolve(__dirname, "src/video/index.ts"),
     "number-input": resolve(__dirname, "src/number-input/index.ts"),
+    "toggle": resolve(__dirname, "src/toggle/index.ts"),
 };
 
 // Global names for each component
@@ -29,7 +30,8 @@ const globalNames = {
     "accordion": "PxmAccordion",
     "tabs": "PxmTabs",
     "video": "PxmVideo",
-    "number-input": "PxmNumberInput"
+    "number-input": "PxmNumberInput",
+    "toggle": "PxmToggle"
 };
 
 export default defineConfig(({ mode }) => {

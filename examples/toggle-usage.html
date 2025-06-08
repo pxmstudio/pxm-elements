@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PXM Toggle Component - Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .example {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        /* Basic toggle styling (completely customizable) */
+        pxm-toggle {
+            display: inline-block;
+            width: 50px;
+            height: 25px;
+            background: #ccc;
+            border-radius: 25px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            outline: none;
+        }
+        
+        pxm-toggle:focus {
+            box-shadow: 0 0 0 2px #007bff;
+        }
+        
+        pxm-toggle[data-state="checked"] {
+            background: #007bff;
+        }
+        
+        pxm-toggle[data-disabled="true"] {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Toggle knob */
+        pxm-toggle::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 21px;
+            height: 21px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+        
+        pxm-toggle[data-state="checked"]::before {
+            transform: translateX(25px);
+        }
+        
+        .form-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔄 PXM Toggle Component</h1>
+    
+    <div class="example">
+        <h3>Basic Toggle</h3>
+        <div class="form-row">
+            <pxm-toggle name="basic" value="yes"></pxm-toggle>
+            <label>Enable notifications</label>
+        </div>
+    </div>
+
+    <div class="example">
+        <h3>Pre-checked Toggle</h3>
+        <div class="form-row">
+            <pxm-toggle checked="true" name="marketing" value="subscribe"></pxm-toggle>
+            <label>Subscribe to marketing emails</label>
+        </div>
+    </div>
+
+    <div class="example">
+        <h3>Disabled Toggle</h3>
+        <div class="form-row">
+            <pxm-toggle disabled="true" name="admin" value="access"></pxm-toggle>
+            <label>Admin access (disabled)</label>
+        </div>
+    </div>
+
+    <div class="example">
+        <h3>Form Integration</h3>
+        <form id="settings-form">
+            <div class="form-row">
+                <pxm-toggle name="dark_mode" value="enabled"></pxm-toggle>
+                <label>Dark mode</label>
+            </div>
+            <div class="form-row">
+                <pxm-toggle name="auto_save" value="on" checked="true"></pxm-toggle>
+                <label>Auto-save</label>
+            </div>
+            <div class="form-row">
+                <pxm-toggle name="sharing" value="public"></pxm-toggle>
+                <label>Public sharing</label>
+            </div>
+            <button type="submit">Save Settings</button>
+        </form>
+        
+        <div id="form-output"></div>
+    </div>
+
+    <!-- Load the component -->
+    <script type="module">
+        // In a real app, you'd load from CDN:
+        // import './dist/umd/toggle.js';
+        
+        // For this example, we'll simulate loading
+        import '../src/toggle/index.js';
+        
+        // Example: Listen to toggle changes
+        document.addEventListener('change', (event) => {
+            if (event.target.tagName === 'PXM-TOGGLE') {
+                console.log('Toggle changed:', {
+                    name: event.target.getAttribute('name'),
+                    checked: event.detail.checked,
+                    value: event.target.getAttribute('value')
+                });
+            }
+        });
+        
+        // Example: Form handling
+        document.getElementById('settings-form').addEventListener('submit', (event) => {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const settings = {};
+            
+            for (const [key, value] of formData.entries()) {
+                settings[key] = value;
+            }
+            
+            document.getElementById('form-output').innerHTML = `
+                <h4>Form Data:</h4>
+                <pre>${JSON.stringify(settings, null, 2)}</pre>
+            `;
+        });
+    </script>
+</body>
+</html> 

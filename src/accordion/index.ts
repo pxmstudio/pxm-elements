@@ -5,90 +5,51 @@
  * Each accordion item consists of a trigger and content section.
  */
 
-(function () {
-  'use strict';
+import { parseAttributes, setupKeyboardNav, setAriaAttributes, withErrorBoundary, type AttributeSchema } from '../core/component-utils';
 
-  interface AccordionConfig {
-    allowMultiple: boolean;
-    animationDuration: number;
-    iconRotation: number;
-  }
+const ACCORDION_SCHEMA: AttributeSchema = {
+  'allow-multiple': { type: 'boolean', default: false },
+  'animation-duration': { type: 'number', default: 300, min: 0 },
+  'icon-rotation': { type: 'number', default: 90 }
+};
 
-  interface AccordionState {
-    activeItems: Set<number>;
-  }
+interface AccordionState {
+  activeItems: Set<number>;
+}
 
-  class PxmAccordion extends HTMLElement {
-    private config: AccordionConfig;
-    private state: AccordionState;
-    private items!: NodeListOf<PxmAccordionItem>;
+class PxmAccordion extends HTMLElement {
+    private config: Record<string, any> = {};
+    private state: AccordionState = { activeItems: new Set() };
+    private _items?: NodeListOf<PxmAccordionItem>;
 
-    /**
-     * Observed attributes for the custom element
-     */
+    // Cache items to avoid repeated queries
+    private get items(): NodeListOf<PxmAccordionItem> {
+      return this._items ??= this.querySelectorAll('pxm-accordion-item');
+    }
+
     static get observedAttributes(): string[] {
-      return ['allow-multiple', 'animation-duration', 'icon-rotation'];
+      return Object.keys(ACCORDION_SCHEMA);
     }
 
     constructor() {
       super();
-
-      // Initialize configuration with defaults
-      this.config = {
-        allowMultiple: false,
-        animationDuration: 300,
-        iconRotation: 90
-      };
-
-      // Initialize state
-      this.state = {
-        activeItems: new Set()
-      };
-
-      // Set ARIA role for the accordion
       this.setAttribute('role', 'list');
     }
 
-    /**
-     * Called when the element is added to the DOM
-     */
     connectedCallback(): void {
-      this.initializeFromAttributes();
-      this.setupItems();
+      withErrorBoundary(() => {
+        this.config = parseAttributes(this, ACCORDION_SCHEMA);
+        this.setupItems();
+      })();
     }
 
-    /**
-     * Called when an observed attribute changes
-     */
     attributeChangedCallback(name: string, oldValue: string, newValue: string): void {
       if (oldValue === newValue) return;
-
-      switch (name) {
-        case 'allow-multiple':
-          this.config.allowMultiple = newValue === 'true';
-          break;
-        case 'animation-duration':
-          this.config.animationDuration = parseInt(newValue, 10) || 300;
-          break;
-        case 'icon-rotation':
-          this.config.iconRotation = parseInt(newValue, 10) || 90;
-          this.updateIconRotations();
-          break;
-      }
-    }
-
-    /**
-     * Initialize configuration from HTML attributes
-     */
-    private initializeFromAttributes(): void {
-      this.config.allowMultiple = this.getAttribute('allow-multiple') === 'true';
-      const duration = this.getAttribute('animation-duration');
-      if (duration) {
-        this.config.animationDuration = parseInt(duration, 10);
-      }
-      const rotation = this.getAttribute('icon-rotation');
-      if (rotation) {
-        this.config.iconRotation = parseInt(rotation, 10);
+      
+      this.config = parseAttributes(this, ACCORDION_SCHEMA);
+      
+      if (name === 'icon-rotation') {
+        this.updateIconRotations();
       }
     }
 
@@ -96,7 +57,8 @@
      * Set up accordion items with event listeners
      */
     private setupItems(): void {
-      this.items = this.querySelectorAll('pxm-accordion-item');
+      // Clear cache to get fresh items
+      this._items = undefined;
 
       this.items.forEach((item, index) => {
         const trigger = item.querySelector('pxm-accordion-trigger');
@@ -107,15 +69,19 @@
           return;
         }
 
-        // Set ARIA attributes and roles
-        item.setAttribute('role', 'listitem');
-        trigger.setAttribute('role', 'button');
-        trigger.setAttribute('aria-expanded', 'false');
-        trigger.setAttribute('aria-controls', `accordion-content-${index}`);
-        content.setAttribute('id', `accordion-content-${index}`);
-        content.setAttribute('role', 'region');
-        content.setAttribute('aria-labelledby', `accordion-trigger-${index}`);
-        trigger.setAttribute('id', `accordion-trigger-${index}`);
+        // Set ARIA attributes and roles  
+        setAriaAttributes(item as HTMLElement, { 'role': 'listitem' });
+        setAriaAttributes(trigger as HTMLElement, {
+          'role': 'button',
+          'aria-expanded': 'false',
+          'aria-controls': `accordion-content-${index}`,
+          'id': `accordion-trigger-${index}`
+        });
+        setAriaAttributes(content as HTMLElement, {
+          'id': `accordion-content-${index}`,
+          'role': 'region',
+          'aria-labelledby': `accordion-trigger-${index}`
+        });
 
         // Set initial state
         const isActive = item.getAttribute('active') === 'true';
@@ -127,35 +93,19 @@
         }
 
         // Add click handler
-        trigger.addEventListener('click', () => this.toggleItem(index, item, content as HTMLElement, trigger as HTMLElement));
+        trigger.addEventListener('click', withErrorBoundary(() => 
+          this.toggleItem(index, item, content as HTMLElement, trigger as HTMLElement)
+        ));
 
         // Add keyboard navigation
-        trigger.addEventListener('keydown', ((event: Event) => {
-          const keyboardEvent = event as KeyboardEvent;
-          switch (keyboardEvent.key) {
-            case 'Enter':
-            case ' ':
-              event.preventDefault();
-              this.toggleItem(index, item, content as HTMLElement, trigger as HTMLElement);
-              break;
-            case 'ArrowUp':
-              event.preventDefault();
-              this.focusPreviousItem(index);
-              break;
-            case 'ArrowDown':
-              event.preventDefault();
-              this.focusNextItem(index);
-              break;
-            case 'Home':
-              event.preventDefault();
-              this.focusFirstItem();
-              break;
-            case 'End':
-              event.preventDefault();
-              this.focusLastItem();
-              break;
-          }
-        }));
+        setupKeyboardNav(trigger as HTMLElement, {
+          'Enter': (e) => { e.preventDefault(); this.toggleItem(index, item, content as HTMLElement, trigger as HTMLElement); },
+          ' ': (e) => { e.preventDefault(); this.toggleItem(index, item, content as HTMLElement, trigger as HTMLElement); },
+          'ArrowUp': (e) => { e.preventDefault(); this.focusPreviousItem(index); },
+          'ArrowDown': (e) => { e.preventDefault(); this.focusNextItem(index); },
+          'Home': (e) => { e.preventDefault(); this.focusFirstItem(); },
+          'End': (e) => { e.preventDefault(); this.focusLastItem(); }
+        });
       });
     }
 
@@ -217,7 +167,7 @@
      * Update icon rotation for a specific item
      */
     private updateIconRotation(icon: HTMLElement, isActive: boolean): void {
-      icon.style.transform = isActive ? `rotate(${this.config.iconRotation}deg)` : 'rotate(0deg)';
+      icon.style.transform = isActive ? `rotate(${this.config['icon-rotation']}deg)` : 'rotate(0deg)';
     }
 
     /**
@@ -234,7 +184,7 @@
           this.updateIconRotation(icon as HTMLElement, false);
         }
       } else {
-        if (!this.config.allowMultiple) {
+        if (!this.config['allow-multiple']) {
           // Close all other items if multiple items are not allowed
           this.items.forEach((otherItem, otherIndex) => {
             if (otherIndex !== index && this.state.activeItems.has(otherIndex)) {
@@ -278,52 +228,50 @@
       content.style.height = '0';
       content.style.opacity = '0';
     }
+}
+
+// Inject dependencies if requested (for CDN usage)
+async function injectAccordionDependencies() {
+  try {
+    const { injectComponentDependencies } = await import('../dependency-injector');
+    await injectComponentDependencies('accordion');
+  } catch (error) {
+    console.warn('Failed to inject accordion dependencies:', error);
   }
+}
+injectAccordionDependencies();
 
-  // Inject dependencies if requested (for CDN usage)
-  async function injectAccordionDependencies() {
-    try {
-      const { injectComponentDependencies } = await import('../dependency-injector');
-      await injectComponentDependencies('accordion');
-    } catch (error) {
-      console.warn('Failed to inject accordion dependencies:', error);
-    }
+// Define the custom elements
+customElements.define('pxm-accordion', PxmAccordion);
+
+// Accordion Item Component
+class PxmAccordionItem extends HTMLElement {
+  constructor() {
+    super();
   }
-  injectAccordionDependencies();
+}
+customElements.define('pxm-accordion-item', PxmAccordionItem);
 
-  // Define the custom elements
-  customElements.define('pxm-accordion', PxmAccordion);
-
-  // Accordion Item Component
-  class PxmAccordionItem extends HTMLElement {
-    constructor() {
-      super();
-    }
+// Accordion Trigger Component
+class PxmAccordionTrigger extends HTMLElement {
+  constructor() {
+    super();
   }
-  customElements.define('pxm-accordion-item', PxmAccordionItem);
+}
+customElements.define('pxm-accordion-trigger', PxmAccordionTrigger);
 
-  // Accordion Trigger Component
-  class PxmAccordionTrigger extends HTMLElement {
-    constructor() {
-      super();
-    }
+// Accordion Content Component
+class PxmAccordionContent extends HTMLElement {
+  constructor() {
+    super();
   }
-  customElements.define('pxm-accordion-trigger', PxmAccordionTrigger);
+}
+customElements.define('pxm-accordion-content', PxmAccordionContent);
 
-  // Accordion Content Component
-  class PxmAccordionContent extends HTMLElement {
-    constructor() {
-      super();
-    }
-  }
-  customElements.define('pxm-accordion-content', PxmAccordionContent);
-
-  // Make classes available globally for advanced usage
-  if (typeof window !== 'undefined') {
-    (window as any).PxmAccordion = PxmAccordion;
-    (window as any).PxmAccordionItem = PxmAccordionItem;
-    (window as any).PxmAccordionTrigger = PxmAccordionTrigger;
-    (window as any).PxmAccordionContent = PxmAccordionContent;
-  }
-
-})();
+// Make classes available globally for advanced usage
+if (typeof window !== 'undefined') {
+  (window as any).PxmAccordion = PxmAccordion;
+  (window as any).PxmAccordionItem = PxmAccordionItem;
+  (window as any).PxmAccordionTrigger = PxmAccordionTrigger;
+  (window as any).PxmAccordionContent = PxmAccordionContent;
+}

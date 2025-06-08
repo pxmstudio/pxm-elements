@@ -43,7 +43,8 @@ async function main() {
     { selector: "pxm-video", name: "video" },
     { selector: "pxm-tabs", name: "tabs" },
     { selector: "pxm-accordion", name: "accordion" },
-    { selector: "pxm-number-input", name: "number-input" }
+    { selector: "pxm-number-input", name: "number-input" },
+    { selector: "pxm-toggle", name: "toggle" }
   ];
 
   for (const component of components) {

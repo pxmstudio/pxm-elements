@@ -1,24 +1,38 @@
-// Helper function to safely inject a link tag if it doesn't already exist
-function injectLink(href: string, rel: string = 'stylesheet', type?: string): void {
-  // Check if link already exists
-  const existingLink = document.querySelector(`link[href="${href}"]`);
-  if (existingLink) return;
+/**
+ * Simple dependency injection for PXM components
+ * Loads external CSS/JS dependencies when needed
+ */
 
+// Simple dependency map
+const COMPONENT_DEPS = {
+  'lightbox': {
+    css: ['https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css'],
+    js: ['https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js']
+  },
+  'phone-input': {
+    css: ['https://cdn.jsdelivr.net/npm/intl-tel-input@25/build/css/intlTelInput.css'],
+    js: ['https://cdn.jsdelivr.net/npm/intl-tel-input@25/build/js/intlTelInputWithUtils.js']
+  }
+} as const;
+
+/**
+ * Load CSS dependency if not already loaded
+ */
+function loadCSS(href: string): void {
+  if (document.querySelector(`link[href="${href}"]`)) return;
+  
   const link = document.createElement('link');
-  link.rel = rel;
+  link.rel = 'stylesheet';
   link.href = href;
-  if (type) link.type = type;
-
-  // Inject into head
   document.head.appendChild(link);
 }
 
-// Helper function to safely inject a script tag if it doesn't already exist
-function injectScript(src: string): Promise<void> {
+/**
+ * Load JS dependency if not already loaded
+ */
+function loadJS(src: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    // Check if script already exists
-    const existingScript = document.querySelector(`script[src="${src}"]`);
-    if (existingScript) {
+    if (document.querySelector(`script[src="${src}"]`)) {
       resolve();
       return;
     }
@@ -26,42 +40,28 @@ function injectScript(src: string): Promise<void> {
     const script = document.createElement('script');
     script.src = src;
     script.onload = () => resolve();
-    script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
-
-    // Inject into head
+    script.onerror = () => reject(new Error(`Failed to load: ${src}`));
     document.head.appendChild(script);
   });
 }
 
-// Function to inject dependencies for specific components
+/**
+ * Inject dependencies for a specific component
+ */
 export async function injectComponentDependencies(componentName: string): Promise<void> {
+  const deps = COMPONENT_DEPS[componentName as keyof typeof COMPONENT_DEPS];
+  if (!deps) return;
+
   try {
-    // Component-specific dependencies
-    switch (componentName) {
-      case 'lightbox':
-        // Inject Swiper CSS and JS
-        injectLink('https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css');
-        await injectScript('https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js');
-        break;
+    // Load CSS synchronously (non-blocking)
+    deps.css?.forEach(loadCSS);
 
-      case 'phone-input':
-        // Inject intl-tel-input CSS and JS
-        injectLink('https://cdn.jsdelivr.net/npm/intl-tel-input@25/build/css/intlTelInput.css');
-        await injectScript('https://cdn.jsdelivr.net/npm/intl-tel-input@25/build/js/intlTelInputWithUtils.js');
-        break;
-
-      case 'video':
-        // Video component might need medium-zoom (if using zoom functionality)
-        // Add specific dependencies if needed
-        break;
-
-      // Add more dependencies as needed for other components
-      default:
-        // No additional dependencies needed
-        break;
+    // Load JS dependencies
+    if (deps.js?.length) {
+      await Promise.all(deps.js.map(loadJS));
     }
   } catch (error) {
-    console.warn(`Failed to inject dependencies for ${componentName}:`, error);
-    throw error;
+    console.warn(`Failed to load dependencies for ${componentName}:`, error);
+    // Don't throw - component should work without dependencies if possible
   }
 } 
