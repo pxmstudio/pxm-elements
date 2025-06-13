@@ -91,8 +91,6 @@ export type {
 // Export manager classes for advanced usage (backward compatibility)
 export { ConfigManager } from './config';
 export { ZoomManager } from './zoom-manager';
-export { ModalManager } from './modal-manager';
-export { EventManager } from './event-manager';
 
 // Export utility functions
 export * from './dom-utils';

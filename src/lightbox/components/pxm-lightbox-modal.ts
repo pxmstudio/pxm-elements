@@ -100,24 +100,8 @@ export class PxmLightboxModal extends HTMLElement {
             (this.modalOverlay as any)._clickHandler = overlayHandler;
         }
 
-        // Navigation buttons
-        if (this.navigationButtons.prev) {
-            const prevHandler = (event: Event) => {
-                event.preventDefault();
-                this.navigatePrev();
-            };
-            this.navigationButtons.prev.addEventListener('click', prevHandler);
-            (this.navigationButtons.prev as any)._clickHandler = prevHandler;
-        }
-
-        if (this.navigationButtons.next) {
-            const nextHandler = (event: Event) => {
-                event.preventDefault();
-                this.navigateNext();
-            };
-            this.navigationButtons.next.addEventListener('click', nextHandler);
-            (this.navigationButtons.next as any)._clickHandler = nextHandler;
-        }
+        // Navigation buttons are handled by ModalManager/Swiper
+        // We only listen for the slide change events to update our state
 
         // Keyboard navigation
         document.addEventListener('keydown', this.handleKeydown.bind(this));
@@ -133,7 +117,7 @@ export class PxmLightboxModal extends HTMLElement {
     }
 
     private removeEventListeners() {
-        [this.closeButton, this.modalOverlay, this.navigationButtons.prev, this.navigationButtons.next]
+        [this.closeButton, this.modalOverlay]
             .forEach(element => {
                 if (element) {
                     const handler = (element as any)._clickHandler;
@@ -167,11 +151,17 @@ export class PxmLightboxModal extends HTMLElement {
                 break;
             case 'ArrowLeft':
                 event.preventDefault();
-                this.navigatePrev();
+                // Trigger prev button click to use Swiper navigation
+                if (this.navigationButtons.prev) {
+                    (this.navigationButtons.prev as HTMLElement).click();
+                }
                 break;
             case 'ArrowRight':
                 event.preventDefault();
-                this.navigateNext();
+                // Trigger next button click to use Swiper navigation
+                if (this.navigationButtons.next) {
+                    (this.navigationButtons.next as HTMLElement).click();
+                }
                 break;
         }
     }

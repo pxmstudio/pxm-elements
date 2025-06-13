@@ -5,6 +5,183 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + TS</title>
+    <style>
+      /* Lightbox Container Styles */
+      pxm-lightbox {
+        display: block;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      /* Inline Viewer Styles */
+      pxm-lightbox-viewer {
+        display: block;
+        width: 100%;
+        height: 400px;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      pxm-lightbox-viewer img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      /* Thumbnails Container */
+      pxm-lightbox-thumbs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      /* Individual Thumbnail */
+      pxm-lightbox-thumb {
+        display: block;
+        width: 100px;
+        height: 100px;
+        cursor: pointer;
+        border: 2px solid transparent;
+        border-radius: 4px;
+        overflow: hidden;
+        transition: border-color 0.3s ease;
+      }
+
+      pxm-lightbox-thumb:hover {
+        border-color: #007bff;
+      }
+
+      pxm-lightbox-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      /* Modal Styles */
+      pxm-lightbox-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+      }
+
+      pxm-lightbox-modal[data-active="true"] {
+        display: block;
+      }
+
+      /* Modal Viewer */
+      pxm-lightbox-modal-viewer {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        height: 90%;
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        z-index: 1001;
+      }
+
+      /* Swiper Styles */
+      .swiper {
+        width: 100%;
+        height: 100%;
+      }
+
+      .swiper-slide {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+      }
+
+      .swiper-slide img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
+
+      /* Modal Navigation Buttons */
+      .button {
+        position: absolute;
+        z-index: 1001;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        border-radius: 50%;
+        color: #333;
+        font-size: 24px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .button:hover {
+        background: rgba(255, 255, 255, 1);
+      }
+
+      .is-modal-top {
+        top: 20px;
+        right: 20px;
+      }
+
+      .is-modal-left {
+        top: 50%;
+        left: 20px;
+        transform: translateY(-50%);
+      }
+
+      .is-modal-right {
+        top: 50%;
+        right: 20px;
+        transform: translateY(-50%);
+      }
+
+      /* Modal Overlay */
+      .div-block-7 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        cursor: pointer;
+      }
+
+      /* Zoom Styles */
+      [zoom-mode="cursor-area"] img {
+        cursor: zoom-in;
+      }
+
+      /* Responsive Adjustments */
+      @media (max-width: 768px) {
+        pxm-lightbox-viewer {
+          height: 300px;
+        }
+
+        pxm-lightbox-thumb {
+          width: 80px;
+          height: 80px;
+        }
+
+        .button {
+          width: 36px;
+          height: 36px;
+          font-size: 20px;
+        }
+      }
+    </style>
   </head>
   <body>
     <div id="app">
@@ -21,6 +198,48 @@
       <pxm-number-input>
         <input type="number" name="quantity" placeholder="Enter quantity">
       </pxm-number-input>
+
+      <br><br>
+
+      <h2>Lightbox Test</h2>
+      <pxm-lightbox mode="modal" zoom-mode="cursor-area">
+        <!-- Inline Component -->
+        <pxm-lightbox-inline>
+          <pxm-lightbox-viewer>
+            <img src="https://images.unsplash.com/photo-1749576502454-a0fa6ae62a48?q=80&w=1931&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Main image">
+          </pxm-lightbox-viewer>
+          
+          <pxm-lightbox-thumbs thumbs-swiper="true" data-swiper-direction="horizontal">
+            <pxm-lightbox-thumb type="image" data-full-image-src="https://images.unsplash.com/photo-1749576502454-a0fa6ae62a48?q=80&w=1931&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D">
+              <img src="https://images.unsplash.com/photo-1749576502454-a0fa6ae62a48?q=80&w=1931&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Thumbnail 1">
+            </pxm-lightbox-thumb>
+            <pxm-lightbox-thumb type="image" data-full-image-src="https://images.unsplash.com/photo-1743805350606-56ed5103769c?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D">
+              <img src="https://images.unsplash.com/photo-1743805350606-56ed5103769c?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Thumbnail 2">
+            </pxm-lightbox-thumb>
+            <pxm-lightbox-thumb type="image" data-full-image-src="https://images.unsplash.com/photo-1749371930388-50c782b0acea?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D">
+              <img src="https://images.unsplash.com/photo-1749371930388-50c782b0acea?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Thumbnail 3">
+            </pxm-lightbox-thumb>
+          </pxm-lightbox-thumbs>
+        </pxm-lightbox-inline>
+
+        <!-- Modal Component -->
+        <pxm-lightbox-modal viewer-swiper="true">
+          <pxm-lightbox-modal-viewer>
+            <div data-swiper="" class="swiper">
+              <div data-swiper-wrapper="" class="swiper-wrapper">
+                <div data-swiper-slide="" class="swiper-slide">
+                  <img src="" alt="Modal image" style="width: 100%; height: 100%; object-fit: contain;">
+                </div>
+              </div>
+            </div>
+          </pxm-lightbox-modal-viewer>
+
+          <a data-close="" href="#" class="button is-alternate is-modal-top w-button">×</a>
+          <a data-swiper-prev="" href="#" class="button is-alternate is-modal-left w-button">‹</a>
+          <a data-swiper-next="" href="#" class="button is-alternate is-modal-right w-button">›</a>
+          <div data-modal-overlay="" class="div-block-7"></div>
+        </pxm-lightbox-modal>
+      </pxm-lightbox>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

@@ -1,306 +1,207 @@
-# PXM Lightbox Component
+# PXM Lightbox - New Modular Structure
 
-A modern, modular lightbox component for image galleries with zoom functionality and optional modal view. This component has been refactored from a monolithic structure into a clean, maintainable architecture following SOLID principles.
+This document outlines the new modular architecture for the PXM Lightbox component system.
 
-## Features
+## Overview
 
-- **Thumbnail-based Image Switching**: Click thumbnails to change the main display image
-- **Cursor-area Zoom**: Hover over images to see a zoomed view that follows your cursor
-- **Modal Overlay Support**: Open images in a modal overlay for focused viewing
-- **Swiper Integration**: Enable image slider functionality in modal with Swiper.js
-- **Click-to-Close Modal**: Click on the modal backdrop to close the modal
-- **Configurable via Data Attributes**: Easy customization without JavaScript
-- **Memory Leak Prevention**: Proper cleanup of event listeners and DOM elements
-- **TypeScript Support**: Full type definitions and IntelliSense support
+The lightbox has been restructured from a monolithic component into a modular system with 9 distinct custom elements, each responsible for specific functionality.
 
-## Architecture
+## Components
 
-The component has been refactored into focused, single-responsibility modules:
+### Core Components
 
-```
-src/lightbox/
-├── index.ts           # Main entry point and exports
-├── lightbox.ts        # Main orchestrator class
-├── types.ts           # Type definitions
-├── config.ts          # Configuration management
-├── dom-utils.ts       # DOM utility functions
-├── zoom-manager.ts    # Zoom functionality
-├── modal-manager.ts   # Modal functionality
-├── event-manager.ts   # Event handling
-└── README.md          # This documentation
-```
+1. **`<pxm-lightbox>`** - Main coordinator component
+2. **`<pxm-lightbox-inline>`** - Inline view container
+3. **`<pxm-lightbox-viewer>`** - Main image/video viewer with zoom
+4. **`<pxm-lightbox-thumbs>`** - Thumbnail container with Swiper support
+5. **`<pxm-lightbox-thumb>`** - Individual thumbnail component
 
-### Key Components
+### Modal Components
 
-- **`PxmLightbox`**: Main orchestrator class that coordinates all functionality
-- **`ConfigManager`**: Handles configuration parsing and validation
-- **`ZoomManager`**: Manages zoom overlay positioning and mouse tracking
-- **`ModalManager`**: Handles modal opening, closing, and thumbnail management
-- **`EventManager`**: Centralizes all event binding and cleanup
+6. **`<pxm-lightbox-modal>`** - Modal container
+7. **`<pxm-lightbox-modal-viewer>`** - Modal viewer with Swiper
+8. **`<pxm-lightbox-modal-thumbs>`** - Modal thumbnail container
+9. **`<pxm-lightbox-modal-thumb>`** - Individual modal thumbnail (used as template)
 
-## Usage
+## Usage Patterns
 
-### Basic HTML Structure
-
+### Basic Inline Lightbox
 ```html
-<pxm-lightbox data-mode="modal" data-zoom-mode="cursor-area">
-  <!-- Main target image -->
-  <img data-target-img src="main-image.jpg" alt="Main image" />
-  
-  <!-- Thumbnail gallery -->
-  <img data-thumb-item src="thumb1.jpg" data-full-img-src="full1.jpg" alt="Thumbnail 1" />
-  <img data-thumb-item src="thumb2.jpg" data-full-img-src="full2.jpg" alt="Thumbnail 2" />
-  
-  <!-- Modal overlay (optional) -->
-  <div data-modal style="display: none;">
-    <!-- Modal backdrop - click to close -->
-    <div data-modal-overlay>
-      <div class="modal-content">
-        <img data-target-img src="main-image.jpg" alt="Modal image" />
-        <div data-modal-thumbnails>
-          <!-- Template thumbnail - will be cloned -->
-          <img data-thumb-item />
-        </div>
-        <button data-close>×</button>
-      </div>
-    </div>
-  </div>
+<pxm-lightbox mode="viewer" zoom-mode="lens">
+  <pxm-lightbox-inline>
+    <pxm-lightbox-viewer>
+      <img src="default.jpg" alt="Main image">
+    </pxm-lightbox-viewer>
+    
+    <pxm-lightbox-thumbs thumbs-swiper="true" data-swiper-direction="horizontal">
+      <pxm-lightbox-thumb type="image" data-full-image-src="image1.jpg">
+        <img src="thumb1.jpg" alt="Thumbnail 1">
+      </pxm-lightbox-thumb>
+      <pxm-lightbox-thumb type="video" data-video-src="video1.mp4" data-video-type="direct">
+        <img src="video-thumb1.jpg" alt="Video Thumbnail">
+      </pxm-lightbox-thumb>
+    </pxm-lightbox-thumbs>
+  </pxm-lightbox-inline>
 </pxm-lightbox>
 ```
 
-### Configuration Options
+### Modal Mode with Template-Based Auto-Population
 
-Configure the lightbox using data attributes:
+**Key Feature**: Define thumbnails once in the inline component, modal automatically populates from template!
 
-| Attribute | Values | Default | Description |
-|-----------|--------|---------|-------------|
-| `data-mode` | `"modal"` \| `"viewer"` | `"modal"` | Display mode for the lightbox |
-| `data-zoom-mode` | `"cursor-area"` \| `"none"` | `"cursor-area"` | Zoom functionality mode |
-| `data-zoom-size` | number | `150` | Size of zoom overlay in pixels |
-| `data-zoom-level` | number | `2` | Zoom magnification level |
-| `data-fade-duration` | number | `200` | Modal fade animation duration in milliseconds |
-| `data-target-swiper` | `"on"` \| `"off"` | `"off"` | Enable Swiper slider in modal |
-
-### Swiper Mode
-
-When `data-target-swiper="on"` is set on the lightbox element, the modal will use Swiper.js for image navigation instead of traditional thumbnails. This creates a slider interface for browsing images.
-
-#### Requirements for Swiper Mode
-
-1. **Install and Import Swiper.js**: Add Swiper to your project and import the CSS
-```bash
-npm install swiper
-```
-
-**Option A: Import in your CSS/SCSS file:**
-```css
-@import 'swiper/css';
-@import 'swiper/css/navigation';
-@import 'swiper/css/pagination';
-```
-
-**Option B: Import in your JavaScript:**
-```javascript
-import 'swiper/css';
-import 'swiper/css/navigation'; 
-import 'swiper/css/pagination';
-```
-
-**Option C: Use CDN (for quick prototyping):**
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-```
+<pxm-lightbox mode="modal" zoom-mode="cursor-area">
+  <!-- Inline Component: Define your media items here (data source) -->
+  <!-- Note: zoom-mode="cursor-area" will ONLY apply to modal images, not inline -->
+  <pxm-lightbox-inline>
+    <pxm-lightbox-viewer>
+      <img src="default.jpg" alt="Main image">
+    </pxm-lightbox-viewer>
+    
+    <pxm-lightbox-thumbs thumbs-swiper="true" data-swiper-direction="horizontal">
+      <pxm-lightbox-thumb type="image" data-full-image-src="image1.jpg">
+        <img src="thumb1.jpg" alt="Thumbnail 1">
+      </pxm-lightbox-thumb>
+      <pxm-lightbox-thumb type="image" data-full-image-src="image2.jpg">
+        <img src="thumb2.jpg" alt="Thumbnail 2">
+      </pxm-lightbox-thumb>
+      <pxm-lightbox-thumb type="video" data-video-src="video1.mp4" data-video-type="direct">
+        <img src="video-thumb1.jpg" alt="Video Thumbnail">
+      </pxm-lightbox-thumb>
+    </pxm-lightbox-thumbs>
+  </pxm-lightbox-inline>
 
-**Note**: The component automatically:
-- Checks if Swiper is available in `window.Swiper`
-- If not found, dynamically imports Swiper from npm
-- Gracefully falls back to regular mode if Swiper cannot be loaded
-- **CSS must be imported separately by the user** (standard npm practice)
-
-2. **HTML Structure for Swiper Mode**:
-```html
-<pxm-lightbox data-mode="modal" data-target-swiper="on">
-  <!-- Main target image -->
-  <img data-target-img src="main-image.jpg" alt="Main image" />
-  
-  <!-- Thumbnail gallery (used to populate swiper slides) -->
-  <img data-thumb-item src="thumb1.jpg" data-full-img-src="full1.jpg" alt="Thumbnail 1" />
-  <img data-thumb-item src="thumb2.jpg" data-full-img-src="full2.jpg" alt="Thumbnail 2" />
-  
-  <!-- Modal with Swiper structure -->
-  <div data-modal style="display: none;">
-    <div data-modal-overlay>
-      <div class="modal-content">
-        <!-- Swiper container -->
-        <div data-target-swiper class="swiper">
-          <div data-target-swiper-wrapper class="swiper-wrapper">
-            <!-- Slides will be dynamically created from thumbnails -->
+  <!-- Modal Component: Zoom effects will be applied here -->
+  <pxm-lightbox-modal thumbs-swiper="true" viewer-swiper="true">
+    <pxm-lightbox-modal-viewer>
+      <!-- Images in this viewer will have zoom-mode="cursor-area" applied -->
+      <div data-swiper="" class="swiper">
+        <div data-swiper-wrapper="" class="swiper-wrapper">
+          <div data-swiper-slide="" class="swiper-slide">
+            <img src="" alt="Modal image" style="width: 100%; height: 100%; object-fit: contain;">
           </div>
-          <!-- Optional: Add navigation arrows -->
-          <div class="swiper-button-next"></div>
-          <div class="swiper-button-prev"></div>
-          <!-- Optional: Add pagination -->
-          <div class="swiper-pagination"></div>
         </div>
-        
-        <!-- Traditional thumbnails (not used in swiper mode) -->
-        <div data-modal-thumbnails style="display: none;">
-          <img data-thumb-item />
-        </div>
-        
-        <button data-close>×</button>
       </div>
-    </div>
-  </div>
+    </pxm-lightbox-modal-viewer>
+
+    <!-- Template-based Modal Thumbs: Clean template without swiper structure -->
+    <pxm-lightbox-modal-thumbs data-swiper-direction="horizontal" class="modal_thumbnails">
+      <!-- This single thumbnail serves as a TEMPLATE for all modal thumbs -->
+      <!-- Note: No swiper structure here - it's created automatically at container level -->
+      <pxm-lightbox-modal-thumb 
+        type="image" 
+        data-full-image-src="" 
+        class="modal-thumb-image" 
+        aria-label="Image thumbnail. Click to view in modal." 
+        role="button" 
+        tabindex="0">
+        <!-- Inner content will be automatically populated from inline thumbs -->
+        <img loading="lazy" src="" alt="" class="lightbox_thumb-img">
+      </pxm-lightbox-modal-thumb>
+    </pxm-lightbox-modal-thumbs>
+
+    <a data-close="" href="#" class="button is-alternate is-modal-top w-button">×</a>
+    <a data-swiper-prev="" href="#" class="button is-alternate is-modal-left w-button">‹</a>
+    <a data-swiper-next="" href="#" class="button is-alternate is-modal-right w-button">›</a>
+    <div data-modal-overlay="" class="div-block-7"></div>
+  </pxm-lightbox-modal>
 </pxm-lightbox>
 ```
 
-#### Swiper Features
+### How Template Auto-Population Works
 
-- **Automatic Slide Creation**: Slides are automatically generated from thumbnail images
-- **Navigation**: Supports keyboard navigation and optional arrow buttons
-- **Pagination**: Optional dot indicators for slide position
-- **Loop Mode**: Infinite looping through images
-- **Zoom Integration**: Zoom functionality works on the current active slide
-- **Thumbnail Integration**: Clicking outside thumbnails opens modal to corresponding slide
+1. **Define Once**: You only define your media items in the `<pxm-lightbox-inline>` component
+2. **Clean Template**: Provide one `<pxm-lightbox-modal-thumb>` as a clean template (no swiper structure inside)
+3. **Auto-Population**: The modal automatically:
+   - Extracts inner content from each inline thumb (img elements, etc.)
+   - Clones your clean template for each media item
+   - Inserts the extracted content into each template clone
+   - Populates attributes (type, data-* attributes) from inline data
+   - Creates proper swiper structure at container level
+   - Manages active states and navigation
 
-### Programmatic API
+### Template Structure Rules
 
-```javascript
-// Get lightbox instance
-const lightbox = document.querySelector('pxm-lightbox');
+- ✅ **Clean Template**: No swiper structure inside template thumb
+- ✅ **Container Swiper**: Swiper structure created at `<pxm-lightbox-modal-thumbs>` level
+- ✅ **Content Extraction**: Inner content (img, etc.) copied from inline thumbs
+- ✅ **Attribute Population**: Template populated with data from inline thumbs
+- ✅ **Automatic Management**: Active states, navigation, and events handled automatically
 
-// Update target image
-lightbox.updateTargetImage('new-image.jpg');
+### Benefits of Template Approach
 
-// Open/close modal programmatically (async for swiper initialization)
-await lightbox.openModal();
-lightbox.closeModal();
+- ✅ **DRY Principle** - Define thumbnails once, use everywhere
+- ✅ **Design Flexibility** - Customize modal thumb appearance via template
+- ✅ **Automatic Sync** - Modal always matches inline content
+- ✅ **Less Maintenance** - No need to manually keep modal and inline in sync
+- ✅ **Cleaner HTML** - Significantly less repetitive markup
+- ✅ **Content Extraction** - Automatically copies styling and structure from inline thumbs
 
-// Get current state
-console.log(lightbox.getMode()); // "modal" | "viewer"
-console.log(lightbox.getZoomMode()); // "cursor-area" | "none"
+### Inline Lightbox with Viewer Swiper
 
-// Refresh thumbnails after dynamic content changes
-lightbox.refreshThumbnails();
+```html
+<pxm-lightbox mode="viewer" zoom-mode="lens">
+  <pxm-lightbox-inline>
+    <!-- Viewer with swiper structure for swiping through images -->
+    <pxm-lightbox-viewer>
+      <div data-swiper="" class="swiper">
+        <div data-swiper-wrapper="" class="swiper-wrapper">
+          <!-- Slides will be auto-populated from media items -->
+          <div data-swiper-slide="" class="swiper-slide">
+            <img src="default.jpg" alt="Main image">
+          </div>
+        </div>
+      </div>
+    </pxm-lightbox-viewer>
+    
+    <pxm-lightbox-thumbs data-swiper-direction="horizontal">
+      <pxm-lightbox-thumb type="image" data-full-image-src="image1.jpg">
+        <img src="thumb1.jpg" alt="Thumbnail 1">
+      </pxm-lightbox-thumb>
+      <pxm-lightbox-thumb type="image" data-full-image-src="image2.jpg">
+        <img src="thumb2.jpg" alt="Thumbnail 2">
+      </pxm-lightbox-thumb>
+      <pxm-lightbox-thumb type="video" data-video-src="video1.mp4" data-video-type="direct">
+        <img src="video-thumb1.jpg" alt="Video Thumbnail">
+      </pxm-lightbox-thumb>
+    </pxm-lightbox-thumbs>
+  </pxm-lightbox-inline>
+</pxm-lightbox>
 ```
 
-## Modal Overlay Functionality
+### Viewer Structure Options
 
-The modal includes support for clicking on the backdrop to close the modal. This requires proper HTML structure:
-
-- **`data-modal-overlay`**: The backdrop element that users can click to close the modal
-- **Modal Content**: Should be wrapped in a child element to prevent accidental closes when clicking on content
-
-### Recommended Modal CSS
-
-```css
-/* Modal backdrop styling */
-[data-modal-overlay] {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-/* Modal content container */
-.modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  max-width: 90vw;
-  max-height: 90vh;
-  position: relative;
-}
-
-/* Prevent background scroll when modal is open */
-body.modal-open {
-  overflow: hidden;
-}
+**Single Image Mode (no swiper):**
+```html
+<pxm-lightbox-viewer>
+  <img src="default.jpg" alt="Main image">
+</pxm-lightbox-viewer>
 ```
 
-## CSS Customization
-
-The component sets CSS custom properties that you can override:
-
-```css
-pxm-lightbox {
-  --pxm-lightbox-zoom-size: 200px;
-  --pxm-lightbox-zoom-border: 3px solid #000;
-  --pxm-lightbox-zoom-background: #fff;
-  --pxm-lightbox-zoom-shadow: 0 4px 20px rgba(0,0,0,0.4);
-  --pxm-lightbox-zoom-z-index: 999999;
-  --pxm-lightbox-zoom-border-radius: 8px;
-}
+**Swiper Mode (with swiper structure):**
+```html
+<pxm-lightbox-viewer>
+  <div data-swiper="" class="swiper">
+    <div data-swiper-wrapper="" class="swiper-wrapper">
+      <!-- Slides auto-populated from media items -->
+      <div data-swiper-slide="" class="swiper-slide">
+        <img src="default.jpg" alt="Main image">
+      </div>
+    </div>
+  </div>
+</pxm-lightbox-viewer>
 ```
 
-## Improvements Made
+## Component Attributes
 
-### Before (Monolithic Structure)
-- Single 348-line class handling all functionality
-- Mixed concerns (DOM manipulation, events, zoom, modal)
-- Hardcoded configuration values
-- Potential memory leaks with event handlers
-- Difficult to test individual features
-- Code duplication in event handler setup
+### Main Lightbox
+- `mode`: `"viewer"` (default) | `"modal"`
+- `zoom-mode`: `"none"` | `"lens"` | `"zoom-in"` | `"cursor-area"`
 
-### After (Modular Architecture)
-- **Separation of Concerns**: Each class has a single responsibility
-- **Configuration Management**: Centralized, validated configuration
-- **Memory Management**: Proper cleanup in `disconnectedCallback()`
-- **Error Handling**: Robust error handling and logging
-- **Type Safety**: Full TypeScript support with comprehensive types
-- **Testability**: Each manager can be tested independently
-- **Maintainability**: Clear structure makes changes easier
-- **Extensibility**: Easy to add new features without modifying existing code
+**Zoom Behavior:**
+- `mode="viewer"`: Zoom applies to inline viewer images
+- `mode="modal"`: Zoom applies ONLY to modal viewer images (inline viewer zoom disabled)
 
-### Technical Improvements
-
-1. **Single Responsibility Principle**: Each manager class handles one specific aspect
-2. **Dependency Injection**: Managers receive dependencies through constructors
-3. **Safe DOM Queries**: Utility functions with error handling
-4. **Event Handler Cleanup**: Prevents memory leaks
-5. **Configuration Validation**: Robust parsing with fallbacks
-6. **Documentation**: Comprehensive JSDoc comments
-7. **Error Boundaries**: Graceful error handling throughout
-
-## Browser Support
-
-- Modern browsers with ES6+ support
-- Custom Elements v1 support required
-- TypeScript 4.0+ for development
-
-## Development
-
-### Building
-```bash
-npm run build
-```
-
-### Testing
-```bash
-npm run test
-```
-
-### Linting
-```bash
-npm run lint
-```
-
-## Migration Guide
-
-If upgrading from the previous version:
-
-1. **No Breaking Changes**: The HTML structure and data attributes remain the same
-2. **Enhanced API**: New programmatic methods available
-3. **Better Performance**: Improved memory management and event handling
-4. **Type Safety**: Full TypeScript support if using in TypeScript projects
-
-The refactored component is a drop-in replacement with the same external interface but much better internal architecture. 
+### Swiper Integration
+- `thumbs-swiper="true"` - Enable Swiper for thumbnails
+- `viewer-swiper="true"`

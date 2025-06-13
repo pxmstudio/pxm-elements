@@ -108,8 +108,8 @@ export class PxmLightboxModalViewer extends HTMLElement {
                 enabled: true,
             },
             navigation: {
-                nextEl: '.modal [data-swiper-next]',
-                prevEl: '.modal [data-swiper-prev]',
+                nextEl: '[data-swiper-next]',
+                prevEl: '[data-swiper-prev]',
             },
             on: {
                 slideChange: () => {

@@ -59,6 +59,4 @@ export { PxmLightboxInline, PxmLightboxThumbs, PxmLightboxThumb, PxmLightboxView
 export type { LightboxMode, ZoomMode, LightboxConfig, LightboxElements, EventHandlers, MediaType, MediaItem } from './types';
 export { ConfigManager } from './config';
 export { ZoomManager } from './zoom-manager';
-export { ModalManager } from './modal-manager';
-export { EventManager } from './event-manager';
 export * from './dom-utils';
