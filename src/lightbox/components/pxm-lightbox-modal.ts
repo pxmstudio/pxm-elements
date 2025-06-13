@@ -175,22 +175,6 @@ export class PxmLightboxModal extends HTMLElement {
         }
     }
 
-    private navigatePrev() {
-        if (this.mediaItems.length > 0) {
-            this.currentIndex = this.currentIndex > 0 ? this.currentIndex - 1 : this.mediaItems.length - 1;
-            this.updateModalContent();
-            this.dispatchNavigation();
-        }
-    }
-
-    private navigateNext() {
-        if (this.mediaItems.length > 0) {
-            this.currentIndex = this.currentIndex < this.mediaItems.length - 1 ? this.currentIndex + 1 : 0;
-            this.updateModalContent();
-            this.dispatchNavigation();
-        }
-    }
-
     private handleModalThumbnailClick(event: Event) {
         const customEvent = event as CustomEvent;
         if (customEvent.detail?.index !== undefined) {
