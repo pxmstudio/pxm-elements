@@ -25,6 +25,13 @@ export default defineConfig({
                 "tabs": resolve(__dirname, "src/tabs/index.ts"),
                 "video": resolve(__dirname, "src/video/index.ts"),
                 "number-input": resolve(__dirname, "src/number-input/index.ts"),
+                "toggle": resolve(__dirname, "src/toggle/index.ts"),
+                "select": resolve(__dirname, "src/select/index.ts"),
+                "slider": resolve(__dirname, "src/slider/index.ts"),
+                "tooltip": resolve(__dirname, "src/tooltip/index.ts"),
+                "dialog": resolve(__dirname, "src/dialog/index.ts"),
+                "dropdown": resolve(__dirname, "src/dropdown/index.ts"),
+                "switch": resolve(__dirname, "src/switch/index.ts")
             },
             formats: ["es"],
             fileName: (format, entryName) => `${entryName}.js`

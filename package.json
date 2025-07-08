@@ -14,52 +14,52 @@
       "require": "./dist/umd/index.js"
     },
     "./phone-input": {
-      "import": "./dist/esm/phone-input.js",
-      "require": "./dist/umd/phone-input.js"
+      "import": "./dist/phone-input/index.js",
+      "require": "./dist/phone-input/index.js"
     },
     "./accordion": {
-      "import": "./dist/esm/accordion.js",
-      "require": "./dist/umd/accordion.js"
+      "import": "./dist/accordion/index.js",
+      "require": "./dist/accordion/index.js"
     },
     "./tabs": {
-      "import": "./dist/esm/tabs.js",
-      "require": "./dist/umd/tabs.js"
+      "import": "./dist/tabs/index.js",
+      "require": "./dist/tabs/index.js"
     },
     "./video": {
-      "import": "./dist/esm/video.js",
-      "require": "./dist/umd/video.js"
+      "import": "./dist/video/index.js",
+      "require": "./dist/video/index.js"
     },
     "./number-input": {
-      "import": "./dist/esm/number-input.js",
-      "require": "./dist/umd/number-input.js"
+      "import": "./dist/number-input/index.js",
+      "require": "./dist/number-input/index.js"
     },
     "./toggle": {
-      "import": "./dist/esm/toggle.js",
-      "require": "./dist/umd/toggle.js"
+      "import": "./dist/toggle/index.js",
+      "require": "./dist/toggle/index.js"
     },
     "./select": {
-      "import": "./dist/esm/select.js",
-      "require": "./dist/umd/select.js"
+      "import": "./dist/select/index.js",
+      "require": "./dist/select/index.js"
     },
     "./slider": {
-      "import": "./dist/esm/slider.js",
-      "require": "./dist/umd/slider.js"
+      "import": "./dist/slider/index.js",
+      "require": "./dist/slider/index.js"
     },
     "./tooltip": {
-      "import": "./dist/esm/tooltip.js",
-      "require": "./dist/umd/tooltip.js"
+      "import": "./dist/tooltip/index.js",
+      "require": "./dist/tooltip/index.js"
     },
     "./dialog": {
-      "import": "./dist/esm/dialog.js",
-      "require": "./dist/umd/dialog.js"
+      "import": "./dist/dialog/index.js",
+      "require": "./dist/dialog/index.js"
     },
     "./dropdown": {
-      "import": "./dist/esm/dropdown.js",
-      "require": "./dist/umd/dropdown.js"
+      "import": "./dist/dropdown/index.js",
+      "require": "./dist/dropdown/index.js"
     },
     "./switch": {
-      "import": "./dist/esm/switch.js",
-      "require": "./dist/umd/switch.js"
+      "import": "./dist/switch/index.js",
+      "require": "./dist/switch/index.js"
     }
   },
   "scripts": {
