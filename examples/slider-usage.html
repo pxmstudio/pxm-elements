@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PXM Slider Examples</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .example {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+
+        .example h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: #374151;
+        }
+
+        /* Slider Styling - Essential styles for appearance */
+        pxm-slider {
+            width: 300px;
+            height: 20px;
+            display: inline-block;
+            margin: 1rem 0;
+        }
+
+        pxm-slider-track {
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+        }
+
+        pxm-slider-range {
+            background: #3b82f6;
+            border-radius: inherit;
+            transition: all 0.2s ease;
+        }
+
+        pxm-slider-thumb {
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            border: 2px solid white;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        pxm-slider-thumb:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        pxm-slider-thumb[data-dragging="true"] {
+            transform: translate(-50%, -50%) scale(1.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        pxm-slider-thumb[data-active="true"] {
+            border-color: #1d4ed8;
+        }
+
+        /* Example 1: Display values OUTSIDE thumbs using CSS ::after */
+        .show-values-outside pxm-slider-thumb::after {
+            content: attr(data-display-value);
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #374151;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        /* Example 2: Display values INSIDE thumbs */
+        .show-values-inside pxm-slider-thumb {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .show-values-inside .thumb-label {
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            pointer-events: none;
+        }
+
+        /* Example 3: Mixed positioning - outside for first thumb, inside for second */
+        .mixed-values pxm-slider-thumb[data-thumb-index="0"]::before {
+            content: attr(data-display-value) "%";
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ef4444;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            pointer-events: none;
+        }
+
+        .mixed-values pxm-slider-thumb[data-thumb-index="1"] {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #10b981 !important;
+        }
+
+        .mixed-values pxm-slider-thumb[data-thumb-index="1"] .thumb-label {
+            color: white;
+            font-size: 9px;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            pointer-events: none;
+        }
+
+        /* Example 4: Tooltip-style labels */
+        .tooltip-values pxm-slider-thumb::after {
+            content: attr(data-display-value) "%";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            white-space: nowrap;
+            pointer-events: none;
+            margin-bottom: 5px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .tooltip-values pxm-slider-thumb::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid transparent;
+            border-top-color: #1f2937;
+            margin-bottom: 1px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .tooltip-values pxm-slider-thumb:hover::after,
+        .tooltip-values pxm-slider-thumb:hover::before,
+        .tooltip-values pxm-slider-thumb[data-dragging="true"]::after,
+        .tooltip-values pxm-slider-thumb[data-dragging="true"]::before {
+            opacity: 1;
+        }
+
+        /* Disabled state */
+        pxm-slider[data-disabled="true"] {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        pxm-slider[data-disabled="true"] pxm-slider-thumb {
+            cursor: not-allowed;
+        }
+
+        /* Vertical slider */
+        pxm-slider[data-orientation="vertical"] {
+            width: 20px;
+            height: 200px;
+        }
+
+        pxm-slider[data-orientation="vertical"] pxm-slider-track {
+            top: 0;
+            left: 50%;
+            width: 4px;
+            height: 100%;
+            transform: translateX(-50%);
+        }
+
+        pxm-slider[data-orientation="vertical"] pxm-slider-thumb {
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .output {
+            margin-top: 0.5rem;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .controls {
+            margin-top: 1rem;
+        }
+
+        .controls button {
+            margin-right: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .controls button:hover {
+            background: #2563eb;
+        }
+
+        .form-example {
+            background: #f9fafb;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>PXM Slider Component Examples</h1>
+    <p>Interactive examples of the PXM Slider component with various configurations.</p>
+
+    <div class="example">
+        <h3>Basic Slider</h3>
+        <p>A simple horizontal slider with default settings.</p>
+        <pxm-slider id="basic-slider" min="0" max="100" value="50">
+            <pxm-slider-track>
+                <pxm-slider-range></pxm-slider-range>
+            </pxm-slider-track>
+            <pxm-slider-thumb></pxm-slider-thumb>
+        </pxm-slider>
+        <div class="output" id="basic-output">Value: 50</div>
+    </div>
+
+    <div class="example">
+        <h3>Range Slider (Multiple Thumbs)</h3>
+        <p>A slider with two thumbs for selecting a range of values.</p>
+        <pxm-slider id="range-slider" min="0" max="100" value="20,80">
+            <pxm-slider-track>
+                <pxm-slider-range></pxm-slider-range>
+            </pxm-slider-track>
+            <pxm-slider-thumb></pxm-slider-thumb>
+            <pxm-slider-thumb></pxm-slider-thumb>
+        </pxm-slider>
+        <div class="output" id="range-output">Range: 20 - 80</div>
+    </div>
+
+    <div class="example">
+        <h3>Values Outside Thumbs (CSS ::after)</h3>
+        <p>Using <code>data-display-value</code> attribute to show values above thumbs with pure CSS.</p>
+        <pxm-slider class="show-values-outside" id="outside-values-slider" min="0" max="100" value="30,70">
+            <pxm-slider-track>
+                <pxm-slider-range></pxm-slider-range>
+            </pxm-slider-track>
+            <pxm-slider-thumb></pxm-slider-thumb>
+            <pxm-slider-thumb></pxm-slider-thumb>
+        </pxm-slider>
+        <div class="output" id="outside-values-output">Values displayed above thumbs using CSS</div>
+    </div>
+
+    <div class="example">
+        <h3>Values Inside Thumbs (HTML Content)</h3>
+        <p>Values displayed directly inside thumb elements with HTML content. Any element with <code>data-value-display</code> attribute inside a thumb will automatically show that thumb's value!</p>
+        <pxm-slider class="show-values-inside" id="inside-values-slider" min="0" max="100" value="25,75">
+            <pxm-slider-track>
+                <pxm-slider-range></pxm-slider-range>
+            </pxm-slider-track>
+            <pxm-slider-thumb>
+                <span class="thumb-label" data-value-display>25</span>%
+            </pxm-slider-thumb>
+            <pxm-slider-thumb>
+                <span class="thumb-label" data-value-display>75</span>%
+            </pxm-slider-thumb>
+        </pxm-slider>
+        <div class="output" id="inside-values-output">Values displayed inside thumbs</div>
+    </div>
+
+    <div class="example">
+        <h3>Mixed Positioning</h3>
+        <p>First thumb shows value below (outside), second thumb shows value inside.</p>
+        <pxm-slider class="mixed-values" id="mixed-values-slider" min="0" max="100" value="40,80">
+            <pxm-slider-track>
+                <pxm-slider-range></pxm-slider-range>
+            </pxm-slider-track>
+            <pxm-slider-thumb></pxm-slider-thumb>
+            <pxm-slider-thumb>
+                <span class="thumb-label" data-value-display>80</span>%
+            </pxm-slider-thumb>
+        </pxm-slider>
+        <div class="output" id="mixed-values-output">Mixed label positioning</div>
+    </div>
+
+    <div class="example">
+        <h3>Tooltip Values (Show on Hover/Drag)</h3>
+        <p>Values appear as tooltips when hovering or dragging thumbs.</p>
+        <pxm-slider class="tooltip-values" id="tooltip-values-slider" min="0" max="100" value="35,65">
+            <pxm-slider-track>
+                <pxm-slider-range></pxm-slider-range>
+            </pxm-slider-track>
+            <pxm-slider-thumb></pxm-slider-thumb>
+            <pxm-slider-thumb></pxm-slider-thumb>
+        </pxm-slider>
+        <div class="output" id="tooltip-values-output">Hover or drag thumbs to see values</div>
+    </div>
+
+    <div class="example">
+        <h3>Step Slider</h3>
+        <p>A slider with step increments of 10.</p>
+        <pxm-slider id="step-slider" min="0" max="100" step="10" value="50">
+            <pxm-slider-track>
+                <pxm-slider-range></pxm-slider-range>
+            </pxm-slider-track>
+            <pxm-slider-thumb></pxm-slider-thumb>
+        </pxm-slider>
+        <div class="output" id="step-output">Value: 50 (step: 10)</div>
+    </div>
+
+    <div class="example">
+        <h3>Vertical Slider</h3>
+        <p>A vertical orientation slider.</p>
+        <pxm-slider id="vertical-slider" orientation="vertical" min="0" max="100" value="30">
+            <pxm-slider-track>
+                <pxm-slider-range></pxm-slider-range>
+            </pxm-slider-track>
+            <pxm-slider-thumb></pxm-slider-thumb>
+        </pxm-slider>
+        <div class="output" id="vertical-output">Value: 30</div>
+    </div>
+
+    <div class="example">
+        <h3>Disabled Slider</h3>
+        <p>A disabled slider that cannot be interacted with.</p>
+        <pxm-slider id="disabled-slider" disabled="true" min="0" max="100" value="75">
+            <pxm-slider-track>
+                <pxm-slider-range></pxm-slider-range>
+            </pxm-slider-track>
+            <pxm-slider-thumb></pxm-slider-thumb>
+        </pxm-slider>
+        <div class="output" id="disabled-output">Value: 75 (disabled)</div>
+    </div>
+
+    <div class="example">
+        <h3>Dynamic Controls</h3>
+        <p>Programmatically control the slider using JavaScript API.</p>
+        <pxm-slider id="dynamic-slider" min="0" max="100" value="40">
+            <pxm-slider-track>
+                <pxm-slider-range></pxm-slider-range>
+            </pxm-slider-track>
+            <pxm-slider-thumb></pxm-slider-thumb>
+        </pxm-slider>
+        <div class="output" id="dynamic-output">Value: 40</div>
+        <div class="controls">
+            <button onclick="addThumb()">Add Thumb</button>
+            <button onclick="removeThumb()">Remove Thumb</button>
+            <button onclick="setRandomValue()">Random Value</button>
+            <button onclick="toggleDisabled()">Toggle Disabled</button>
+        </div>
+    </div>
+
+    <div class="example">
+        <h3>Form Integration</h3>
+        <p>Slider integrated with form submission.</p>
+        <form id="slider-form" class="form-example">
+            <label for="volume-slider">Volume Control:</label><br>
+            <pxm-slider id="volume-slider" form="true" name="volume" min="0" max="100" value="65">
+                <pxm-slider-track>
+                    <pxm-slider-range></pxm-slider-range>
+                </pxm-slider-track>
+                <pxm-slider-thumb></pxm-slider-thumb>
+            </pxm-slider>
+            <div class="output" id="volume-output">Volume: 65</div>
+            
+            <label for="range-slider-form" style="margin-top: 1rem; display: block;">EQ Range:</label><br>
+            <pxm-slider id="range-slider-form" form="true" name="eq_range" min="20" max="20000" value="200,8000">
+                <pxm-slider-track>
+                    <pxm-slider-range></pxm-slider-range>
+                </pxm-slider-track>
+                <pxm-slider-thumb></pxm-slider-thumb>
+                <pxm-slider-thumb></pxm-slider-thumb>
+            </pxm-slider>
+            <div class="output" id="eq-output">EQ Range: 200Hz - 8000Hz</div>
+            
+            <button type="submit" style="margin-top: 1rem;">Submit Form</button>
+        </form>
+        <div class="output" id="form-output">Form data will appear here when submitted</div>
+    </div>
+
+    <script type="module">
+        // Import the slider component
+        import '../src/slider/index.js';
+
+        // Basic slider
+        const basicSlider = document.getElementById('basic-slider');
+        const basicOutput = document.getElementById('basic-output');
+        
+        basicSlider.addEventListener('pxm:slider:change', (e) => {
+            basicOutput.textContent = `Value: ${e.detail.value}`;
+        });
+
+        // Range slider
+        const rangeSlider = document.getElementById('range-slider');
+        const rangeOutput = document.getElementById('range-output');
+        
+        rangeSlider.addEventListener('pxm:slider:change', (e) => {
+            const values = e.detail.values;
+            rangeOutput.textContent = `Range: ${values[0]} - ${values[1]}`;
+        });
+
+        // Outside Values slider (CSS-based)
+        const outsideValuesSlider = document.getElementById('outside-values-slider');
+        const outsideValuesOutput = document.getElementById('outside-values-output');
+        
+        outsideValuesSlider.addEventListener('pxm:slider:change', (e) => {
+            const values = e.detail.values;
+            outsideValuesOutput.textContent = `Values displayed above thumbs: ${values[0]} - ${values[1]}`;
+        });
+
+        // Inside Values slider (HTML content updates automatically)
+        const insideValuesSlider = document.getElementById('inside-values-slider');
+        const insideValuesOutput = document.getElementById('inside-values-output');
+        
+        insideValuesSlider.addEventListener('pxm:slider:change', (e) => {
+            const values = e.detail.values;
+            // Note: HTML content inside thumbs updates automatically via data-value-display
+            insideValuesOutput.textContent = `Values inside thumbs: ${values[0]} - ${values[1]}`;
+        });
+
+        // Mixed Values slider
+        const mixedValuesSlider = document.getElementById('mixed-values-slider');
+        const mixedValuesOutput = document.getElementById('mixed-values-output');
+        
+        mixedValuesSlider.addEventListener('pxm:slider:change', (e) => {
+            const values = e.detail.values;
+            // Note: HTML content inside thumbs updates automatically via data-value-display
+            mixedValuesOutput.textContent = `Outside: ${values[0]}%, Inside: ${values[1]}%`;
+        });
+
+        // Tooltip Values slider
+        const tooltipValuesSlider = document.getElementById('tooltip-values-slider');
+        const tooltipValuesOutput = document.getElementById('tooltip-values-output');
+        
+        tooltipValuesSlider.addEventListener('pxm:slider:change', (e) => {
+            const values = e.detail.values;
+            tooltipValuesOutput.textContent = `Tooltip values: ${values[0]} - ${values[1]}`;
+        });
+
+        // Step slider
+        const stepSlider = document.getElementById('step-slider');
+        const stepOutput = document.getElementById('step-output');
+        
+        stepSlider.addEventListener('pxm:slider:change', (e) => {
+            stepOutput.textContent = `Value: ${e.detail.value} (step: 10)`;
+        });
+
+        // Vertical slider
+        const verticalSlider = document.getElementById('vertical-slider');
+        const verticalOutput = document.getElementById('vertical-output');
+        
+        verticalSlider.addEventListener('pxm:slider:change', (e) => {
+            verticalOutput.textContent = `Value: ${e.detail.value}`;
+        });
+
+        // Dynamic slider
+        const dynamicSlider = document.getElementById('dynamic-slider');
+        const dynamicOutput = document.getElementById('dynamic-output');
+        
+        dynamicSlider.addEventListener('pxm:slider:change', (e) => {
+            const values = Array.isArray(e.detail.value) ? e.detail.value : [e.detail.value];
+            dynamicOutput.textContent = `Value${values.length > 1 ? 's' : ''}: ${values.join(', ')}`;
+        });
+
+        // Global functions for dynamic controls
+        window.addThumb = () => {
+            const randomValue = Math.floor(Math.random() * 100);
+            dynamicSlider.addThumb(randomValue);
+        };
+
+        window.removeThumb = () => {
+            const values = dynamicSlider.getValues();
+            if (values.length > 1) {
+                dynamicSlider.removeThumb(values.length - 1);
+            }
+        };
+
+        window.setRandomValue = () => {
+            const randomValue = Math.floor(Math.random() * 100);
+            dynamicSlider.value = randomValue;
+        };
+
+        window.toggleDisabled = () => {
+            dynamicSlider.disabled = !dynamicSlider.disabled;
+        };
+
+        // Form integration
+        const volumeSlider = document.getElementById('volume-slider');
+        const volumeOutput = document.getElementById('volume-output');
+        
+        volumeSlider.addEventListener('pxm:slider:change', (e) => {
+            volumeOutput.textContent = `Volume: ${e.detail.value}`;
+        });
+
+        const rangeSliderForm = document.getElementById('range-slider-form');
+        const eqOutput = document.getElementById('eq-output');
+        
+        rangeSliderForm.addEventListener('pxm:slider:change', (e) => {
+            const values = e.detail.values;
+            eqOutput.textContent = `EQ Range: ${values[0]}Hz - ${values[1]}Hz`;
+        });
+
+        // Form submission
+        const sliderForm = document.getElementById('slider-form');
+        const formOutput = document.getElementById('form-output');
+        
+        sliderForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {};
+            for (const [key, value] of formData.entries()) {
+                if (data[key]) {
+                    if (!Array.isArray(data[key])) {
+                        data[key] = [data[key]];
+                    }
+                    data[key].push(value);
+                } else {
+                    data[key] = value;
+                }
+            }
+            formOutput.textContent = `Form data: ${JSON.stringify(data)}`;
+        });
+
+        // Value commit events for debugging
+        document.addEventListener('pxm:slider:value-commit', (e) => {
+            console.log('Value committed:', e.detail);
+        });
+
+        document.addEventListener('pxm:slider:thumb-drag-start', (e) => {
+            console.log('Drag start:', e.detail);
+        });
+
+        document.addEventListener('pxm:slider:thumb-drag-end', (e) => {
+            console.log('Drag end:', e.detail);
+        });
+    </script>
+</body>
+</html> 

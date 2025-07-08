@@ -2,6 +2,7 @@ import type { PxmAccordion, AccordionEventDetail } from './accordion';
 import type { PxmTabs, TabsEventDetail } from './tabs';
 import type { PxmToggle, ToggleEventDetail } from './toggle';
 import type { PxmTooltip, TooltipEventDetail } from './tooltip';
+
 import gsap from 'gsap';
 
 async function main() {
@@ -298,6 +299,8 @@ async function main() {
     }
   }
 
+
+
   if (document.querySelector('pxm-dropdown')) {
     await import('./dropdown');
 
@@ -376,6 +379,10 @@ async function main() {
     //     });
     //   });
     // });
+  }
+
+  if (document.querySelector('pxm-slider')) {
+    await import('./slider');
   }
 }
 
