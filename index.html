@@ -240,6 +240,51 @@
           <div data-modal-overlay="" class="div-block-7"></div>
         </pxm-lightbox-modal>
       </pxm-lightbox>
+
+      <br><br>
+
+      <h2>Modal Test</h2>
+      <pxm-modal>
+        <pxm-modal-trigger>
+          <button style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+            Open Modal
+          </button>
+        </pxm-modal-trigger>
+        
+        <pxm-modal-content>
+          <div style="background: white; padding: 20px; border-radius: 8px; max-width: 500px; margin: 0 auto;">
+            <h3>Modal Title</h3>
+            <p>This is the modal content. You can put any content here including forms, images, text, etc.</p>
+            <p>Click the X button or press Escape to close this modal.</p>
+            <button data-close style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; float: right;">
+              ✕ Close
+            </button>
+            <div style="clear: both;"></div>
+          </div>
+        </pxm-modal-content>
+      </pxm-modal>
+
+      <br><br>
+
+      <h2>Another Modal Example</h2>
+      <pxm-modal animation-duration="500" close-on-backdrop="false">
+        <pxm-modal-trigger>
+          <button style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+            Open Slow Modal (No Backdrop Close)
+          </button>
+        </pxm-modal-trigger>
+        
+        <pxm-modal-content>
+          <div style="background: white; padding: 30px; border-radius: 8px; max-width: 600px; margin: 0 auto; text-align: center;">
+            <h3>🎉 Success!</h3>
+            <p>This modal has a slower animation (500ms) and won't close when clicking the backdrop.</p>
+            <p>You must use the close button or press Escape.</p>
+            <button data-close style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 15px;">
+              Got it!
+            </button>
+          </div>
+        </pxm-modal-content>
+      </pxm-modal>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

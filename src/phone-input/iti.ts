@@ -1,16 +1,20 @@
 import intlTelInput from "intl-tel-input/intlTelInputWithUtils";
 
-export const iti = ({
-    input,
-    initialCountry = "us",
-    separateDialCode = true,
-    formatOnDisplay = true,
-}: {
+export interface ITIOptions {
     input: HTMLInputElement;
     initialCountry?: string;
     separateDialCode?: boolean;
     formatOnDisplay?: boolean;
-}) => {
+    nationalMode?: boolean;
+}
+
+export const iti = async ({
+    input,
+    initialCountry = "us",
+    separateDialCode = true,
+    formatOnDisplay = true,
+    nationalMode = false,
+}: ITIOptions) => {
     let itiFunction;
 
     // Try npm import first
@@ -43,6 +47,7 @@ export const iti = ({
         initialCountry,
         separateDialCode,
         formatOnDisplay,
+        nationalMode,
     });
 
     input.addEventListener("input", (e) => {

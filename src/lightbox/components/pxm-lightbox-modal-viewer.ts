@@ -7,6 +7,8 @@
 import type { MediaItem, ZoomMode } from '../types';
 import { ZoomManager } from '../zoom-manager';
 import { safeQuerySelector } from '../dom-utils';
+import { animate } from '../../animation';
+import { getConfig } from '../../config/pxm-config';
 
 export class PxmLightboxModalViewer extends HTMLElement {
     private currentMedia: MediaItem | null = null;
@@ -229,28 +231,25 @@ export class PxmLightboxModalViewer extends HTMLElement {
 
     private showImage(mediaItem: MediaItem, slide: Element) {
         slide.innerHTML = '';
-        
         const img = document.createElement('img');
         img.src = mediaItem.src;
         img.alt = mediaItem.title || 'Modal image';
         img.style.width = '100%';
         img.style.height = '100%';
         img.style.objectFit = 'contain';
-        
-        // Add loading state
         img.style.opacity = '0';
-        img.onload = () => {
-            img.style.opacity = '1';
-            
+        img.onload = async () => {
+            // Animate fade-in using global config
+            const { duration, easing } = getConfig().defaults;
+            await animate(img, { opacity: 1 }, { duration, easing });
+            img.style.opacity = '1'; // Ensure final state for tests
             // Setup zoom for the new image if zoom is enabled
             if (this.zoomManager && this.zoomMode !== 'none') {
-                // Small delay to ensure image is fully loaded and rendered
                 setTimeout(() => {
                     this.zoomManager!.setupZoomHandlers(img);
                 }, 150);
             }
         };
-        
         slide.appendChild(img);
     }
 

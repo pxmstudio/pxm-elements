@@ -1,14 +1,15 @@
 # Toggle Component
 
-Create accessible toggle switches for boolean states with built-in form integration.
+A flexible, accessible toggle/switch component for boolean states with built-in form integration. This component provides structure and behavior only - all styling is controlled by your CSS.
 
 ## Features
 
-✅ **Accessible** - Full keyboard support and screen reader compatibility  
-✅ **Form integration** - Works seamlessly with forms and frameworks  
-✅ **Lightweight** - Only 2.7KB gzipped  
-✅ **Unstyled** - Complete design freedom  
-✅ **Keyboard support** - Enter and Space key activation
+✅ **Logic-Only Design** - No Shadow DOM, complete styling freedom  
+✅ **Event-Driven Animations** - Bring your own animation library (GSAP, Anime.js, etc.)  
+✅ **Form Integration** - Seamless form submission with hidden input  
+✅ **Keyboard Support** - Full keyboard navigation (Enter, Space)  
+✅ **Lightweight** - Minimal overhead, maximum performance  
+✅ **TypeScript Ready** - Full type definitions included  
 
 ## Quick Start
 
@@ -18,12 +19,12 @@ Create accessible toggle switches for boolean states with built-in form integrat
 <script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/toggle.js"></script>
 
 <label>
-    <pxm-toggle name="notifications" value="enabled"></pxm-toggle>
+    <pxm-toggle form="true" name="notifications"></pxm-toggle>
     Enable notifications
 </label>
 
 <label>
-    <pxm-toggle name="marketing" value="yes" checked="true"></pxm-toggle>
+    <pxm-toggle form="true" name="marketing" pressed="true"></pxm-toggle>
     Subscribe to marketing emails
 </label>
 ```
@@ -33,7 +34,7 @@ Create accessible toggle switches for boolean states with built-in form integrat
 ```typescript
 import '@pixelmakers/elements/toggle';
 
-// Or with TypeScript support
+// With TypeScript support
 import type { PxmToggle } from '@pixelmakers/elements/toggle';
 
 const toggle = document.querySelector('pxm-toggle') as PxmToggle;
@@ -43,32 +44,58 @@ const toggle = document.querySelector('pxm-toggle') as PxmToggle;
 
 | Attribute | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `checked` | boolean | `false` | Whether the toggle is in the "on" state |
+| `pressed` | boolean | `false` | Whether the toggle is in the "on" state |
 | `disabled` | boolean | `false` | Whether the toggle is disabled |
-| `name` | string | `""` | Form field name for submission |
-| `value` | string | `"on"` | Value sent when toggle is checked |
+| `form` | boolean | `false` | Enable form integration with hidden input |
+| `name` | string | `""` | Form field name (only used when form="true") |
 
 ## HTML Structure
 
 ```html
 <!-- Basic toggle -->
-<pxm-toggle name="feature" value="enabled"></pxm-toggle>
+<pxm-toggle aria-label="Toggle feature"></pxm-toggle>
 
-<!-- Pre-checked toggle -->
-<pxm-toggle name="feature" value="enabled" checked="true"></pxm-toggle>
+<!-- Pre-pressed toggle -->
+<pxm-toggle pressed="true" aria-label="Toggle feature"></pxm-toggle>
 
 <!-- Disabled toggle -->
-<pxm-toggle name="feature" value="enabled" disabled="true"></pxm-toggle>
+<pxm-toggle disabled="true" aria-label="Toggle feature"></pxm-toggle>
 
-<!-- With hidden input (automatically created if not present) -->
-<pxm-toggle name="feature" value="enabled">
-    <input type="hidden" name="feature" value="">
+<!-- Form integration toggle -->
+<pxm-toggle 
+  form="true" 
+  name="feature"
+  aria-label="Enable advanced features"
+  aria-describedby="feature-description">
 </pxm-toggle>
+<p id="feature-description">This will enable beta features</p>
 ```
 
-## Styling Examples
+## Styling
 
-### Basic Switch Design
+### Key Principle: You Control ALL Styling
+
+The toggle component provides **zero visual styling**. You have complete control over appearance using CSS. The component only manages functional states via data attributes.
+
+### State Attributes for CSS Targeting
+
+```css
+/* Target on/off state */
+pxm-toggle[data-state="on"] { /* your on styles */ }
+pxm-toggle[data-state="off"] { /* your off styles */ }
+
+
+
+/* Target disabled state */
+pxm-toggle[data-disabled="true"] { /* your disabled styles */ }
+
+/* Focus styles (consumer's responsibility) */
+pxm-toggle:focus { /* your focus styles */ }
+```
+
+### Example Designs
+
+#### Basic Switch
 
 ```css
 pxm-toggle {
@@ -87,7 +114,7 @@ pxm-toggle:focus {
     box-shadow: 0 0 0 2px #3b82f6;
 }
 
-pxm-toggle[data-state="checked"] {
+pxm-toggle[data-state="on"] {
     background: #3b82f6;
 }
 
@@ -96,7 +123,7 @@ pxm-toggle[data-disabled="true"] {
     cursor: not-allowed;
 }
 
-/* Toggle knob */
+/* Toggle knob using pseudo-element */
 pxm-toggle::before {
     content: '';
     position: absolute;
@@ -110,12 +137,12 @@ pxm-toggle::before {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-pxm-toggle[data-state="checked"]::before {
+pxm-toggle[data-state="on"]::before {
     transform: translateX(24px);
 }
 ```
 
-### iOS-Style Toggle
+#### iOS-Style Toggle
 
 ```css
 pxm-toggle {
@@ -127,21 +154,11 @@ pxm-toggle {
     position: relative;
     cursor: pointer;
     transition: all 0.3s ease;
-    outline: none;
     border: none;
 }
 
-pxm-toggle:focus {
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-}
-
-pxm-toggle[data-state="checked"] {
+pxm-toggle[data-state="on"] {
     background: #34d399;
-}
-
-pxm-toggle[data-disabled="true"] {
-    opacity: 0.4;
-    cursor: not-allowed;
 }
 
 pxm-toggle::before {
@@ -157,64 +174,15 @@ pxm-toggle::before {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
 }
 
-pxm-toggle[data-state="checked"]::before {
+pxm-toggle[data-state="on"]::before {
     transform: translateX(20px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-}
-```
-
-### Material Design Toggle
-
-```css
-pxm-toggle {
-    display: inline-block;
-    width: 36px;
-    height: 20px;
-    background: rgba(0, 0, 0, 0.38);
-    border-radius: 10px;
-    position: relative;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    outline: none;
-}
-
-pxm-toggle:focus {
-    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.3);
-}
-
-pxm-toggle[data-state="checked"] {
-    background: rgba(33, 150, 243, 0.5);
-}
-
-pxm-toggle[data-disabled="true"] {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-pxm-toggle::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    width: 24px;
-    height: 24px;
-    background: #fafafa;
-    border-radius: 50%;
-    transition: all 0.3s ease;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14);
-}
-
-pxm-toggle[data-state="checked"]::before {
-    background: #2196f3;
-    transform: translateX(16px);
 }
 ```
 
 ### Tailwind CSS
 
 ```html
-<pxm-toggle class="relative inline-block w-12 h-6 bg-gray-300 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 data-[state=checked]:bg-blue-500 data-[disabled=true]:opacity-50 data-[disabled=true]:cursor-not-allowed">
-    <span class="sr-only">Toggle switch</span>
+<pxm-toggle class="relative inline-block w-12 h-6 bg-gray-300 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 data-[state=on]:bg-blue-500 data-[disabled=true]:opacity-50">
 </pxm-toggle>
 
 <style>
@@ -223,33 +191,142 @@ pxm-toggle::before {
     @apply absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transform transition-transform duration-200 ease-in-out;
 }
 
-pxm-toggle[data-state="checked"]::before {
+pxm-toggle[data-state="on"]::before {
     @apply translate-x-6;
 }
 </style>
 ```
 
+## Events
+
+The toggle component uses the PXM event naming convention and provides comprehensive event hooks:
+
+### Event Types
+
+| Event | Cancelable | Description |
+|-------|------------|-------------|
+| `pxm:toggle:before-change` | ✅ | Fired before toggle state changes. Perfect for custom animations. |
+| `pxm:toggle:after-change` | ❌ | Fired after toggle state changes. |
+| `pxm:toggle:pressed-change` | ❌ | Fired when toggle state changes. |
+
+### Event Details
+
+```typescript
+// pxm:toggle:before-change
+interface ToggleEventDetail {
+  pressed: boolean;      // New state
+  element: HTMLElement;  // The toggle element
+  complete: () => void;  // Call when animation completes
+}
+
+// pxm:toggle:pressed-change  
+interface TogglePressedChangeEventDetail {
+  pressed: boolean;      // New state
+  element: HTMLElement; // The toggle element
+}
+```
+
+## Animation System
+
+### Bring Your Own Animation Library (Recommended)
+
+The component's event system allows you to integrate any animation library:
+
+#### With GSAP
+
+```javascript
+const toggle = document.querySelector('pxm-toggle');
+
+toggle.addEventListener('pxm:toggle:before-change', (e) => {
+    const { element, pressed, complete } = e.detail;
+    e.preventDefault(); // Take over the animation
+    
+    // Custom toggle animation
+    gsap.to(element, {
+        scale: pressed ? 1.1 : 1.0,
+        duration: 0.2,
+        ease: "back.out(1.7)",
+        onComplete: () => {
+            complete(); // Signal animation complete
+        }
+    });
+});
+```
+
+#### With Anime.js
+
+```javascript
+toggle.addEventListener('pxm:toggle:before-change', (e) => {
+    const { element, pressed, complete } = e.detail;
+    e.preventDefault();
+    
+    anime({
+        targets: element,
+        scale: pressed ? [1, 1.1, 1] : [1, 0.9, 1],
+        duration: 300,
+        easing: 'easeOutElastic(1, .6)',
+        complete: () => complete()
+    });
+});
+```
+
+### CSS Transitions
+
+The component uses simple state changes that work perfectly with CSS transitions:
+
+```css
+pxm-toggle {
+    transition: all 0.3s ease;
+}
+
+pxm-toggle[data-state="on"] {
+    background-color: #3b82f6;
+}
+```
+
 ## Accessibility
 
-The toggle automatically provides:
+### What the Component Manages
 
-- **Keyboard Support**
-  - `Enter` - Toggle the switch
-  - `Space` - Toggle the switch
+The toggle automatically provides essential ARIA attributes:
 
-- **ARIA Attributes**
-  - `role="switch"` - Indicates toggle behavior
-  - `aria-checked` - Indicates current state
-  - `aria-disabled` - Indicates disabled state
+- `role="button"` - Indicates button behavior  
+- `aria-pressed` - Current state (true/false)
+- `aria-disabled` - Disabled state (when applicable)
+- `tabindex` - Keyboard navigation (0 when enabled, -1 when disabled)
 
-- **Focus Management**
-  - Focusable with tab navigation
-  - Clear focus indicators
-  - Disabled toggles are not focusable
+### What You Should Add
+
+Additional accessibility is your responsibility:
+
+```html
+<!-- Labels and descriptions -->
+<pxm-toggle 
+    form="true"
+    name="notifications"
+    aria-label="Enable email notifications"
+    aria-describedby="notification-help">
+</pxm-toggle>
+<div id="notification-help">
+    Get notified about important updates via email
+</div>
+
+<!-- Or use a label element -->
+<label>
+    <pxm-toggle form="true" name="marketing"></pxm-toggle>
+    Subscribe to marketing emails
+</label>
+```
+
+### Keyboard Support
+
+- **Enter** - Toggle the switch
+- **Space** - Toggle the switch
+- **Tab** - Navigate to/from the toggle (when enabled)
 
 ## Form Integration
 
-The toggle works seamlessly with forms:
+The toggle works seamlessly with forms using a hidden input:
 
 ```html
 <form id="settings-form">
@@ -257,18 +334,13 @@ The toggle works seamlessly with forms:
         <legend>Notification Settings</legend>
         
         <label>
-            <pxm-toggle name="email_notifications" value="enabled"></pxm-toggle>
+            <pxm-toggle form="true" name="email_notifications"></pxm-toggle>
             Email notifications
         </label>
         
         <label>
-            <pxm-toggle name="push_notifications" value="enabled" checked="true"></pxm-toggle>
+            <pxm-toggle form="true" name="push_notifications" pressed="true"></pxm-toggle>
             Push notifications
-        </label>
-        
-        <label>
-            <pxm-toggle name="marketing_emails" value="subscribed"></pxm-toggle>
-            Marketing emails
         </label>
     </fieldset>
     
@@ -281,47 +353,64 @@ document.getElementById('settings-form').addEventListener('submit', (e) => {
     const formData = new FormData(e.target);
     
     // FormData will contain:
-    // email_notifications: "enabled" (if checked) or empty (if unchecked)
+    // email_notifications: "enabled" (if checked) or "" (if unchecked)
     // push_notifications: "enabled" (if checked)
-    // marketing_emails: "" (if unchecked)
     
     console.log(Object.fromEntries(formData));
 });
 </script>
 ```
 
-## Events
-
-The toggle dispatches change events:
-
-```javascript
-const toggle = document.querySelector('pxm-toggle');
-
-toggle.addEventListener('change', (event) => {
-    console.log('Toggle changed:', {
-        checked: event.detail.checked,
-        name: toggle.getAttribute('name'),
-        value: toggle.getAttribute('value')
-    });
-});
-```
-
 ## JavaScript API
 
+### Properties
+
 ```typescript
-// Get toggle instance
 const toggle = document.querySelector('pxm-toggle') as PxmToggle;
 
-// Read state
-console.log(toggle.checked); // true/false
-console.log(toggle.disabled); // true/false
+// Read/write state
+console.log(toggle.pressed);    // boolean
+console.log(toggle.disabled);   // boolean
+console.log(toggle.form);       // boolean
+console.log(toggle.name);       // string
 
 // Set state
-toggle.checked = true;
+toggle.pressed = true;
 toggle.disabled = false;
+toggle.form = true;
+toggle.name = "feature";
+```
 
-// Toggle programmatically
-toggle.click(); // or trigger change
+### Methods
+
+```typescript
+// Programmatically toggle
+await toggle.performToggle();
+
+// Check if animating
+if (toggle.isAnimating()) {
+    console.log('Toggle is currently animating');
+}
+```
+
+### Event Listening
+
+```javascript
+// Listen for state changes
+toggle.addEventListener('pxm:toggle:pressed-change', (e) => {
+    console.log('Toggle changed:', {
+        pressed: e.detail.pressed
+    });
+});
+
+// Listen for before/after events
+toggle.addEventListener('pxm:toggle:before-change', (e) => {
+    console.log('About to change to:', e.detail.pressed);
+});
+
+toggle.addEventListener('pxm:toggle:after-change', (e) => {
+    console.log('Changed to:', e.detail.pressed);
+});
 ```
 
 ## Examples
@@ -337,7 +426,7 @@ toggle.click(); // or trigger change
             <strong>Profile Visibility</strong>
             <p>Make your profile visible to other users</p>
         </div>
-        <pxm-toggle name="profile_visible" value="public" checked="true"></pxm-toggle>
+        <pxm-toggle form="true" name="profile_visible" pressed="true"></pxm-toggle>
     </div>
     
     <div class="setting-row">
@@ -345,152 +434,9 @@ toggle.click(); // or trigger change
             <strong>Activity Status</strong>
             <p>Show when you're online</p>
         </div>
-        <pxm-toggle name="activity_status" value="visible"></pxm-toggle>
-    </div>
-    
-    <div class="setting-row">
-        <div class="setting-info">
-            <strong>Data Analytics</strong>
-            <p>Help improve our service with usage data</p>
-        </div>
-        <pxm-toggle name="analytics" value="allowed" disabled="true"></pxm-toggle>
+        <pxm-toggle form="true" name="activity_status"></pxm-toggle>
     </div>
 </div>
-
-<style>
-.settings-panel {
-    max-width: 400px;
-    padding: 1.5rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-}
-
-.setting-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1rem 0;
-    border-bottom: 1px solid #f3f4f6;
-}
-
-.setting-row:last-child {
-    border-bottom: none;
-}
-
-.setting-info {
-    flex: 1;
-}
-
-.setting-info strong {
-    display: block;
-    margin-bottom: 0.25rem;
-}
-
-.setting-info p {
-    margin: 0;
-    color: #6b7280;
-    font-size: 0.875rem;
-}
-</style>
-```
-
-### Feature Toggles
-
-```html
-<div class="feature-toggles">
-    <h3>Experimental Features</h3>
-    <p>Enable beta features to try new functionality</p>
-    
-    <div class="feature-list">
-        <div class="feature-item">
-            <label>
-                <pxm-toggle name="beta_editor" value="enabled"></pxm-toggle>
-                <div class="feature-details">
-                    <strong>New Editor</strong>
-                    <span class="beta-badge">Beta</span>
-                    <p>Try our redesigned content editor with improved performance</p>
-                </div>
-            </label>
-        </div>
-        
-        <div class="feature-item">
-            <label>
-                <pxm-toggle name="ai_suggestions" value="enabled"></pxm-toggle>
-                <div class="feature-details">
-                    <strong>AI Suggestions</strong>
-                    <span class="alpha-badge">Alpha</span>
-                    <p>Get AI-powered content suggestions as you type</p>
-                </div>
-            </label>
-        </div>
-        
-        <div class="feature-item">
-            <label>
-                <pxm-toggle name="dark_mode" value="enabled" checked="true"></pxm-toggle>
-                <div class="feature-details">
-                    <strong>Dark Mode</strong>
-                    <span class="stable-badge">Stable</span>
-                    <p>Switch to dark theme for better nighttime viewing</p>
-                </div>
-            </label>
-        </div>
-    </div>
-</div>
-```
-
-## Platform Integration
-
-### Webflow
-
-1. Add Custom Code to page head:
-```html
-<script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/toggle.js"></script>
-```
-
-2. Add HTML structure in Embed element:
-```html
-<form name="contact-preferences">
-    <label class="toggle-label">
-        <pxm-toggle name="newsletter" value="subscribed"></pxm-toggle>
-        <span>Subscribe to newsletter</span>
-    </label>
-    
-    <label class="toggle-label">
-        <pxm-toggle name="marketing" value="yes"></pxm-toggle>
-        <span>Receive marketing updates</span>
-    </label>
-</form>
-```
-
-### Shopify
-
-```liquid
-<!-- In theme.liquid -->
-<script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/toggle.js"></script>
-
-<!-- In account/preferences template -->
-<form action="/account/preferences" method="post">
-    <div class="preference-group">
-        <label>
-            <pxm-toggle 
-                name="email_marketing" 
-                value="true"
-                {% if customer.accepts_marketing %}checked="true"{% endif %}>
-            </pxm-toggle>
-            Receive marketing emails
-        </label>
-    </div>
-    
-    <div class="preference-group">
-        <label>
-            <pxm-toggle name="sms_notifications" value="true"></pxm-toggle>
-            SMS order updates
-        </label>
-    </div>
-    
-    <button type="submit">Save Preferences</button>
-</form>
 ```
 
 ### React Integration
@@ -509,10 +455,12 @@ function ToggleExample() {
     }, []);
     
     const handleToggleChange = (event) => {
-        const { name, checked } = event.target;
+        const { name } = event.target;
+        const { pressed } = event.detail;
+        
         setSettings(prev => ({
             ...prev,
-            [name]: checked
+            [name]: pressed
         }));
     };
     
@@ -520,26 +468,126 @@ function ToggleExample() {
         <div>
             <label>
                 <pxm-toggle 
+                    form="true"
                     name="notifications"
-                    value="enabled"
-                    checked={settings.notifications}
-                    onChange={handleToggleChange}
+                    pressed={settings.notifications}
+                    onpxm:toggle:pressed-change={handleToggleChange}
                 />
                 Enable notifications
-            </label>
-            
-            <label>
-                <pxm-toggle 
-                    name="darkMode"
-                    value="enabled"
-                    checked={settings.darkMode}
-                    onChange={handleToggleChange}
-                />
-                Dark mode
             </label>
         </div>
     );
 }
+```
+
+### Vue Integration
+
+```vue
+<template>
+  <div>
+    <label>
+      <pxm-toggle 
+        name="feature"
+        value="enabled"
+        :checked="isEnabled"
+        @pxm:toggle:change="handleChange"
+      />
+      Enable feature
+    </label>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      isEnabled: false
+    };
+  },
+  mounted() {
+    import('@pixelmakers/elements/toggle');
+  },
+  methods: {
+    handleChange(event) {
+      this.isEnabled = event.detail.checked;
+    }
+  }
+};
+</script>
+```
+
+## SSR and Hydration
+
+### Preventing Hydration Flash
+
+```css
+/* Hide undefined elements */
+pxm-toggle:not(:defined) {
+    opacity: 0;
+}
+
+/* Show when defined */
+pxm-toggle {
+    opacity: 1;
+    transition: opacity 0.1s ease;
+}
+
+/* Set initial state styles */
+pxm-toggle[data-state="checked"] {
+    /* Your checked styles */
+}
+
+pxm-toggle[data-state="unchecked"] {
+    /* Your unchecked styles */
+}
+```
+
+### Server-Side Rendering
+
+```html
+<!-- Server-rendered with initial state -->
+<pxm-toggle 
+    name="feature" 
+    value="enabled" 
+    checked="true"
+    data-state="checked">
+</pxm-toggle>
+```
+
+## Platform Integration
+
+### Webflow
+
+```html
+<!-- In page head -->
+<script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/toggle.js"></script>
+
+<!-- In embed element -->
+<label class="toggle-wrapper">
+    <pxm-toggle name="newsletter" value="subscribed"></pxm-toggle>
+    <span>Subscribe to newsletter</span>
+</label>
+```
+
+### Shopify
+
+```liquid
+<!-- In theme.liquid -->
+<script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/toggle.js"></script>
+
+<!-- In templates -->
+<form action="/account/preferences" method="post">
+    <label>
+        <pxm-toggle 
+            name="email_marketing" 
+            value="true"
+            {% if customer.accepts_marketing %}checked="true"{% endif %}>
+        </pxm-toggle>
+        Receive marketing emails
+    </label>
+    
+    <button type="submit">Save Preferences</button>
+</form>
 ```
 
 ## Browser Support

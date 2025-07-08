@@ -7,6 +7,8 @@
 
 import type { MediaItem } from '../types';
 import { safeQuerySelector, safeQuerySelectorAll } from '../dom-utils';
+import { animate } from '../../animation';
+import { getConfig } from '../../config/pxm-config';
 
 export class PxmLightboxModalThumbs extends HTMLElement {
     private swiperInstance: any = null;
@@ -190,7 +192,6 @@ export class PxmLightboxModalThumbs extends HTMLElement {
     private populateThumbData(thumbElement: Element, mediaItem: MediaItem, index: number) {
         // Set attributes based on media item data
         thumbElement.setAttribute('type', mediaItem.type);
-        
         if (mediaItem.type === 'image') {
             thumbElement.setAttribute('data-full-image-src', mediaItem.src);
         } else if (mediaItem.type === 'video') {
@@ -205,28 +206,21 @@ export class PxmLightboxModalThumbs extends HTMLElement {
                 thumbElement.setAttribute('data-video-description', mediaItem.description);
             }
         }
-
         // Update the thumbnail image source
         const img = safeQuerySelector<HTMLImageElement>(thumbElement, 'img');
         if (img && mediaItem.thumbnail) {
             img.src = mediaItem.thumbnail;
             img.alt = mediaItem.title || `${mediaItem.type} thumbnail`;
         }
-
+        // Remove ARIA attributes; accessibility is user responsibility
+        thumbElement.removeAttribute('aria-selected');
+        thumbElement.removeAttribute('aria-label');
         // Set active state for first item
         if (index === 0) {
             thumbElement.classList.add('active');
-            thumbElement.setAttribute('aria-selected', 'true');
         } else {
             thumbElement.classList.remove('active');
-            thumbElement.setAttribute('aria-selected', 'false');
         }
-
-        // Update aria-label
-        const mediaDescription = mediaItem.type === 'video' ? 
-            `Video: ${mediaItem.title || 'Untitled'}` :
-            'Image thumbnail';
-        thumbElement.setAttribute('aria-label', `${mediaDescription}. Click to view in modal.`);
     }
 
     private collectMediaItems() {
@@ -373,15 +367,24 @@ export class PxmLightboxModalThumbs extends HTMLElement {
         }));
     }
 
-    private updateThumbnailStates() {
+    private async updateThumbnailStates() {
         const thumbs = safeQuerySelectorAll(this, 'pxm-lightbox-modal-thumb');
-        thumbs.forEach((thumb, index) => {
+        for (const [index, thumb] of thumbs.entries()) {
             if ('setActive' in thumb) {
                 (thumb as any).setActive(index === this.currentIndex);
             } else {
-                thumb.classList.toggle('active', index === this.currentIndex);
+                const wasActive = thumb.classList.contains('active');
+                const shouldBeActive = index === this.currentIndex;
+                thumb.classList.toggle('active', shouldBeActive);
+                // Animate highlight if becoming active
+                if (!wasActive && shouldBeActive) {
+                    // Animate highlight/fade-in using global config
+                    const { duration, easing } = getConfig().defaults;
+                    (thumb as HTMLElement).style.opacity = '0.5';
+                    await animate(thumb as HTMLElement, { opacity: 1 }, { duration: duration * 0.5, easing });
+                }
             }
-        });
+        }
     }
 
     // Public API methods

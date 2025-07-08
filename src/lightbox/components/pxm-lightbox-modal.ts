@@ -6,6 +6,8 @@
 
 import type { MediaItem } from '../types';
 import { safeQuerySelector } from '../dom-utils';
+import { animate } from '../../animation';
+import { getConfig } from '../../config/pxm-config';
 
 export class PxmLightboxModal extends HTMLElement {
     private isOpen: boolean = false;
@@ -132,11 +134,7 @@ export class PxmLightboxModal extends HTMLElement {
     }
 
     private setupModalStructure() {
-        // Set role and aria attributes for accessibility
-        this.setAttribute('role', 'dialog');
-        this.setAttribute('aria-modal', 'true');
-        this.setAttribute('aria-labelledby', 'modal-title');
-        
+        // No ARIA/role attributes are set; accessibility is user responsibility
         // Initially hidden
         this.style.display = 'none';
     }
@@ -229,14 +227,16 @@ export class PxmLightboxModal extends HTMLElement {
         }));
     }
 
-    private show() {
+    private async show() {
         this.style.display = 'block';
+        this.style.opacity = '0';
         this.isOpen = true;
         document.body.style.overflow = 'hidden'; // Prevent background scroll
-        
-        // Focus management for accessibility
-        this.focus();
-        
+        // Animate modal fade in using global config
+        const { duration, easing } = getConfig().defaults;
+        await animate(this, { opacity: 1 }, { duration, easing });
+        this.style.opacity = '1'; // Ensure final state for tests
+        // Focus management is user responsibility
         // Dispatch open event
         this.dispatchEvent(new CustomEvent('modal-opened', {
             detail: { currentIndex: this.currentIndex },
@@ -244,11 +244,14 @@ export class PxmLightboxModal extends HTMLElement {
         }));
     }
 
-    private hide() {
+    private async hide() {
+        // Animate modal fade out using global config
+        const { duration, easing } = getConfig().defaults;
+        await animate(this, { opacity: 0 }, { duration, easing });
+        this.style.opacity = '0'; // Ensure final state for tests
         this.style.display = 'none';
         this.isOpen = false;
-        document.body.style.overflow = ''; // Restore background scroll
-        
+        document.body.style.overflow = '';
         // Dispatch close event
         this.dispatchEvent(new CustomEvent('modal-closed', {
             bubbles: true
@@ -257,7 +260,6 @@ export class PxmLightboxModal extends HTMLElement {
 
     // Public API methods
     public open(mediaItems?: MediaItem[], startIndex: number = 0) {
-        
         if (mediaItems) {
             this.mediaItems = mediaItems;
             this.currentIndex = Math.max(0, Math.min(startIndex, mediaItems.length - 1));
@@ -270,22 +272,20 @@ export class PxmLightboxModal extends HTMLElement {
                 this.currentIndex = (inlineComponent as any).getCurrentIndex();
             }
         }
-        
         // Ensure modal thumbs are populated from template ONLY when opening
         const modalThumbs = safeQuerySelector(this, 'pxm-lightbox-modal-thumbs');
         if (modalThumbs && 'refreshFromInline' in modalThumbs) {
             (modalThumbs as any).refreshFromInline();
         }
-        
         // Small delay to ensure population is complete before updating content
-        setTimeout(() => {
+        setTimeout(async () => {
             this.updateModalContent();
-            this.show();
+            await this.show();
         }, 150);
     }
 
-    public close() {
-        this.hide();
+    public async close() {
+        await this.hide();
     }
 
     public isModalOpen(): boolean {

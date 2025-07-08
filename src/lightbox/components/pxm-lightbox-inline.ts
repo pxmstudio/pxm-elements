@@ -16,6 +16,11 @@ export class PxmLightboxInline extends HTMLElement {
     }
 
     connectedCallback() {
+        if (typeof window !== 'undefined' && (window as any).__debugLog) {
+            (window as any).__debugLog('PxmLightboxInline connectedCallback');
+        } else {
+            console.log('PxmLightboxInline connectedCallback');
+        }
         this.initialize();
     }
 
@@ -268,7 +273,16 @@ export class PxmLightboxInline extends HTMLElement {
 
     public setCurrentIndex(index: number) {
         if (index >= 0 && index < this.mediaItems.length) {
-            this.handleThumbnailClick(index);
+            this.currentIndex = index;
+            this.updateViewer();
+            this.updateThumbnailStates();
+            this.dispatchEvent(new CustomEvent('media-changed', {
+                detail: {
+                    index,
+                    mediaItem: this.mediaItems[index]
+                },
+                bubbles: true
+            }));
         }
     }
 

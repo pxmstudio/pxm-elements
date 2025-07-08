@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PXM Tooltip Examples</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background: #f5f5f5;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .example {
+            margin: 40px 0;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background: #fafafa;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .help-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            background: #6c757d;
+            color: white;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: help;
+            margin: 0 8px;
+        }
+
+        /* ESSENTIAL: Tooltip show/hide behavior */
+        pxm-tooltip-content[data-state="closed"] {
+            display: none;
+        }
+
+        pxm-tooltip-content[data-state="open"] {
+            display: block;
+            position: var(--tooltip-position-type, absolute);
+            top: var(--tooltip-top, 0);
+            left: var(--tooltip-left, 0);
+        }
+
+        /* Tooltip styling */
+        pxm-tooltip-content {
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            max-width: 200px;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: opacity 200ms ease-out, transform 200ms ease-out;
+        }
+
+        /* Arrow styling */
+        pxm-tooltip-arrow {
+            width: 8px;
+            height: 8px;
+            background: #333;
+            transform: rotate(45deg);
+            position: absolute;
+        }
+
+        /* Arrow positioning */
+        pxm-tooltip-arrow[data-side="top"] {
+            bottom: -4px;
+            left: var(--arrow-left, 50%);
+            transform: translateX(-50%) rotate(45deg);
+        }
+
+        pxm-tooltip-arrow[data-side="bottom"] {
+            top: -4px;
+            left: var(--arrow-left, 50%);
+            transform: translateX(-50%) rotate(45deg);
+        }
+
+        pxm-tooltip-arrow[data-side="left"] {
+            right: -4px;
+            top: var(--arrow-top, 50%);
+            transform: translateY(-50%) rotate(45deg);
+        }
+
+        pxm-tooltip-arrow[data-side="right"] {
+            left: -4px;
+            top: var(--arrow-top, 50%);
+            transform: translateY(-50%) rotate(45deg);
+        }
+
+        /* Animation */
+        pxm-tooltip-content[data-state="open"] {
+            animation: tooltipShow 200ms ease-out;
+        }
+
+        @keyframes tooltipShow {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Variations */
+        .success-tooltip pxm-tooltip-content {
+            background: #28a745;
+        }
+
+        .success-tooltip pxm-tooltip-arrow {
+            background: #28a745;
+        }
+
+        .warning-tooltip pxm-tooltip-content {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .warning-tooltip pxm-tooltip-arrow {
+            background: #ffc107;
+        }
+
+        .large-tooltip pxm-tooltip-content {
+            max-width: 300px;
+            padding: 12px 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PXM Tooltip Examples</h1>
+        
+        <div class="example">
+            <h3>Basic Tooltip</h3>
+            <p>Simple tooltip with default settings:</p>
+            
+            <pxm-tooltip>
+                <pxm-tooltip-trigger>
+                    <button>Hover me</button>
+                </pxm-tooltip-trigger>
+                <pxm-tooltip-content>
+                    This is a basic tooltip message!
+                </pxm-tooltip-content>
+            </pxm-tooltip>
+        </div>
+
+        <div class="example">
+            <h3>Positioned Tooltips with Arrows</h3>
+            <p>Tooltips positioned on different sides:</p>
+            
+            <pxm-tooltip side="top" delay-open="300">
+                <pxm-tooltip-trigger>
+                    <button>Top</button>
+                </pxm-tooltip-trigger>
+                <pxm-tooltip-content>
+                    Tooltip positioned on top
+                    <pxm-tooltip-arrow></pxm-tooltip-arrow>
+                </pxm-tooltip-content>
+            </pxm-tooltip>
+
+            <pxm-tooltip side="bottom" delay-open="300">
+                <pxm-tooltip-trigger>
+                    <button>Bottom</button>
+                </pxm-tooltip-trigger>
+                <pxm-tooltip-content>
+                    Tooltip positioned on bottom
+                    <pxm-tooltip-arrow></pxm-tooltip-arrow>
+                </pxm-tooltip-content>
+            </pxm-tooltip>
+
+            <pxm-tooltip side="left" delay-open="300">
+                <pxm-tooltip-trigger>
+                    <button>Left</button>
+                </pxm-tooltip-trigger>
+                <pxm-tooltip-content>
+                    Tooltip positioned on left
+                    <pxm-tooltip-arrow></pxm-tooltip-arrow>
+                </pxm-tooltip-content>
+            </pxm-tooltip>
+
+            <pxm-tooltip side="right" delay-open="300">
+                <pxm-tooltip-trigger>
+                    <button>Right</button>
+                </pxm-tooltip-trigger>
+                <pxm-tooltip-content>
+                    Tooltip positioned on right
+                    <pxm-tooltip-arrow></pxm-tooltip-arrow>
+                </pxm-tooltip-content>
+            </pxm-tooltip>
+        </div>
+
+        <div class="example">
+            <h3>Custom Delays</h3>
+            <p>Tooltips with different show/hide delays:</p>
+            
+            <pxm-tooltip delay-open="100" delay-close="500">
+                <pxm-tooltip-trigger>
+                    <button>Fast Show, Slow Hide</button>
+                </pxm-tooltip-trigger>
+                <pxm-tooltip-content>
+                    Shows quickly (100ms), hides slowly (500ms)
+                </pxm-tooltip-content>
+            </pxm-tooltip>
+
+            <pxm-tooltip delay-open="1000" delay-close="100">
+                <pxm-tooltip-trigger>
+                    <button>Slow Show, Fast Hide</button>
+                </pxm-tooltip-trigger>
+                <pxm-tooltip-content>
+                    Shows slowly (1000ms), hides quickly (100ms)
+                </pxm-tooltip-content>
+            </pxm-tooltip>
+        </div>
+
+        <div class="example">
+            <h3>Help Icons</h3>
+            <p>Tooltips on help icons 
+                <pxm-tooltip side="top">
+                    <pxm-tooltip-trigger>
+                        <span class="help-icon">?</span>
+                    </pxm-tooltip-trigger>
+                    <pxm-tooltip-content>
+                        This is contextual help information
+                        <pxm-tooltip-arrow></pxm-tooltip-arrow>
+                    </pxm-tooltip-content>
+                </pxm-tooltip>
+                with contextual information.
+            </p>
+        </div>
+
+        <div class="example">
+            <h3>Styled Variations</h3>
+            <p>Tooltips with custom styling:</p>
+            
+            <pxm-tooltip side="top" class="success-tooltip">
+                <pxm-tooltip-trigger>
+                    <button>Success</button>
+                </pxm-tooltip-trigger>
+                <pxm-tooltip-content>
+                    Success message tooltip
+                    <pxm-tooltip-arrow></pxm-tooltip-arrow>
+                </pxm-tooltip-content>
+            </pxm-tooltip>
+
+            <pxm-tooltip side="top" class="warning-tooltip">
+                <pxm-tooltip-trigger>
+                    <button>Warning</button>
+                </pxm-tooltip-trigger>
+                <pxm-tooltip-content>
+                    Warning message tooltip
+                    <pxm-tooltip-arrow></pxm-tooltip-arrow>
+                </pxm-tooltip-content>
+            </pxm-tooltip>
+
+            <pxm-tooltip side="top" class="large-tooltip">
+                <pxm-tooltip-trigger>
+                    <button>Large Content</button>
+                </pxm-tooltip-trigger>
+                <pxm-tooltip-content>
+                    This is a larger tooltip with more detailed information that can span multiple lines and provide comprehensive help text.
+                    <pxm-tooltip-arrow></pxm-tooltip-arrow>
+                </pxm-tooltip-content>
+            </pxm-tooltip>
+        </div>
+
+        <div class="example">
+            <h3>Portal Mode</h3>
+            <p>Portal tooltips render in document.body for complex z-index scenarios:</p>
+            
+            <pxm-tooltip portal="true" side="top">
+                <pxm-tooltip-trigger>
+                    <button>Portal Tooltip</button>
+                </pxm-tooltip-trigger>
+                <pxm-tooltip-content>
+                    This tooltip is rendered in a portal
+                    <pxm-tooltip-arrow></pxm-tooltip-arrow>
+                </pxm-tooltip-content>
+            </pxm-tooltip>
+        </div>
+
+        <div class="example">
+            <h3>Disabled Tooltip</h3>
+            <p>Disabled tooltips won't show:</p>
+            
+            <pxm-tooltip disabled="true">
+                <pxm-tooltip-trigger>
+                    <button>Disabled Tooltip</button>
+                </pxm-tooltip-trigger>
+                <pxm-tooltip-content>
+                    This won't appear
+                </pxm-tooltip-content>
+            </pxm-tooltip>
+        </div>
+    </div>
+
+    <!-- Include the PXM Elements library -->
+    <script type="module" src="../src/main.ts"></script>
+</body>
+</html> 

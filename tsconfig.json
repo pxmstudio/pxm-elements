@@ -8,12 +8,10 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": false,
     "moduleDetection": "auto",
     "noEmit": false,
     "declaration": true,
-    "emitDeclarationOnly": true,
 
     /* Linting */
     "strict": true,
@@ -24,7 +22,9 @@
     "noUncheckedSideEffectImports": true,
 
     /* Types */
-    "types": ["node"]
+    "types": ["node"],
+
+    "outDir": "dist"
   },
-  "include": ["src"]
+  "include": ["src", "pxm-cli.ts"]
 }

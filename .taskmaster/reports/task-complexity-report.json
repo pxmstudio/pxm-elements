@@ -1,0 +1,93 @@
+{
+	"meta": {
+		"generatedAt": "2025-07-07T10:56:50.283Z",
+		"tasksAnalyzed": 10,
+		"totalTasks": 10,
+		"analysisCount": 10,
+		"thresholdScore": 5,
+		"projectName": "Taskmaster",
+		"usedResearch": false
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 1,
+			"taskTitle": "Create Global Configuration System",
+			"complexityScore": 6,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the global configuration system implementation into subtasks including: 1) Define TypeScript types and interfaces, 2) Implement core configuration module in TypeScript, 3) Create JavaScript version with JSDoc comments, 4) Add validation and error handling, and 5) Create module exports and initialization system.",
+			"reasoning": "This task involves creating a foundational configuration system with TypeScript types, JavaScript compatibility, validation logic, and proper module exports. It requires careful design to ensure type safety and proper defaults while maintaining compatibility across environments. The task already has well-defined subtasks that cover the key implementation areas."
+		},
+		{
+			"taskId": 2,
+			"taskTitle": "Develop Animation Modules",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the animation modules implementation into subtasks including: 1) Define animation module interfaces and types, 2) Implement GSAP animation adapter, 3) Implement vanilla JavaScript animation adapter, 4) Create animation factory and detection logic, and 5) Add comprehensive testing for both animation engines.",
+			"reasoning": "This task requires implementing two different animation systems (GSAP and vanilla JS) with identical APIs, handling fallbacks, and creating a factory pattern. It involves working with external libraries, browser APIs, and complex animation properties. The task needs careful abstraction to ensure consistent behavior across different animation engines."
+		},
+		{
+			"taskId": 3,
+			"taskTitle": "Build CLI Tool",
+			"complexityScore": 6,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Break down the CLI tool implementation into subtasks including: 1) Set up CLI framework and command structure, 2) Implement 'init' command for config generation, 3) Implement 'copy' command for component copying, and 4) Add project type detection and error handling.",
+			"reasoning": "Building a CLI tool involves Node.js file system operations, command-line argument parsing, and project structure detection. The tool needs to handle different project types (TS/JS), generate appropriate config files, and copy components correctly. While not extremely complex, it requires careful error handling and environment detection."
+		},
+		{
+			"taskId": 4,
+			"taskTitle": "Migrate Accordion Component",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the Accordion component migration into subtasks including: 1) Define component interface and data attributes, 2) Implement core accordion functionality, 3) Add animation integration with both engines, 4) Implement accessibility features, and 5) Create comprehensive tests and examples.",
+			"reasoning": "The Accordion component involves complex DOM manipulation, height animations (which are notoriously tricky), and accessibility considerations. It needs to work with the animation system, handle dynamic content, and maintain proper ARIA attributes. The component must be flexible enough to work with any HTML structure while providing consistent behavior."
+		},
+		{
+			"taskId": 5,
+			"taskTitle": "Migrate Tabs Component",
+			"complexityScore": 6,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the Tabs component migration into subtasks including: 1) Define component interface and data attributes, 2) Implement core tabs switching functionality, 3) Add animation integration with both engines, 4) Implement keyboard navigation and accessibility features, and 5) Create comprehensive tests and examples.",
+			"reasoning": "The Tabs component requires content switching, animation coordination, and keyboard navigation. It needs proper ARIA role implementation and must handle dynamic content. While similar to the Accordion in some ways, it has unique challenges around tab panel management and keyboard accessibility."
+		},
+		{
+			"taskId": 6,
+			"taskTitle": "Migrate Lightbox Component",
+			"complexityScore": 8,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down the Lightbox component migration into subtasks including: 1) Define component interface and data attributes, 2) Implement core lightbox functionality, 3) Add support for different content types (images, videos, inline), 4) Implement navigation between items, 5) Add animation integration with both engines, and 6) Implement keyboard controls and accessibility features.",
+			"reasoning": "The Lightbox component is more complex than others as it handles multiple content types, creates modal overlays, manages navigation between items, and needs to handle keyboard events. It also dynamically creates DOM elements and must properly clean up resources. The animations are more involved and it requires careful focus management for accessibility."
+		},
+		{
+			"taskId": 7,
+			"taskTitle": "Migrate Phone Input Component",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the Phone Input component migration into subtasks including: 1) Define component interface and data attributes, 2) Implement input masking and formatting logic, 3) Create country code handling and validation, 4) Add animation for error messages, and 5) Implement accessibility features and internationalization support.",
+			"reasoning": "The Phone Input component involves complex input masking, country-specific validation patterns, and internationalization. It requires careful handling of user input, proper error messaging, and accessibility considerations. The formatting logic needs to work across different country formats while maintaining a consistent API."
+		},
+		{
+			"taskId": 8,
+			"taskTitle": "Migrate Video Component",
+			"complexityScore": 8,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down the Video component migration into subtasks including: 1) Define component interface and data attributes, 2) Implement core video playback controls, 3) Create progress tracking and seeking functionality, 4) Add fullscreen and mute controls, 5) Implement lazy loading with Intersection Observer, and 6) Add accessibility features and keyboard controls.",
+			"reasoning": "The Video component is complex due to its interaction with the HTML5 Video API, handling of media events, progress tracking, and multiple control features. It also implements lazy loading with Intersection Observer and needs to handle browser autoplay restrictions. The component requires careful state management and proper accessibility implementation."
+		},
+		{
+			"taskId": 9,
+			"taskTitle": "Migrate Number Input Component",
+			"complexityScore": 6,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the Number Input component migration into subtasks including: 1) Define component interface and data attributes, 2) Implement increment/decrement functionality, 3) Create number formatting and validation logic, 4) Add animation for error messages, and 5) Implement keyboard controls and accessibility features.",
+			"reasoning": "The Number Input component involves number formatting, validation, increment/decrement logic, and keyboard controls. It needs to handle different locales, decimal precision, and min/max constraints. While not the most complex component, it requires careful input handling and proper accessibility implementation."
+		},
+		{
+			"taskId": 10,
+			"taskTitle": "Create Migration Documentation",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the migration documentation task into subtasks including: 1) Create architecture overview and benefits section, 2) Develop component-specific migration guides with before/after examples, 3) Write styling guide for unstyled components, 4) Create troubleshooting section and FAQ, and 5) Develop comprehensive API reference documentation.",
+			"reasoning": "Creating comprehensive migration documentation is complex because it requires deep understanding of both the old and new systems, clear explanation of architectural changes, and detailed examples for each component. The documentation needs to cover styling approaches, troubleshooting, and API references. It's critical for user adoption and requires careful organization and clarity."
+		}
+	]
+}

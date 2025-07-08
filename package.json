@@ -44,13 +44,14 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/build-components.js",
+    "build": "tsc",
     "build:esm": "node scripts/build-components.js esm",
     "build:umd": "node scripts/build-components.js umd",
     "test": "vitest",
     "test:run": "vitest run",
     "preview": "vite preview",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "cli": "pnpm build && node dist/pxm-cli.js"
   },
   "keywords": [
     "web-components",
@@ -60,7 +61,11 @@
   "author": "PixelMakers",
   "license": "MIT",
   "devDependencies": {
+    "@types/commander": "^2.12.5",
+    "@types/inquirer": "^9.0.8",
     "@types/node": "^22.15.23",
+    "commander": "^14.0.0",
+    "inquirer": "^12.7.0",
     "jsdom": "^25.0.1",
     "terser": "^5.41.0",
     "typescript": "~5.8.3",
@@ -68,6 +73,7 @@
     "vitest": "^2.1.8"
   },
   "dependencies": {
+    "gsap": "^3.13.0",
     "intl-tel-input": "^25.3.1",
     "medium-zoom": "^1.1.0",
     "swiper": "^11.2.8"
@@ -77,5 +83,8 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "bin": {
+    "pxm": "dist/pxm-cli.js"
   }
 }

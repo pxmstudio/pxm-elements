@@ -4,6 +4,8 @@
 
 import type { ZoomMode, LightboxConfig } from './types';
 import { createZoomOverlay, setImageCursor, removeElement } from './dom-utils';
+import { animate } from '../animation';
+import { getConfig } from '../config/pxm-config';
 
 /**
  * Manages zoom functionality for the lightbox
@@ -200,35 +202,30 @@ export class ZoomManager {
     /**
      * Fade out zoom overlay smoothly while maintaining position
      */
-    public fadeOutZoomOverlay(): Promise<void> {
-        return new Promise((resolve) => {
-            if (!this.zoomOverlay || this.zoomOverlay.style.display === 'none') {
-                resolve();
-                return;
-            }
+    public async fadeOutZoomOverlay(): Promise<void> {
+        if (!this.zoomOverlay || this.zoomOverlay.style.display === 'none') {
+            return;
+        }
 
-            // Keep the overlay positioned at the current cursor location during fade
-            this.positionOverlay(this.lastCursorX, this.lastCursorY);
+        // Keep the overlay positioned at the current cursor location during fade
+        this.positionOverlay(this.lastCursorX, this.lastCursorY);
 
-            // Set initial opacity and add transition
-            this.zoomOverlay.style.transition = 'opacity 150ms ease-out';
-            this.zoomOverlay.style.opacity = '0';
-
-            // Wait for transition to complete
-            setTimeout(() => {
+        // Use global animation config
+        const { duration, easing } = getConfig().defaults;
+        await animate(this.zoomOverlay, { opacity: 0 }, {
+            duration,
+            easing,
+            onComplete: () => {
                 this.hideZoomOverlay();
                 this.isZoomActive = false;
-                // Remove transition to prevent interference with normal operations
-                this.zoomOverlay.style.transition = '';
-                resolve();
-            }, 150);
+            }
         });
     }
 
     /**
      * Fade in zoom overlay smoothly with optional cursor position
      */
-    public fadeInZoomOverlay(cursorX?: number, cursorY?: number): void {
+    public async fadeInZoomOverlay(cursorX?: number, cursorY?: number): Promise<void> {
         if (!this.zoomOverlay || !this.isZoomActive) return;
 
         // Use provided cursor position or last known position
@@ -243,16 +240,15 @@ export class ZoomManager {
         // Ensure overlay is visible but transparent
         this.zoomOverlay.style.opacity = '0';
         this.zoomOverlay.style.display = 'block';
-        this.zoomOverlay.style.transition = 'opacity 150ms ease-out';
 
-        // Trigger fade in on next frame
-        requestAnimationFrame(() => {
-            this.zoomOverlay.style.opacity = '1';
-            
-            // Remove transition after animation completes
-            setTimeout(() => {
-                this.zoomOverlay.style.transition = '';
-            }, 150);
+        // Use global animation config
+        const { duration, easing } = getConfig().defaults;
+        await animate(this.zoomOverlay, { opacity: 1 }, {
+            duration,
+            easing,
+            onComplete: () => {
+                // No-op, overlay is now visible
+            }
         });
     }
 

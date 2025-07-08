@@ -1,0 +1,725 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Create Global Configuration System",
+        "description": "Develop the global configuration system that allows developers to set animation type and defaults in a single config file.",
+        "details": "Create a configuration module that exports a default config object and functions to get/set configuration values. The config should support:\n- Animation engine selection ('gsap' or 'vanilla' initially)\n- Default animation parameters (duration, easing, etc.)\n- Method to detect if GSAP is available as peer dependency\n- TypeScript types for config options\n\nImplementation:\n```typescript\n// pxm-config.ts\nexport type AnimationEngine = 'gsap' | 'vanilla';\n\nexport interface PxmConfig {\n  animationEngine: AnimationEngine;\n  defaults: {\n    duration: number;\n    easing: string;\n    // other animation parameters\n  };\n}\n\nlet config: PxmConfig = {\n  animationEngine: 'vanilla',\n  defaults: {\n    duration: 0.3,\n    easing: 'ease-in-out'\n  }\n};\n\nexport function getConfig(): PxmConfig {\n  return { ...config };\n}\n\nexport function setConfig(newConfig: Partial<PxmConfig>): void {\n  config = { ...config, ...newConfig };\n}\n\nexport function isGsapAvailable(): boolean {\n  return typeof window !== 'undefined' && 'gsap' in window;\n}\n```\n\nAlso create a JavaScript version with the same functionality but without type annotations.",
+        "testStrategy": "Write unit tests to verify:\n1. Default config values are set correctly\n2. Config can be updated via setConfig\n3. getConfig returns a copy (not reference) of the config\n4. isGsapAvailable correctly detects GSAP\n5. Test in both TypeScript and JavaScript environments",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define TypeScript types and interfaces for configuration",
+            "description": "Create the core TypeScript types and interfaces needed for the configuration system, including AnimationEngine type and PxmConfig interface.",
+            "dependencies": [],
+            "details": "Create a file named 'types.ts' that exports all necessary type definitions. Define the AnimationEngine type as a union of string literals ('gsap' | 'vanilla'). Create the PxmConfig interface with properties for animationEngine and defaults object. The defaults object should include duration, easing, and placeholders for other animation parameters. Add JSDoc comments to improve developer experience.",
+            "status": "done",
+            "testStrategy": "Verify TypeScript compilation works without errors. Create sample objects that implement these interfaces to ensure type correctness."
+          },
+          {
+            "id": 2,
+            "title": "Implement core configuration module in TypeScript",
+            "description": "Create the main configuration module that manages the global configuration state and provides methods to get and set configuration values.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create 'pxm-config.ts' file that imports the types from 'types.ts'. Implement a private config variable with default values. Create getConfig() function that returns a copy of the current config to prevent direct mutation. Implement setConfig() function that accepts partial config updates and merges them with existing config. Add the isGsapAvailable() utility function to detect if GSAP is available in the current environment.",
+            "status": "done",
+            "testStrategy": "Write unit tests to verify getConfig returns a copy (not the original), setConfig properly merges partial updates, and isGsapAvailable correctly detects GSAP presence."
+          },
+          {
+            "id": 3,
+            "title": "Create JavaScript version with JSDoc comments",
+            "description": "Develop a JavaScript version of the configuration module with equivalent functionality, using JSDoc comments to provide type information for JavaScript users.",
+            "dependencies": [
+              2
+            ],
+            "details": "Create 'pxm-config.js' by converting the TypeScript implementation to JavaScript. Add comprehensive JSDoc comments that mirror the TypeScript type definitions. Include @typedef, @property, and @returns annotations to provide type information for JavaScript developers. Ensure all functions have the same behavior as their TypeScript counterparts.",
+            "status": "done",
+            "testStrategy": "Run the same test suite against both TypeScript and JavaScript implementations to verify equivalent functionality."
+          },
+          {
+            "id": 4,
+            "title": "Implement configuration validation and error handling",
+            "description": "Add validation logic to ensure configuration values are valid and provide helpful error messages when invalid configurations are attempted.",
+            "dependencies": [
+              2,
+              3
+            ],
+            "details": "Create a validateConfig function that checks configuration values against expected types and ranges. Implement validation in the setConfig function to prevent invalid configurations. Add specific error messages for common mistakes (e.g., unsupported animation engine, negative duration values). Consider adding a debug mode that provides extra warnings for suboptimal configurations.",
+            "status": "done",
+            "testStrategy": "Test with various invalid configurations to ensure appropriate error messages are shown. Verify that invalid configurations are rejected and don't corrupt the existing config."
+          },
+          {
+            "id": 5,
+            "title": "Create configuration initialization and export system",
+            "description": "Develop the public API for the configuration system, including initialization, module exports, and integration with bundlers.",
+            "dependencies": [
+              4
+            ],
+            "details": "Create an init() function that sets up initial configuration, potentially detecting environment capabilities. Implement a reset() function to restore default configuration. Organize exports to provide a clean public API. Create an index.ts/index.js file that re-exports from the configuration modules. Ensure the module works with both ES modules and CommonJS. Add appropriate package.json configuration for proper module resolution.",
+            "status": "done",
+            "testStrategy": "Test the initialization process in different environments. Verify that imports work correctly in both TypeScript and JavaScript projects. Test compatibility with different bundlers (webpack, rollup, etc.)."
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Develop Animation Modules",
+        "description": "Create animation modules for both GSAP and vanilla JavaScript that provide a consistent API for components to use.",
+        "details": "Develop two animation modules (gsap.ts/js and vanilla.ts/js) that expose identical APIs but use different animation engines:\n\n```typescript\n// animation/gsap.ts\nimport { getConfig } from '../pxm-config';\n\nexport function animate(element: HTMLElement, properties: Record<string, any>, options?: any) {\n  if (!window.gsap) {\n    console.warn('GSAP not found, falling back to vanilla animations');\n    // Import and use vanilla animation as fallback\n    import('./vanilla').then(vanilla => vanilla.animate(element, properties, options));\n    return;\n  }\n  \n  const config = getConfig();\n  const gsapOptions = {\n    duration: options?.duration || config.defaults.duration,\n    ease: options?.easing || config.defaults.easing,\n    ...options\n  };\n  \n  window.gsap.to(element, gsapOptions, properties);\n}\n\n// animation/vanilla.ts\nimport { getConfig } from '../pxm-config';\n\nexport function animate(element: HTMLElement, properties: Record<string, any>, options?: any) {\n  const config = getConfig();\n  const duration = options?.duration || config.defaults.duration;\n  const easing = options?.easing || config.defaults.easing;\n  \n  element.style.transition = `all ${duration}s ${easing}`;\n  \n  Object.entries(properties).forEach(([prop, value]) => {\n    // Handle transform properties specially\n    if (prop === 'x' || prop === 'y' || prop === 'scale' || prop === 'rotate') {\n      // Build transform string\n    } else {\n      element.style[prop as any] = value;\n    }\n  });\n}\n```\n\nCreate a factory function that returns the appropriate animation module based on the config:\n\n```typescript\n// animation/index.ts\nimport { getConfig } from '../pxm-config';\n\nexport async function getAnimationModule() {\n  const config = getConfig();\n  if (config.animationEngine === 'gsap') {\n    return import('./gsap');\n  }\n  return import('./vanilla');\n}\n```",
+        "testStrategy": "1. Test that both animation modules implement the same API\n2. Verify GSAP module falls back to vanilla when GSAP is not available\n3. Test that animation factory correctly returns the configured module\n4. Test animations with various properties and options\n5. Verify animations respect global config values",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define animation module interfaces and types",
+            "description": "Create TypeScript interfaces and type definitions for the animation system that will be implemented by both GSAP and vanilla JavaScript adapters.",
+            "dependencies": [],
+            "details": "Define interfaces for Animation, AnimationOptions, AnimationTimeline, and AnimationEasing. Include types for animation properties like duration, delay, easing functions, and callbacks. Ensure the interface is comprehensive enough to support both simple and complex animations while being implementation-agnostic.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement GSAP animation adapter",
+            "description": "Create an adapter class that implements the animation interfaces using the GSAP library.",
+            "dependencies": [
+              1
+            ],
+            "details": "Implement the animation interface using GSAP's API. Handle all animation properties defined in the interface, map custom easing functions to GSAP equivalents, implement timeline functionality, and ensure proper cleanup of GSAP animations when they're no longer needed. Include proper error handling for GSAP-specific issues.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Implement vanilla JavaScript animation adapter",
+            "description": "Create an adapter class that implements the animation interfaces using native browser animation APIs.",
+            "dependencies": [
+              1
+            ],
+            "details": "Implement the animation interface using requestAnimationFrame and CSS transitions/transforms. Create custom easing functions that match GSAP's behavior. Implement timeline functionality by chaining promises. Ensure the vanilla implementation closely matches GSAP's behavior for consistency. Handle browser compatibility issues and provide fallbacks where necessary.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Create animation factory and detection logic",
+            "description": "Implement a factory pattern that selects the appropriate animation adapter based on environment detection.",
+            "dependencies": [
+              2,
+              3
+            ],
+            "details": "Create a factory class that detects whether GSAP is available and returns the appropriate adapter. Implement feature detection for required browser APIs. Add configuration options to force a specific adapter. Ensure seamless fallback from GSAP to vanilla JS when needed, with appropriate console warnings when falling back.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Add comprehensive testing for both animation engines",
+            "description": "Create unit and integration tests for both animation adapters to ensure consistent behavior.",
+            "dependencies": [
+              4
+            ],
+            "details": "Write unit tests for each adapter individually. Create integration tests that verify both adapters produce the same visual results. Test edge cases like interrupted animations, rapid sequential animations, and animations on elements that are removed from DOM. Include performance benchmarks comparing both implementations. Set up visual regression tests to ensure animations look identical across implementations.",
+            "status": "done",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Build CLI Tool",
+        "description": "Create a command-line interface tool for initializing the config file and copying components to a project.",
+        "details": "Develop a Node.js CLI tool with the following commands:\n- `pxm init`: Creates a default pxm.config.js/ts file in the current directory\n- `pxm copy <component>`: Copies the specified component files to the project\n\n```javascript\n#!/usr/bin/env node\n// pxm-cli.js\nconst fs = require('fs');\nconst path = require('path');\nconst { program } = require('commander');\n\nprogram\n  .version('1.0.0')\n  .description('PixelMakers Elements CLI');\n\nprogram\n  .command('init')\n  .description('Initialize PixelMakers Elements configuration')\n  .action(() => {\n    // Detect if project is TypeScript or JavaScript\n    const isTypeScript = fs.existsSync('tsconfig.json');\n    const configFileName = isTypeScript ? 'pxm.config.ts' : 'pxm.config.js';\n    const configTemplate = isTypeScript ? getTypeScriptConfigTemplate() : getJavaScriptConfigTemplate();\n    \n    fs.writeFileSync(configFileName, configTemplate);\n    console.log(`Created ${configFileName} with default settings`);\n  });\n\nprogram\n  .command('copy <component>')\n  .description('Copy a component to your project')\n  .action((component) => {\n    const validComponents = ['accordion', 'tabs', 'lightbox', 'phone-input', 'video', 'number-input', 'toggle', 'modal'];\n    if (!validComponents.includes(component)) {\n      console.error(`Error: ${component} is not a valid component. Available components: ${validComponents.join(', ')}`);\n      return;\n    }\n    \n    // Detect if project is TypeScript or JavaScript\n    const isTypeScript = fs.existsSync('tsconfig.json');\n    const fileExt = isTypeScript ? '.ts' : '.js';\n    \n    // Create components directory if it doesn't exist\n    const componentsDir = 'components';\n    if (!fs.existsSync(componentsDir)) {\n      fs.mkdirSync(componentsDir);\n    }\n    \n    // Copy component files\n    const componentPath = path.join(__dirname, 'components', component);\n    const destPath = path.join(process.cwd(), componentsDir, component);\n    \n    // Copy logic files\n    fs.copyFileSync(\n      path.join(componentPath, `${component}${fileExt}`),\n      path.join(destPath, `${component}${fileExt}`)\n    );\n    \n    console.log(`Copied ${component} component to ${destPath}`);\n  });\n\nprogram.parse(process.argv);\n\nfunction getTypeScriptConfigTemplate() {\n  return `import { PxmConfig } from './types';\n\nconst config: PxmConfig = {\n  animationEngine: 'vanilla', // 'gsap' or 'vanilla'\n  defaults: {\n    duration: 0.3,\n    easing: 'ease-in-out',\n  }\n};\n\nexport default config;\n`;\n}\n\nfunction getJavaScriptConfigTemplate() {\n  return `const config = {\n  animationEngine: 'vanilla', // 'gsap' or 'vanilla'\n  defaults: {\n    duration: 0.3,\n    easing: 'ease-in-out',\n  }\n};\n\nexport default config;\n`;\n}\n```",
+        "testStrategy": "1. Test `pxm init` command creates the correct config file based on project type\n2. Test `pxm copy` with valid and invalid component names\n3. Verify correct files are copied to the project\n4. Test error handling for missing components or invalid commands\n5. Test in both TypeScript and JavaScript project environments",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up CLI framework and command structure",
+            "description": "Create the basic CLI tool structure using a framework like Commander.js or yargs, define the command structure, and set up the project scaffolding.",
+            "dependencies": [],
+            "details": "1. Initialize a new Node.js project with npm/yarn\n2. Install necessary dependencies (commander.js/yargs, chalk for colored output)\n3. Create the main CLI entry point file\n4. Set up the command structure for 'init' and 'copy' commands\n5. Configure package.json for global installation\n6. Set up a basic help command and version information\n7. Create folder structure for the project",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement 'init' command for config generation",
+            "description": "Create the functionality to initialize a configuration file in the user's project that will store settings for the component copier.",
+            "dependencies": [
+              1
+            ],
+            "details": "1. Create a template for the configuration file\n2. Implement interactive prompts to gather user preferences\n3. Add validation for user inputs\n4. Write the configuration file to the project root\n5. Handle cases where config already exists (overwrite/merge options)\n6. Add documentation in the command help text\n7. Test the init command in different project environments",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Implement 'copy' command for component copying",
+            "description": "Build the core functionality to copy components from a source directory to a target directory, handling file transformations as needed.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "1. Parse the configuration file to get copy settings\n2. Implement file system operations to copy components\n3. Add support for template variables in component files\n4. Handle file extensions based on project type (TS/JS)\n5. Implement naming transformations (kebab-case, PascalCase, etc.)\n6. Add progress indicators during copying\n7. Validate source and destination paths\n8. Create missing directories if needed",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Add project type detection and error handling",
+            "description": "Implement robust error handling throughout the CLI tool and add automatic detection of project type (TypeScript/JavaScript) to adjust behavior accordingly.",
+            "dependencies": [
+              1,
+              2,
+              3
+            ],
+            "details": "1. Create utility functions to detect project type based on config files and dependencies\n2. Implement graceful error handling with helpful error messages\n3. Add validation for environment requirements\n4. Create fallback behaviors when detection fails\n5. Add logging levels (verbose, quiet modes)\n6. Implement confirmation prompts for destructive operations\n7. Add unit tests for error cases\n8. Document error codes and troubleshooting steps",
+            "status": "done",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Migrate Accordion Component",
+        "description": "Refactor the Accordion component to be logic-only with no styling, supporting the global animation configuration.",
+        "details": "Create a logic-only Accordion component that:\n1. Works with any HTML structure via data attributes\n2. Uses the configured animation engine\n3. Provides only interactivity, no styling\n\n```typescript\n// components/accordion/accordion.ts\nimport { getConfig } from '../../pxm-config';\nimport { getAnimationModule } from '../../animation';\n\nexport class PxmAccordion extends HTMLElement {\n  private items: HTMLElement[] = [];\n  private animation: any;\n\n  constructor() {\n    super();\n    this.init();\n  }\n\n  async init() {\n    // Load the appropriate animation module based on config\n    this.animation = await getAnimationModule();\n    \n    // Find all accordion items\n    this.items = Array.from(this.querySelectorAll('[data-pxm-accordion-item]'));\n    \n    // Set up click handlers for headers\n    this.items.forEach(item => {\n      const header = item.querySelector('[data-pxm-accordion-header]');\n      const content = item.querySelector('[data-pxm-accordion-content]');\n      \n      if (header && content) {\n        // Initially hide all contents except those marked as open\n        if (!item.hasAttribute('data-pxm-accordion-open')) {\n          content.style.height = '0px';\n          content.style.overflow = 'hidden';\n          content.setAttribute('aria-hidden', 'true');\n        } else {\n          content.setAttribute('aria-hidden', 'false');\n        }\n        \n        header.addEventListener('click', () => this.toggleItem(item));\n      }\n    });\n  }\n\n  toggleItem(item: HTMLElement) {\n    const content = item.querySelector('[data-pxm-accordion-content]');\n    const isOpen = item.hasAttribute('data-pxm-accordion-open');\n    \n    if (content) {\n      if (isOpen) {\n        // Close the item\n        this.animation.animate(content, {\n          height: 0,\n          opacity: 0\n        });\n        content.setAttribute('aria-hidden', 'true');\n        item.removeAttribute('data-pxm-accordion-open');\n      } else {\n        // Open the item\n        const config = getConfig();\n        \n        // If accordion is set to single-open mode, close other items\n        if (this.hasAttribute('data-pxm-accordion-single')) {\n          this.items.forEach(otherItem => {\n            if (otherItem !== item && otherItem.hasAttribute('data-pxm-accordion-open')) {\n              const otherContent = otherItem.querySelector('[data-pxm-accordion-content]');\n              if (otherContent) {\n                this.animation.animate(otherContent, {\n                  height: 0,\n                  opacity: 0\n                });\n                otherContent.setAttribute('aria-hidden', 'true');\n                otherItem.removeAttribute('data-pxm-accordion-open');\n              }\n            }\n          });\n        }\n        \n        // Get the natural height by temporarily removing restrictions\n        content.style.height = 'auto';\n        content.style.opacity = '1';\n        content.style.position = 'absolute';\n        content.style.visibility = 'hidden';\n        const height = content.offsetHeight;\n        content.style.height = '0px';\n        content.style.opacity = '0';\n        content.style.position = '';\n        content.style.visibility = '';\n        \n        // Animate to open state\n        this.animation.animate(content, {\n          height: `${height}px`,\n          opacity: 1\n        });\n        content.setAttribute('aria-hidden', 'false');\n        item.setAttribute('data-pxm-accordion-open', '');\n      }\n    }\n  }\n}\n\n// Register the web component\ncustomElements.define('pxm-accordion', PxmAccordion);\n```\n\nAlso create a JavaScript version with the same functionality but without type annotations.",
+        "testStrategy": "1. Test accordion opens and closes correctly\n2. Verify single-open mode works as expected\n3. Test with both animation engines (GSAP and vanilla)\n4. Verify accessibility attributes are set correctly\n5. Test with different HTML structures to ensure flexibility\n6. Test in both TypeScript and JavaScript environments",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          2
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define Accordion Component Interface and Data Attributes",
+            "description": "Create the TypeScript interface for the Accordion component, including all necessary props, state, and data attributes.",
+            "dependencies": [],
+            "details": "Define the component API including props for controlled/uncontrolled usage, multiple/single panel expansion, custom styling hooks, and event callbacks. Create TypeScript interfaces for AccordionProps, AccordionItemProps, AccordionHeaderProps, and AccordionPanelProps. Document all data attributes that will be exposed for styling and testing purposes.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement Core Accordion Functionality",
+            "description": "Build the foundational accordion component with expand/collapse functionality for content panels.",
+            "dependencies": [
+              1
+            ],
+            "details": "Implement the core accordion behavior including state management for expanded/collapsed panels, support for both controlled and uncontrolled modes, and proper event handling. Create the component structure with AccordionItem, AccordionHeader, and AccordionPanel subcomponents. Ensure the component works with dynamic content and handles DOM updates appropriately.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Add Animation Integration with Both Engines",
+            "description": "Integrate smooth height animations for panel transitions using both animation engines.",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement height animations for expanding/collapsing panels that work with both animation engines. Handle edge cases like measuring dynamic content height, window resizing, and content changes. Create animation variants for different transition styles and ensure animations can be disabled if needed. Test performance with complex nested content.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Implement Accessibility Features",
+            "description": "Ensure the accordion component meets WCAG accessibility standards with proper ARIA attributes and keyboard navigation.",
+            "dependencies": [
+              2
+            ],
+            "details": "Add appropriate ARIA attributes (aria-expanded, aria-controls, etc.) to all accordion elements. Implement keyboard navigation including arrow keys for moving between headers, Enter/Space for toggling panels, and Home/End for first/last header. Ensure focus management works correctly during interactions and test with screen readers. Add support for reduced motion preferences.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Create Comprehensive Tests and Examples",
+            "description": "Develop unit tests, integration tests, and usage examples for the Accordion component.",
+            "dependencies": [
+              3,
+              4
+            ],
+            "details": "Write unit tests for all component functionality including controlled/uncontrolled modes, animations, and accessibility features. Create integration tests that verify proper DOM structure and interactions. Build comprehensive examples showing different use cases including nested accordions, custom styling, dynamic content, and programmatic control. Document edge cases and performance considerations.",
+            "status": "done",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Migrate Tabs Component",
+        "description": "Refactor the Tabs component to be logic-only with no styling, supporting the global animation configuration.",
+        "details": "Create a logic-only Tabs component that:\n1. Works with any HTML structure via data attributes\n2. Uses the configured animation engine\n3. Provides only interactivity, no styling\n\n```typescript\n// components/tabs/tabs.ts\nimport { getConfig } from '../../pxm-config';\nimport { getAnimationModule } from '../../animation';\n\nexport class PxmTabs extends HTMLElement {\n  private tabButtons: HTMLElement[] = [];\n  private tabPanels: HTMLElement[] = [];\n  private animation: any;\n\n  constructor() {\n    super();\n    this.init();\n  }\n\n  async init() {\n    // Load the appropriate animation module based on config\n    this.animation = await getAnimationModule();\n    \n    // Find all tab buttons and panels\n    this.tabButtons = Array.from(this.querySelectorAll('[data-pxm-tab-button]'));\n    this.tabPanels = Array.from(this.querySelectorAll('[data-pxm-tab-panel]'));\n    \n    // Set up click handlers for tab buttons\n    this.tabButtons.forEach((button, index) => {\n      button.setAttribute('role', 'tab');\n      button.setAttribute('aria-selected', index === 0 ? 'true' : 'false');\n      button.setAttribute('tabindex', index === 0 ? '0' : '-1');\n      \n      button.addEventListener('click', () => this.activateTab(index));\n      button.addEventListener('keydown', (e) => {\n        if (e.key === 'Enter' || e.key === ' ') {\n          e.preventDefault();\n          this.activateTab(index);\n        }\n      });\n    });\n    \n    // Set up initial state for tab panels\n    this.tabPanels.forEach((panel, index) => {\n      panel.setAttribute('role', 'tabpanel');\n      panel.setAttribute('aria-hidden', index === 0 ? 'false' : 'true');\n      \n      if (index !== 0) {\n        panel.style.display = 'none';\n        panel.style.opacity = '0';\n      } else {\n        panel.style.opacity = '1';\n      }\n    });\n    \n    // Set the container role\n    this.setAttribute('role', 'tablist');\n  }\n\n  activateTab(index: number) {\n    // Update tab buttons\n    this.tabButtons.forEach((button, i) => {\n      button.setAttribute('aria-selected', i === index ? 'true' : 'false');\n      button.setAttribute('tabindex', i === index ? '0' : '-1');\n    });\n    \n    // Update tab panels with animation\n    this.tabPanels.forEach((panel, i) => {\n      if (i === index) {\n        // Show the selected panel\n        panel.style.display = '';\n        panel.setAttribute('aria-hidden', 'false');\n        \n        // Animate in\n        this.animation.animate(panel, {\n          opacity: 1\n        });\n      } else {\n        // Hide other panels\n        panel.setAttribute('aria-hidden', 'true');\n        \n        // Animate out and then hide\n        this.animation.animate(panel, {\n          opacity: 0\n        }, {\n          onComplete: () => {\n            panel.style.display = 'none';\n          }\n        });\n      }\n    });\n    \n    // Dispatch custom event\n    this.dispatchEvent(new CustomEvent('pxm-tab-change', {\n      detail: { index, tabId: this.tabButtons[index]?.getAttribute('data-pxm-tab-button') }\n    }));\n  }\n}\n\n// Register the web component\ncustomElements.define('pxm-tabs', PxmTabs);\n```\n\nAlso create a JavaScript version with the same functionality but without type annotations.",
+        "testStrategy": "1. Test tab switching works correctly\n2. Verify animations work with both engines (GSAP and vanilla)\n3. Test keyboard navigation (Enter, Space)\n4. Verify accessibility attributes are set correctly\n5. Test custom events are fired correctly\n6. Test with different HTML structures to ensure flexibility\n7. Test in both TypeScript and JavaScript environments",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          2
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define Tabs Component Interface and Data Attributes",
+            "description": "Create the TypeScript interface for the Tabs component, including all necessary props, state, and data attributes.",
+            "dependencies": [],
+            "details": "Define the component API including props for tab items, active tab state management, orientation (horizontal/vertical), and styling options. Create interfaces for TabList, TabPanel, and TabItem subcomponents. Document all data attributes that will be exposed for styling and testing purposes. Ensure the interface is compatible with both animation engines.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement Core Tabs Switching Functionality",
+            "description": "Build the core functionality for switching between tab panels when tabs are clicked.",
+            "dependencies": [
+              1
+            ],
+            "details": "Implement the tab selection mechanism, content switching logic, and state management. Ensure proper rendering of active vs. inactive tabs with appropriate styling. Handle controlled and uncontrolled component modes. Implement the TabList, TabPanel, and TabItem subcomponents with proper relationships between them. Ensure content is only rendered when its corresponding tab is active.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Add Animation Integration with Both Engines",
+            "description": "Integrate animations for tab transitions using both the legacy and modern animation engines.",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement smooth transitions between tab panels using both animation engines. Create animation presets for common tab transitions (fade, slide). Ensure animations work correctly when tabs are switched programmatically or via user interaction. Handle edge cases like rapid tab switching and animation interruption. Document how custom animations can be applied.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Implement Keyboard Navigation and Accessibility Features",
+            "description": "Add keyboard navigation support and ensure the component meets accessibility standards.",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement arrow key navigation between tabs. Add proper ARIA roles, states, and properties (aria-selected, aria-controls, etc.). Ensure focus management works correctly when switching tabs. Support activation via Space/Enter keys. Implement roving tabindex pattern for keyboard navigation. Test with screen readers to verify accessibility compliance. Add support for RTL languages.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Create Comprehensive Tests and Examples",
+            "description": "Develop unit tests, integration tests, and usage examples for the Tabs component.",
+            "dependencies": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "details": "Write unit tests for all component functionality. Create integration tests for tab switching, animations, and keyboard navigation. Add accessibility tests to verify ARIA implementation. Develop comprehensive examples showing different configurations (horizontal/vertical tabs, controlled/uncontrolled, with animations, etc.). Document edge cases and provide solutions in the examples. Create performance tests to ensure the component renders efficiently.",
+            "status": "done",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Migrate Lightbox Component",
+        "description": "Refactor the Lightbox component to be logic-only with no styling, supporting the global animation configuration.",
+        "details": "Create a logic-only Lightbox component that:\n1. Works with any HTML structure via data attributes\n2. Uses the configured animation engine\n3. Provides only interactivity, no styling\n\n```typescript\n// components/lightbox/lightbox.ts\nimport { getConfig } from '../../pxm-config';\nimport { getAnimationModule } from '../../animation';\n\nexport class PxmLightbox extends HTMLElement {\n  private triggers: HTMLElement[] = [];\n  private container: HTMLElement | null = null;\n  private closeButton: HTMLElement | null = null;\n  private currentIndex: number = 0;\n  private items: HTMLElement[] = [];\n  private animation: any;\n\n  constructor() {\n    super();\n    this.init();\n  }\n\n  async init() {\n    // Load the appropriate animation module based on config\n    this.animation = await getAnimationModule();\n    \n    // Find all lightbox triggers\n    this.triggers = Array.from(document.querySelectorAll('[data-pxm-lightbox-trigger]'));\n    \n    // Find or create lightbox container\n    this.container = document.querySelector('[data-pxm-lightbox-container]');\n    if (!this.container) {\n      this.container = document.createElement('div');\n      this.container.setAttribute('data-pxm-lightbox-container', '');\n      this.container.setAttribute('aria-modal', 'true');\n      this.container.setAttribute('role', 'dialog');\n      this.container.style.display = 'none';\n      document.body.appendChild(this.container);\n    }\n    \n    // Find or create close button\n    this.closeButton = this.container.querySelector('[data-pxm-lightbox-close]');\n    if (!this.closeButton) {\n      this.closeButton = document.createElement('button');\n      this.closeButton.setAttribute('data-pxm-lightbox-close', '');\n      this.closeButton.setAttribute('aria-label', 'Close lightbox');\n      this.container.appendChild(this.closeButton);\n    }\n    \n    // Set up event listeners\n    this.triggers.forEach((trigger, index) => {\n      trigger.addEventListener('click', (e) => {\n        e.preventDefault();\n        this.open(index);\n      });\n    });\n    \n    this.closeButton.addEventListener('click', () => this.close());\n    \n    // Close on escape key\n    document.addEventListener('keydown', (e) => {\n      if (e.key === 'Escape' && this.container && this.container.style.display !== 'none') {\n        this.close();\n      }\n    });\n    \n    // Create navigation buttons if needed\n    if (this.triggers.length > 1) {\n      const prevButton = document.createElement('button');\n      prevButton.setAttribute('data-pxm-lightbox-prev', '');\n      prevButton.setAttribute('aria-label', 'Previous image');\n      prevButton.addEventListener('click', () => this.navigate(-1));\n      \n      const nextButton = document.createElement('button');\n      nextButton.setAttribute('data-pxm-lightbox-next', '');\n      nextButton.setAttribute('aria-label', 'Next image');\n      nextButton.addEventListener('click', () => this.navigate(1));\n      \n      this.container.appendChild(prevButton);\n      this.container.appendChild(nextButton);\n    }\n  }\n\n  open(index: number) {\n    if (!this.container) return;\n    \n    this.currentIndex = index;\n    const trigger = this.triggers[index];\n    const src = trigger.getAttribute('href') || trigger.getAttribute('data-pxm-lightbox-src');\n    \n    // Clear existing content\n    const contentContainer = this.container.querySelector('[data-pxm-lightbox-content]') || this.container;\n    Array.from(contentContainer.querySelectorAll('[data-pxm-lightbox-item]')).forEach(item => item.remove());\n    \n    // Create new content\n    const item = document.createElement('div');\n    item.setAttribute('data-pxm-lightbox-item', '');\n    \n    if (src?.match(/\\.(jpeg|jpg|gif|png)$/i)) {\n      // Image\n      const img = document.createElement('img');\n      img.src = src;\n      img.alt = trigger.getAttribute('data-pxm-lightbox-alt') || '';\n      item.appendChild(img);\n    } else if (src?.match(/\\.(mp4|webm|ogg)$/i)) {\n      // Video\n      const video = document.createElement('video');\n      video.src = src;\n      video.controls = true;\n      video.autoplay = trigger.hasAttribute('data-pxm-lightbox-autoplay');\n      item.appendChild(video);\n    } else if (src?.startsWith('#')) {\n      // Inline content\n      const content = document.querySelector(src);\n      if (content) {\n        item.appendChild(content.cloneNode(true));\n      }\n    }\n    \n    contentContainer.appendChild(item);\n    \n    // Show lightbox with animation\n    this.container.style.display = 'block';\n    this.container.style.opacity = '0';\n    \n    this.animation.animate(this.container, {\n      opacity: 1\n    });\n    \n    // Prevent body scrolling\n    document.body.style.overflow = 'hidden';\n    \n    // Dispatch custom event\n    this.dispatchEvent(new CustomEvent('pxm-lightbox-open', {\n      detail: { index, src }\n    }));\n  }\n\n  close() {\n    if (!this.container) return;\n    \n    // Animate closing\n    this.animation.animate(this.container, {\n      opacity: 0\n    }, {\n      onComplete: () => {\n        this.container!.style.display = 'none';\n        \n        // Restore body scrolling\n        document.body.style.overflow = '';\n        \n        // Dispatch custom event\n        this.dispatchEvent(new CustomEvent('pxm-lightbox-close'));\n      }\n    });\n  }\n\n  navigate(direction: number) {\n    const newIndex = (this.currentIndex + direction + this.triggers.length) % this.triggers.length;\n    this.open(newIndex);\n  }\n}\n\n// Register the web component\ncustomElements.define('pxm-lightbox', PxmLightbox);\n```\n\nAlso create a JavaScript version with the same functionality but without type annotations.",
+        "testStrategy": "1. Test lightbox opens and closes correctly\n2. Verify navigation between multiple items works\n3. Test with different content types (images, videos, inline content)\n4. Verify animations work with both engines (GSAP and vanilla)\n5. Test keyboard navigation (Escape key)\n6. Verify accessibility attributes are set correctly\n7. Test custom events are fired correctly\n8. Test in both TypeScript and JavaScript environments",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          2
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define component interface and data attributes",
+            "description": "Create the TypeScript interface for the Lightbox component and define all required data attributes",
+            "dependencies": [],
+            "details": "Define props interface including content sources, options for display modes, callback functions, and configuration options. Document all data attributes that can be used for initialization. Create type definitions for different content types (image, video, inline). Ensure backward compatibility with existing implementation.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement core lightbox functionality",
+            "description": "Build the basic lightbox modal overlay with open/close functionality",
+            "dependencies": [
+              1
+            ],
+            "details": "Create the modal overlay container with proper z-index and positioning. Implement open and close methods with proper event handling. Add backdrop with configurable opacity. Ensure proper body scroll locking when lightbox is open. Implement resource cleanup on close to prevent memory leaks. Add basic styling with CSS variables for theming support.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Add support for different content types",
+            "description": "Implement handlers for images, videos, and inline content",
+            "dependencies": [
+              2
+            ],
+            "details": "Create content loaders for each type (image, video, inline HTML). Implement proper error handling for failed content loading. Add support for captions and descriptions. Implement lazy loading for better performance. Add responsive sizing based on viewport and content dimensions. Handle aspect ratio preservation for media content.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Implement navigation between items",
+            "description": "Add navigation controls and functionality for galleries with multiple items",
+            "dependencies": [
+              3
+            ],
+            "details": "Create next/previous navigation buttons with proper styling. Implement item collection management for galleries. Add support for circular navigation (looping from last to first item). Create thumbnails navigation option for galleries. Implement proper preloading of adjacent items for smoother transitions. Add swipe gesture support for touch devices.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Add animation integration with both engines",
+            "description": "Implement animations for opening, closing, and transitioning between items",
+            "dependencies": [
+              2,
+              4
+            ],
+            "details": "Create animation hooks for both animation engines (GSAP and CSS). Implement fade/zoom effects for opening and closing the lightbox. Add slide transitions between gallery items. Ensure animations can be customized or disabled via configuration. Optimize animations for performance. Implement fallbacks for reduced motion preferences.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Implement keyboard controls and accessibility features",
+            "description": "Add keyboard navigation and ensure the component meets accessibility standards",
+            "dependencies": [
+              2,
+              3,
+              4
+            ],
+            "details": "Implement keyboard controls (Esc to close, arrows for navigation). Add proper focus management when lightbox opens and closes. Ensure all interactive elements have proper ARIA attributes. Add screen reader announcements for state changes. Implement proper tab trapping within the lightbox. Add support for reduced motion preferences. Ensure all controls have proper contrast ratios and focus states.",
+            "status": "done",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Migrate Phone Input Component",
+        "description": "Refactor the Phone Input component to be logic-only with no styling, supporting the global animation configuration.",
+        "details": "Create a logic-only Phone Input component that:\n1. Works with any HTML structure via data attributes\n2. Uses the configured animation engine for any animations\n3. Provides only interactivity and validation, no styling\n\n```typescript\n// components/phone-input/phone-input.ts\nimport { getConfig } from '../../pxm-config';\nimport { getAnimationModule } from '../../animation';\n\nexport class PxmPhoneInput extends HTMLElement {\n  private input: HTMLInputElement | null = null;\n  private countrySelect: HTMLSelectElement | null = null;\n  private errorElement: HTMLElement | null = null;\n  private animation: any;\n  private countryData: Record<string, { code: string, pattern: string, example: string }> = {\n    'US': { code: '+1', pattern: '(XXX) XXX-XXXX', example: '(555) 123-4567' },\n    'UK': { code: '+44', pattern: 'XXXX XXXXXX', example: '7911 123456' },\n    // Add more countries as needed\n  };\n\n  constructor() {\n    super();\n    this.init();\n  }\n\n  async init() {\n    // Load the appropriate animation module based on config\n    this.animation = await getAnimationModule();\n    \n    // Find elements\n    this.input = this.querySelector('[data-pxm-phone-input]');\n    this.countrySelect = this.querySelector('[data-pxm-phone-country]');\n    this.errorElement = this.querySelector('[data-pxm-phone-error]');\n    \n    if (!this.input) {\n      console.error('Phone input element not found');\n      return;\n    }\n    \n    // Set up input mask and validation\n    this.input.addEventListener('input', () => this.formatInput());\n    this.input.addEventListener('blur', () => this.validateInput());\n    \n    // Set up country select if it exists\n    if (this.countrySelect) {\n      this.countrySelect.addEventListener('change', () => {\n        this.updatePlaceholder();\n        this.formatInput();\n      });\n      \n      // Initialize with current country\n      this.updatePlaceholder();\n    }\n  }\n\n  formatInput() {\n    if (!this.input) return;\n    \n    // Get current country data\n    const countryCode = this.getSelectedCountry();\n    const countryInfo = this.countryData[countryCode];\n    \n    // Remove non-digit characters\n    let digits = this.input.value.replace(/\\D/g, '');\n    \n    // Format according to country pattern\n    if (countryInfo) {\n      let formatted = countryInfo.pattern;\n      let digitIndex = 0;\n      \n      for (let i = 0; i < formatted.length && digitIndex < digits.length; i++) {\n        if (formatted[i] === 'X') {\n          formatted = formatted.substring(0, i) + digits[digitIndex] + formatted.substring(i + 1);\n          digitIndex++;\n        }\n      }\n      \n      // Remove any remaining X placeholders\n      formatted = formatted.replace(/X/g, '');\n      \n      // Update input value\n      this.input.value = formatted;\n    }\n  }\n\n  validateInput() {\n    if (!this.input || !this.errorElement) return;\n    \n    const countryCode = this.getSelectedCountry();\n    const countryInfo = this.countryData[countryCode];\n    \n    // Count digits\n    const digitCount = this.input.value.replace(/\\D/g, '').length;\n    const expectedDigits = countryInfo.pattern.match(/X/g)?.length || 0;\n    \n    if (digitCount === 0) {\n      // Empty input\n      this.showError('Phone number is required');\n      return false;\n    } else if (digitCount !== expectedDigits) {\n      // Incomplete number\n      this.showError(`Please enter a valid ${countryCode} phone number`);\n      return false;\n    }\n    \n    // Valid input\n    this.hideError();\n    return true;\n  }\n\n  showError(message: string) {\n    if (!this.errorElement) return;\n    \n    this.errorElement.textContent = message;\n    this.errorElement.style.display = 'block';\n    this.errorElement.style.opacity = '0';\n    \n    this.animation.animate(this.errorElement, {\n      opacity: 1\n    });\n    \n    this.input?.setAttribute('aria-invalid', 'true');\n    this.input?.setAttribute('aria-describedby', this.errorElement.id || 'phone-error');\n  }\n\n  hideError() {\n    if (!this.errorElement) return;\n    \n    this.animation.animate(this.errorElement, {\n      opacity: 0\n    }, {\n      onComplete: () => {\n        this.errorElement!.style.display = 'none';\n      }\n    });\n    \n    this.input?.setAttribute('aria-invalid', 'false');\n  }\n\n  updatePlaceholder() {\n    if (!this.input) return;\n    \n    const countryCode = this.getSelectedCountry();\n    const countryInfo = this.countryData[countryCode];\n    \n    if (countryInfo) {\n      this.input.placeholder = countryInfo.example;\n    }\n  }\n\n  getSelectedCountry(): string {\n    if (this.countrySelect) {\n      return this.countrySelect.value;\n    }\n    \n    // Default to US if no select element\n    return 'US';\n  }\n\n  // Public method to get formatted phone number with country code\n  getFormattedNumber(): string {\n    if (!this.input) return '';\n    \n    const countryCode = this.getSelectedCountry();\n    const countryInfo = this.countryData[countryCode];\n    \n    return `${countryInfo.code} ${this.input.value}`;\n  }\n\n  // Public method to check if the current input is valid\n  isValid(): boolean {\n    return this.validateInput();\n  }\n}\n\n// Register the web component\ncustomElements.define('pxm-phone-input', PxmPhoneInput);\n```\n\nAlso create a JavaScript version with the same functionality but without type annotations.",
+        "testStrategy": "1. Test phone number formatting for different countries\n2. Verify validation logic works correctly\n3. Test error messages appear and disappear with animation\n4. Verify country selection changes placeholder and formatting\n5. Test public methods (getFormattedNumber, isValid)\n6. Verify accessibility attributes are set correctly\n7. Test with different HTML structures to ensure flexibility\n8. Test in both TypeScript and JavaScript environments",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          2
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define component interface and data attributes",
+            "description": "Create the TypeScript interface for the Phone Input component, including all necessary props, state, and event handlers.",
+            "dependencies": [],
+            "details": "Define props for value, onChange, onBlur, error states, placeholder, disabled state, and required flag. Create appropriate TypeScript interfaces and types. Document the component API with JSDoc comments. Ensure backward compatibility with the existing implementation.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement input masking and formatting logic",
+            "description": "Create the logic to handle phone number formatting and masking as users type.",
+            "dependencies": [
+              1
+            ],
+            "details": "Implement real-time formatting that adds appropriate separators (spaces, dashes, parentheses) based on the input pattern. Handle backspace and delete operations correctly. Maintain cursor position during editing. Create unit tests for various input scenarios including partial inputs and edge cases.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Create country code handling and validation",
+            "description": "Implement country code selection and country-specific phone number validation.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Create a dropdown for country selection with flags. Implement validation rules for different country formats. Handle international phone number formats (E.164). Add support for default country selection based on user locale. Create validation functions that return appropriate error messages for invalid inputs.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Add animation for error messages",
+            "description": "Implement smooth animations for displaying and hiding error messages.",
+            "dependencies": [
+              1,
+              3
+            ],
+            "details": "Create fade-in and shake animations for error messages. Ensure animations are performant and don't cause layout shifts. Make animations configurable and optional. Implement proper ARIA attributes during animation states to maintain accessibility.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Implement accessibility features and internationalization support",
+            "description": "Ensure the component is fully accessible and supports internationalization requirements.",
+            "dependencies": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "details": "Add proper ARIA attributes and roles. Ensure keyboard navigation works correctly. Support right-to-left languages. Implement screen reader announcements for validation errors. Add internationalization support for error messages and placeholders. Test with screen readers and keyboard-only navigation.",
+            "status": "done",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Migrate Video Component",
+        "description": "Refactor the Video component to be logic-only with no styling, supporting the global animation configuration.",
+        "details": "Create a logic-only Video component that:\n1. Works with any HTML structure via data attributes\n2. Uses the configured animation engine\n3. Provides only interactivity, no styling\n\n```typescript\n// components/video/video.ts\nimport { getConfig } from '../../pxm-config';\nimport { getAnimationModule } from '../../animation';\n\nexport class PxmVideo extends HTMLElement {\n  private video: HTMLVideoElement | null = null;\n  private playButton: HTMLElement | null = null;\n  private muteButton: HTMLElement | null = null;\n  private fullscreenButton: HTMLElement | null = null;\n  private progressBar: HTMLElement | null = null;\n  private timeDisplay: HTMLElement | null = null;\n  private animation: any;\n\n  constructor() {\n    super();\n    this.init();\n  }\n\n  async init() {\n    // Load the appropriate animation module based on config\n    this.animation = await getAnimationModule();\n    \n    // Find elements\n    this.video = this.querySelector('video');\n    this.playButton = this.querySelector('[data-pxm-video-play]');\n    this.muteButton = this.querySelector('[data-pxm-video-mute]');\n    this.fullscreenButton = this.querySelector('[data-pxm-video-fullscreen]');\n    this.progressBar = this.querySelector('[data-pxm-video-progress]');\n    this.timeDisplay = this.querySelector('[data-pxm-video-time]');\n    \n    if (!this.video) {\n      console.error('Video element not found');\n      return;\n    }\n    \n    // Set up event listeners\n    if (this.playButton) {\n      this.playButton.addEventListener('click', () => this.togglePlay());\n    }\n    \n    if (this.muteButton) {\n      this.muteButton.addEventListener('click', () => this.toggleMute());\n    }\n    \n    if (this.fullscreenButton) {\n      this.fullscreenButton.addEventListener('click', () => this.toggleFullscreen());\n    }\n    \n    if (this.progressBar) {\n      this.progressBar.addEventListener('click', (e) => this.seek(e));\n    }\n    \n    // Video event listeners\n    this.video.addEventListener('play', () => this.updatePlayState(true));\n    this.video.addEventListener('pause', () => this.updatePlayState(false));\n    this.video.addEventListener('timeupdate', () => this.updateProgress());\n    this.video.addEventListener('volumechange', () => this.updateMuteState());\n    \n    // Initialize states\n    this.updatePlayState(false);\n    this.updateMuteState();\n    this.updateProgress();\n    \n    // Lazy loading\n    if (this.hasAttribute('data-pxm-video-lazy')) {\n      this.setupLazyLoading();\n    }\n    \n    // Autoplay if specified\n    if (this.hasAttribute('data-pxm-video-autoplay')) {\n      // Try to autoplay, but handle browser restrictions\n      this.video.muted = true; // Muted autoplay is more likely to be allowed\n      this.video.play().catch(() => {\n        console.log('Autoplay prevented by browser');\n      });\n    }\n  }\n\n  togglePlay() {\n    if (!this.video) return;\n    \n    if (this.video.paused) {\n      this.video.play();\n    } else {\n      this.video.pause();\n    }\n  }\n\n  updatePlayState(isPlaying: boolean) {\n    if (!this.playButton) return;\n    \n    // Update button state (for styling by user)\n    if (isPlaying) {\n      this.playButton.setAttribute('data-state', 'playing');\n      this.playButton.setAttribute('aria-label', 'Pause');\n    } else {\n      this.playButton.setAttribute('data-state', 'paused');\n      this.playButton.setAttribute('aria-label', 'Play');\n    }\n    \n    // Dispatch custom event\n    this.dispatchEvent(new CustomEvent('pxm-video-state-change', {\n      detail: { isPlaying }\n    }));\n  }\n\n  toggleMute() {\n    if (!this.video) return;\n    \n    this.video.muted = !this.video.muted;\n  }\n\n  updateMuteState() {\n    if (!this.video || !this.muteButton) return;\n    \n    // Update button state (for styling by user)\n    if (this.video.muted) {\n      this.muteButton.setAttribute('data-state', 'muted');\n      this.muteButton.setAttribute('aria-label', 'Unmute');\n    } else {\n      this.muteButton.setAttribute('data-state', 'unmuted');\n      this.muteButton.setAttribute('aria-label', 'Mute');\n    }\n  }\n\n  toggleFullscreen() {\n    if (!this.video) return;\n    \n    if (document.fullscreenElement) {\n      document.exitFullscreen();\n    } else {\n      this.video.requestFullscreen();\n    }\n  }\n\n  updateProgress() {\n    if (!this.video) return;\n    \n    // Update progress bar\n    if (this.progressBar) {\n      const progress = (this.video.currentTime / this.video.duration) * 100;\n      this.progressBar.setAttribute('aria-valuenow', progress.toString());\n      this.progressBar.setAttribute('data-progress', progress.toString());\n    }\n    \n    // Update time display\n    if (this.timeDisplay) {\n      const currentTime = this.formatTime(this.video.currentTime);\n      const duration = this.formatTime(this.video.duration);\n      this.timeDisplay.textContent = `${currentTime} / ${duration}`;\n    }\n  }\n\n  seek(event: MouseEvent) {\n    if (!this.video || !this.progressBar) return;\n    \n    const rect = this.progressBar.getBoundingClientRect();\n    const pos = (event.clientX - rect.left) / rect.width;\n    this.video.currentTime = pos * this.video.duration;\n  }\n\n  formatTime(seconds: number): string {\n    if (isNaN(seconds)) return '0:00';\n    \n    const minutes = Math.floor(seconds / 60);\n    const secs = Math.floor(seconds % 60);\n    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;\n  }\n\n  setupLazyLoading() {\n    if (!this.video) return;\n    \n    // Store the original source\n    const sources = Array.from(this.video.querySelectorAll('source'));\n    const originalSources = sources.map(source => ({\n      src: source.src,\n      type: source.type\n    }));\n    \n    // Clear sources to prevent loading\n    sources.forEach(source => source.removeAttribute('src'));\n    \n    // Set up intersection observer\n    const observer = new IntersectionObserver((entries) => {\n      entries.forEach(entry => {\n        if (entry.isIntersecting) {\n          // Restore sources when video comes into view\n          originalSources.forEach((source, index) => {\n            sources[index].src = source.src;\n          });\n          \n          // Load the video\n          this.video!.load();\n          \n          // Disconnect observer\n          observer.disconnect();\n        }\n      });\n    }, { threshold: 0.1 });\n    \n    observer.observe(this);\n  }\n}\n\n// Register the web component\ncustomElements.define('pxm-video', PxmVideo);\n```\n\nAlso create a JavaScript version with the same functionality but without type annotations.",
+        "testStrategy": "1. Test play/pause functionality\n2. Verify mute/unmute works correctly\n3. Test progress bar updates and seeking\n4. Verify fullscreen toggle works\n5. Test lazy loading with Intersection Observer\n6. Verify autoplay with muted setting\n7. Test custom events are fired correctly\n8. Verify accessibility attributes are set correctly\n9. Test with different HTML structures to ensure flexibility\n10. Test in both TypeScript and JavaScript environments",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          2
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define component interface and data attributes",
+            "description": "Create the TypeScript interface for the Video component and define all required props and data attributes",
+            "dependencies": [],
+            "details": "Define the component's props interface including source URLs, poster image, autoplay settings, loop options, and any configuration parameters. Document each prop with JSDoc comments. Create appropriate type definitions for video sources that support multiple formats. Include event handler types for all video events that will be exposed.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement core video playback controls",
+            "description": "Build the basic video player with play/pause functionality and handle browser autoplay restrictions",
+            "dependencies": [
+              1
+            ],
+            "details": "Create the core video component with ref to HTML5 video element. Implement play/pause toggle functionality with appropriate UI indicators. Handle browser autoplay policy restrictions with proper fallbacks. Add loading states and error handling for failed video loads. Implement loop functionality if specified in props.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Create progress tracking and seeking functionality",
+            "description": "Implement video progress bar with seeking capabilities and time display",
+            "dependencies": [
+              2
+            ],
+            "details": "Create a progress bar component that updates based on currentTime and duration. Implement click and drag functionality to seek to different positions in the video. Add time display showing current position and total duration. Handle edge cases like seeking in a video that's still loading. Ensure smooth updates using requestAnimationFrame for performance.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Add fullscreen and mute controls",
+            "description": "Implement fullscreen toggle and volume/mute controls with appropriate UI feedback",
+            "dependencies": [
+              2
+            ],
+            "details": "Add fullscreen toggle button using the Fullscreen API with fallbacks for different browsers. Implement mute/unmute functionality with volume slider control. Create appropriate icons and UI states for both controls. Handle fullscreen change events to update UI accordingly. Persist volume/mute preferences in local storage if appropriate.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Implement lazy loading with Intersection Observer",
+            "description": "Add performance optimization to only load video when it enters the viewport",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement Intersection Observer to detect when video enters viewport. Create placeholder/poster display for videos not yet loaded. Handle loading of video sources only when needed. Add appropriate loading states and transitions. Ensure proper cleanup of observers when component unmounts.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Add accessibility features and keyboard controls",
+            "description": "Ensure the video component is fully accessible with keyboard navigation and ARIA attributes",
+            "dependencies": [
+              3,
+              4
+            ],
+            "details": "Add proper ARIA roles, labels and attributes to all controls. Implement keyboard navigation for all video functions (play/pause, seek, volume, fullscreen). Add screen reader announcements for state changes. Ensure focus management works correctly, especially when entering/exiting fullscreen. Add captions/subtitles support if applicable. Test with screen readers and keyboard-only navigation.",
+            "status": "done",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Migrate Number Input Component",
+        "description": "Refactor the Number Input component to be logic-only with no styling, supporting the global animation configuration.",
+        "details": "Create a logic-only Number Input component that:\n1. Works with any HTML structure via data attributes\n2. Uses the configured animation engine for any animations\n3. Provides only interactivity and validation, no styling\n\n```typescript\n// components/number-input/number-input.ts\nimport { getConfig } from '../../pxm-config';\nimport { getAnimationModule } from '../../animation';\n\nexport class PxmNumberInput extends HTMLElement {\n  private input: HTMLInputElement | null = null;\n  private incrementButton: HTMLElement | null = null;\n  private decrementButton: HTMLElement | null = null;\n  private errorElement: HTMLElement | null = null;\n  private animation: any;\n  private min: number = 0;\n  private max: number = 100;\n  private step: number = 1;\n  private decimals: number = 0;\n  private formatter: Intl.NumberFormat | null = null;\n\n  constructor() {\n    super();\n    this.init();\n  }\n\n  async init() {\n    // Load the appropriate animation module based on config\n    this.animation = await getAnimationModule();\n    \n    // Find elements\n    this.input = this.querySelector('[data-pxm-number-input]');\n    this.incrementButton = this.querySelector('[data-pxm-number-increment]');\n    this.decrementButton = this.querySelector('[data-pxm-number-decrement]');\n    this.errorElement = this.querySelector('[data-pxm-number-error]');\n    \n    if (!this.input) {\n      console.error('Number input element not found');\n      return;\n    }\n    \n    // Get configuration from attributes\n    this.min = parseFloat(this.getAttribute('data-pxm-min') || '0');\n    this.max = parseFloat(this.getAttribute('data-pxm-max') || '100');\n    this.step = parseFloat(this.getAttribute('data-pxm-step') || '1');\n    this.decimals = parseInt(this.getAttribute('data-pxm-decimals') || '0', 10);\n    \n    // Set up number formatter\n    const locale = this.getAttribute('data-pxm-locale') || navigator.language;\n    this.formatter = new Intl.NumberFormat(locale, {\n      minimumFractionDigits: this.decimals,\n      maximumFractionDigits: this.decimals\n    });\n    \n    // Set input attributes\n    this.input.setAttribute('inputmode', this.decimals > 0 ? 'decimal' : 'numeric');\n    this.input.setAttribute('aria-valuemin', this.min.toString());\n    this.input.setAttribute('aria-valuemax', this.max.toString());\n    \n    // Set up event listeners\n    this.input.addEventListener('input', () => this.handleInput());\n    this.input.addEventListener('blur', () => this.formatAndValidate());\n    this.input.addEventListener('keydown', (e) => {\n      if (e.key === 'ArrowUp') {\n        e.preventDefault();\n        this.increment();\n      } else if (e.key === 'ArrowDown') {\n        e.preventDefault();\n        this.decrement();\n      }\n    });\n    \n    if (this.incrementButton) {\n      this.incrementButton.addEventListener('click', () => this.increment());\n    }\n    \n    if (this.decrementButton) {\n      this.decrementButton.addEventListener('click', () => this.decrement());\n    }\n    \n    // Initialize with current value or default\n    const initialValue = this.input.value ? parseFloat(this.input.value) : this.min;\n    this.setValue(initialValue);\n  }\n\n  handleInput() {\n    if (!this.input) return;\n    \n    // Allow only numbers and decimal point\n    this.input.value = this.input.value.replace(/[^\\d.-]/g, '');\n    \n    // Update aria attributes\n    const value = this.parseValue(this.input.value);\n    if (!isNaN(value)) {\n      this.input.setAttribute('aria-valuenow', value.toString());\n    }\n  }\n\n  formatAndValidate() {\n    if (!this.input) return;\n    \n    const value = this.parseValue(this.input.value);\n    \n    if (isNaN(value)) {\n      this.showError('Please enter a valid number');\n      this.setValue(this.min);\n      return;\n    }\n    \n    // Validate range\n    if (value < this.min) {\n      this.showError(`Value must be at least ${this.min}`);\n      this.setValue(this.min);\n    } else if (value > this.max) {\n      this.showError(`Value must be at most ${this.max}`);\n      this.setValue(this.max);\n    } else {\n      this.hideError();\n      this.setValue(value);\n    }\n  }\n\n  increment() {\n    if (!this.input) return;\n    \n    const currentValue = this.parseValue(this.input.value);\n    const newValue = Math.min(this.max, currentValue + this.step);\n    this.setValue(newValue);\n    this.hideError();\n  }\n\n  decrement() {\n    if (!this.input) return;\n    \n    const currentValue = this.parseValue(this.input.value);\n    const newValue = Math.max(this.min, currentValue - this.step);\n    this.setValue(newValue);\n    this.hideError();\n  }\n\n  setValue(value: number) {\n    if (!this.input || !this.formatter) return;\n    \n    // Round to the specified number of decimals\n    const multiplier = Math.pow(10, this.decimals);\n    const roundedValue = Math.round(value * multiplier) / multiplier;\n    \n    // Format the value\n    this.input.value = this.formatter.format(roundedValue);\n    this.input.setAttribute('aria-valuenow', roundedValue.toString());\n    \n    // Update button states\n    if (this.incrementButton) {\n      this.incrementButton.disabled = roundedValue >= this.max;\n      this.incrementButton.setAttribute('aria-disabled', (roundedValue >= this.max).toString());\n    }\n    \n    if (this.decrementButton) {\n      this.decrementButton.disabled = roundedValue <= this.min;\n      this.decrementButton.setAttribute('aria-disabled', (roundedValue <= this.min).toString());\n    }\n    \n    // Dispatch custom event\n    this.dispatchEvent(new CustomEvent('pxm-number-change', {\n      detail: { value: roundedValue }\n    }));\n  }\n\n  parseValue(inputValue: string): number {\n    // Remove formatting characters and parse as float\n    return parseFloat(inputValue.replace(/[^\\d.-]/g, ''));\n  }\n\n  showError(message: string) {\n    if (!this.errorElement) return;\n    \n    this.errorElement.textContent = message;\n    this.errorElement.style.display = 'block';\n    this.errorElement.style.opacity = '0';\n    \n    this.animation.animate(this.errorElement, {\n      opacity: 1\n    });\n    \n    this.input?.setAttribute('aria-invalid', 'true');\n    this.input?.setAttribute('aria-describedby', this.errorElement.id || 'number-error');\n  }\n\n  hideError() {\n    if (!this.errorElement) return;\n    \n    this.animation.animate(this.errorElement, {\n      opacity: 0\n    }, {\n      onComplete: () => {\n        this.errorElement!.style.display = 'none';\n      }\n    });\n    \n    this.input?.setAttribute('aria-invalid', 'false');\n  }\n\n  // Public method to get the current value\n  getValue(): number {\n    if (!this.input) return this.min;\n    return this.parseValue(this.input.value);\n  }\n}\n\n// Register the web component\ncustomElements.define('pxm-number-input', PxmNumberInput);\n```\n\nAlso create a JavaScript version with the same functionality but without type annotations.",
+        "testStrategy": "1. Test increment/decrement functionality\n2. Verify min/max constraints are enforced\n3. Test decimal precision and formatting\n4. Verify keyboard controls (arrow keys)\n5. Test error messages appear and disappear with animation\n6. Verify accessibility attributes are set correctly\n7. Test custom events are fired correctly\n8. Test with different HTML structures to ensure flexibility\n9. Test in both TypeScript and JavaScript environments",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          2
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define component interface and data attributes",
+            "description": "Create the TypeScript interface for the Number Input component including all necessary props and state variables",
+            "dependencies": [],
+            "details": "Define props for min/max values, step size, precision, locale formatting, disabled state, and readonly state. Create internal state management for current value, validation errors, and focus state. Document the component API with JSDoc comments.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement increment/decrement functionality",
+            "description": "Build the core increment and decrement logic with proper boundary validation",
+            "dependencies": [
+              1
+            ],
+            "details": "Create handlers for increment/decrement buttons that respect min/max constraints. Implement step functionality for both integer and decimal values. Add visual feedback for button interactions and handle disabled states appropriately.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Create number formatting and validation logic",
+            "description": "Implement formatting and validation for numeric input with locale support",
+            "dependencies": [
+              1
+            ],
+            "details": "Build validation logic to check against min/max values, required field status, and numeric format. Implement locale-aware formatting with proper decimal and thousand separators. Create input masking to prevent invalid character entry. Handle paste events appropriately.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Add animation for error messages",
+            "description": "Implement smooth animations for displaying and hiding error messages",
+            "dependencies": [
+              3
+            ],
+            "details": "Create CSS transitions or animations for error message appearance. Implement error state styling for the input field. Ensure animations are performant and don't cause layout shifts. Make animations configurable or disable-able for accessibility preferences.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Implement keyboard controls and accessibility features",
+            "description": "Add keyboard navigation, ARIA attributes, and screen reader support",
+            "dependencies": [
+              2,
+              3
+            ],
+            "details": "Implement up/down arrow key handlers for increment/decrement. Add proper ARIA labels and roles for all interactive elements. Ensure focus management works correctly. Test with screen readers and keyboard-only navigation. Implement appropriate tab order and focus indicators.",
+            "status": "done",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Create Migration Documentation",
+        "description": "Create comprehensive migration documentation for users upgrading from the previous version to the new logic-only components.",
+        "details": "Create a detailed migration guide that includes:\n\n1. Overview of the new architecture and benefits\n2. Step-by-step migration instructions for each component\n3. Examples of HTML structure and data attributes\n4. Configuration options and animation settings\n5. Troubleshooting common issues\n\n```markdown\n# PixelMakers Elements Migration Guide\n\n## Overview\n\nPixelMakers Elements has been completely redesigned as a logic-only, animation-configurable web component library. This new approach provides several benefits:\n\n- **No CSS conflicts**: Components provide only logic, no styling\n- **Maximum flexibility**: Works with any design system or platform\n- **Global animation configuration**: Set animation type and defaults in one place\n- **Copy-paste ready**: Available in both JS and TS for easy integration\n\n## Getting Started\n\n### 1. Initialize Configuration\n\nRun the following command to create a global configuration file:\n\n```bash\nnpx pxm init\n```\n\nThis will create a `pxm.config.js` or `pxm.config.ts` file in your project root.\n\n### 2. Configure Animation Settings\n\nEdit the config file to set your preferred animation engine and defaults:\n\n```javascript\n// pxm.config.js\nexport default {\n  animationEngine: 'gsap', // 'gsap' or 'vanilla'\n  defaults: {\n    duration: 0.3,\n    easing: 'ease-in-out',\n  }\n};\n```\n\n### 3. Add Components\n\nUse the CLI to add components to your project:\n\n```bash\nnpx pxm copy accordion\n```\n\n## Component Migration Guide\n\n### Accordion\n\n#### Before:\n```html\n<div class=\"pxm-accordion\">\n  <div class=\"pxm-accordion-item\">\n    <div class=\"pxm-accordion-header\">Header 1</div>\n    <div class=\"pxm-accordion-content\">Content 1</div>\n  </div>\n</div>\n```\n\n#### After:\n```html\n<pxm-accordion>\n  <div data-pxm-accordion-item>\n    <div data-pxm-accordion-header>Header 1</div>\n    <div data-pxm-accordion-content>Content 1</div>\n  </div>\n</pxm-accordion>\n```\n\n### Tabs\n\n#### Before:\n```html\n<div class=\"pxm-tabs\">\n  <div class=\"pxm-tabs-buttons\">\n    <button class=\"pxm-tab-button active\">Tab 1</button>\n    <button class=\"pxm-tab-button\">Tab 2</button>\n  </div>\n  <div class=\"pxm-tabs-content\">\n    <div class=\"pxm-tab-panel active\">Content 1</div>\n    <div class=\"pxm-tab-panel\">Content 2</div>\n  </div>\n</div>\n```\n\n#### After:\n```html\n<pxm-tabs>\n  <div>\n    <button data-pxm-tab-button=\"tab1\">Tab 1</button>\n    <button data-pxm-tab-button=\"tab2\">Tab 2</button>\n  </div>\n  <div>\n    <div data-pxm-tab-panel=\"tab1\">Content 1</div>\n    <div data-pxm-tab-panel=\"tab2\">Content 2</div>\n  </div>\n</pxm-tabs>\n```\n\n[Continue with migration examples for all components...]\n\n## Styling Guide\n\nSince the new components don't include any styling, you'll need to add your own CSS. Here are some examples:\n\n```css\n/* Accordion styling example */\n[data-pxm-accordion-header] {\n  cursor: pointer;\n  padding: 1rem;\n  background-color: #f5f5f5;\n}\n\n[data-pxm-accordion-content] {\n  padding: 1rem;\n  border: 1px solid #ddd;\n}\n\n[data-pxm-accordion-item][data-pxm-accordion-open] [data-pxm-accordion-header] {\n  background-color: #e0e0e0;\n}\n```\n\n## Troubleshooting\n\n### Common Issues\n\n1. **Components not working**: Make sure you've imported the component and the config file is properly set up.\n\n2. **Animations not working with GSAP**: Ensure GSAP is installed and loaded before your components.\n\n3. **Styling issues**: Remember that you need to add all styles yourself - the components provide only logic.\n\n## API Reference\n\n[Detailed API documentation for each component...]\n```\n\nAlso create a README.md file for the project repository with installation and basic usage instructions.",
+        "testStrategy": "1. Have multiple developers review the documentation for clarity and completeness\n2. Test the migration steps with actual projects using the previous version\n3. Verify all code examples work as expected\n4. Test the troubleshooting section against common issues\n5. Ensure the documentation covers all components and configuration options",
+        "priority": "high",
+        "dependencies": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create architecture overview and benefits section",
+            "description": "Develop a comprehensive overview of the new architecture and clearly articulate the benefits of migration",
+            "dependencies": [],
+            "details": "Include diagrams showing the old vs. new architecture, explain key architectural changes, highlight performance improvements, maintainability benefits, and future scalability advantages. Document the core principles behind the architectural decisions and how they benefit developers.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Develop component-specific migration guides",
+            "description": "Create detailed migration guides for each component with before/after examples",
+            "dependencies": [
+              1
+            ],
+            "details": "For each component, document the migration path with side-by-side code examples showing the old implementation versus the new one. Include notes on breaking changes, deprecated features, and new capabilities. Organize components logically and provide estimated migration effort for each.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Write styling guide for unstyled components",
+            "description": "Develop comprehensive documentation on how to style the new unstyled components",
+            "dependencies": [
+              2
+            ],
+            "details": "Explain the styling philosophy, document available CSS variables, theming capabilities, and customization options. Provide examples of common styling patterns, responsive design approaches, and best practices for maintaining consistent styling across components.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Create troubleshooting section and FAQ",
+            "description": "Compile common migration issues, their solutions, and frequently asked questions",
+            "dependencies": [
+              2,
+              3
+            ],
+            "details": "Document known migration pitfalls, edge cases, and their solutions. Create a structured FAQ addressing common questions about performance, compatibility, browser support, and migration strategies. Include debugging tips and tools to help developers identify and resolve migration-related issues.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Develop comprehensive API reference documentation",
+            "description": "Create detailed API documentation for all components and utilities in the new system",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Document all props, methods, events, and return values for each component. Include type definitions, default values, and usage examples. Organize the API reference logically, with search functionality and cross-referencing between related components. Ensure completeness and accuracy of all API details.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "created": "2025-07-07T10:52:41.957Z",
+      "updated": "2025-07-07T14:23:30.716Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

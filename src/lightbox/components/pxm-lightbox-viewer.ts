@@ -7,6 +7,8 @@
 import type { MediaItem, ZoomMode } from '../types';
 import { ZoomManager } from '../zoom-manager';
 import { safeQuerySelector } from '../dom-utils';
+import { animate } from '../../animation';
+import { getConfig } from '../../config/pxm-config';
 
 export class PxmLightboxViewer extends HTMLElement {
     private currentMedia: MediaItem | null = null;
@@ -25,6 +27,11 @@ export class PxmLightboxViewer extends HTMLElement {
     }
 
     connectedCallback() {
+        if (typeof window !== 'undefined' && (window as any).__debugLog) {
+            (window as any).__debugLog('PxmLightboxViewer connectedCallback');
+        } else {
+            console.log('PxmLightboxViewer connectedCallback');
+        }
         setTimeout(() => {
             this.initialize();
         }, 0);
@@ -163,13 +170,13 @@ export class PxmLightboxViewer extends HTMLElement {
             img.style.width = '100%';
             img.style.height = '100%';
             img.style.objectFit = 'contain';
-            
-            // Add loading state
             img.style.opacity = '0';
-            img.onload = () => {
-                img.style.opacity = '1';
+            img.onload = async () => {
+                // Animate fade-in using global config
+                const { duration, easing } = getConfig().defaults;
+                await animate(img, { opacity: 1 }, { duration, easing });
+                img.style.opacity = '1'; // Ensure final state for tests
             };
-            
             slide.appendChild(img);
         } else if (mediaItem.type === 'video') {
             this.createVideoSlideContent(slide, mediaItem);
@@ -453,6 +460,11 @@ export class PxmLightboxViewer extends HTMLElement {
     }
 
     public updateMedia(mediaItem: MediaItem) {
+        if (typeof window !== 'undefined' && (window as any).__debugLog) {
+            (window as any).__debugLog('PxmLightboxViewer updateMedia', mediaItem);
+        } else {
+            console.log('PxmLightboxViewer updateMedia', mediaItem);
+        }
         this.currentMedia = mediaItem;
 
         // In swiper mode, slide to the correct index
@@ -479,27 +491,36 @@ export class PxmLightboxViewer extends HTMLElement {
     }
 
     private showImage(mediaItem: MediaItem) {
-        if (this.targetImg) {
-            this.targetImg.src = mediaItem.src;
-            this.targetImg.style.display = 'block';
-            this.targetImg.alt = mediaItem.title || 'Lightbox image';
-            
-            // Add loading state
-            this.targetImg.style.opacity = '0';
-            this.targetImg.onload = () => {
-                this.targetImg!.style.opacity = '1';
-            };
+        if (typeof window !== 'undefined' && (window as any).__debugLog) {
+            (window as any).__debugLog('PxmLightboxViewer showImage', mediaItem);
+        } else {
+            console.log('PxmLightboxViewer showImage', mediaItem);
         }
-
+        // If targetImg does not exist, create and append it
+        if (!this.targetImg) {
+            this.targetImg = document.createElement('img');
+            this.targetImg.style.width = '100%';
+            this.targetImg.style.height = '100%';
+            this.targetImg.style.objectFit = 'contain';
+            this.appendChild(this.targetImg);
+        }
+        this.targetImg.src = mediaItem.src;
+        this.targetImg.style.display = 'block';
+        this.targetImg.alt = mediaItem.title || 'Lightbox image';
+        this.targetImg.style.opacity = '0';
+        this.targetImg.onload = async () => {
+            // Animate fade-in using global config
+            const { duration, easing } = getConfig().defaults;
+            await animate(this.targetImg!, { opacity: 1 }, { duration, easing });
+            this.targetImg!.style.opacity = '1'; // Ensure final state for tests
+        };
         if (this.targetVideo) {
             this.targetVideo.style.display = 'none';
         }
-
         // Setup zoom for new image
         if (this.zoomManager && this.targetImg) {
-            // Small delay to ensure image is loaded
             setTimeout(() => {
-                this.zoomManager!.setupZoomHandlers(this.targetImg);
+                this.zoomManager!.setupZoomHandlers(this.targetImg!);
             }, 100);
         }
     }

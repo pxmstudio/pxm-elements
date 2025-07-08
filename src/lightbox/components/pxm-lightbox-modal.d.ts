@@ -25,8 +25,6 @@ export declare class PxmLightboxModal extends HTMLElement {
     private setupModalStructure;
     private handleKeydown;
     private handleMediaChange;
-    private navigatePrev;
-    private navigateNext;
     private handleModalThumbnailClick;
     private handleModalViewerSlideChange;
     private updateModalContent;

@@ -56,41 +56,22 @@ export class PxmLightboxThumb extends HTMLElement {
 
     private initialize() {
         if (this.initialized) return;
-
         this.updateDisplay();
-        this.setAttribute('role', 'button');
-        this.setAttribute('tabindex', '0');
-        
-        // Add keyboard support
-        this.addEventListener('keydown', this.handleKeydown.bind(this));
-        
-        // Add visual feedback
-        this.style.cursor = 'pointer';
-        
+        // Accessibility, keyboard support, and styling are now the user's responsibility
         this.initialized = true;
     }
 
-    private handleKeydown(event: KeyboardEvent) {
-        if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            this.click();
-        }
-    }
-
     private updateDisplay() {
-        // Add type-specific styling classes
+        // Add type-specific logic-only classes
         this.classList.remove('thumb-image', 'thumb-video');
         this.classList.add(`thumb-${this.mediaType}`);
-
-        // Add visual indicators for video thumbnails
+        // Add/remove video indicator element for video thumbnails (no styles)
         if (this.mediaType === 'video') {
             this.addVideoIndicator();
         } else {
             this.removeVideoIndicator();
         }
-
-        // Update aria-label for accessibility
-        this.updateAriaLabel();
+        // Accessibility (aria-label) is now the user's responsibility
     }
 
     private addVideoIndicator() {
@@ -99,17 +80,7 @@ export class PxmLightboxThumb extends HTMLElement {
             const indicatorEl = document.createElement('div');
             indicatorEl.className = 'video-indicator';
             indicatorEl.innerHTML = '▶'; // Play icon
-            indicatorEl.style.position = 'absolute';
-            indicatorEl.style.top = '50%';
-            indicatorEl.style.left = '50%';
-            indicatorEl.style.transform = 'translate(-50%, -50%)';
-            indicatorEl.style.color = 'white';
-            indicatorEl.style.fontSize = '16px';
-            indicatorEl.style.textShadow = '0 0 4px rgba(0,0,0,0.8)';
-            indicatorEl.style.pointerEvents = 'none';
-            indicatorEl.style.zIndex = '1';
-            
-            this.style.position = 'relative';
+            // No internal styles applied
             this.appendChild(indicatorEl);
         }
     }
@@ -119,14 +90,6 @@ export class PxmLightboxThumb extends HTMLElement {
         if (indicator) {
             indicator.remove();
         }
-    }
-
-    private updateAriaLabel() {
-        const mediaDescription = this.mediaType === 'video' ? 
-            `Video: ${this.mediaData.title || 'Untitled'}` :
-            'Image thumbnail';
-        
-        this.setAttribute('aria-label', `${mediaDescription}. Click to view.`);
     }
 
     private getThumbnailSrc(): string {
@@ -148,16 +111,7 @@ export class PxmLightboxThumb extends HTMLElement {
 
     public setActive(active: boolean) {
         this.classList.toggle('active', active);
-        this.setAttribute('aria-selected', active.toString());
-        
-        // Add visual feedback for active state
-        if (active) {
-            this.style.opacity = '1';
-            this.style.transform = 'scale(1.05)';
-        } else {
-            this.style.opacity = '0.7';
-            this.style.transform = 'scale(1)';
-        }
+        // aria-selected and visual feedback are now the user's responsibility
     }
 
     public isActive(): boolean {
