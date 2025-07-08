@@ -171,7 +171,7 @@ export class PxmPhoneInput extends HTMLElement {
     })();
   }
 
-  attributeChangedCallback(name: string, oldValue: string, newValue: string): void {
+  attributeChangedCallback(_: string, oldValue: string, newValue: string): void {
     if (oldValue === newValue) return;
     
     withErrorBoundary(() => {

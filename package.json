@@ -1,6 +1,6 @@
 {
   "name": "@pixelmakers/elements",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "type": "module",
   "description": "A collection of custom web components by PixelMakers",
   "main": "dist/umd/index.js",
@@ -16,10 +16,6 @@
     "./phone-input": {
       "import": "./dist/esm/phone-input.js",
       "require": "./dist/umd/phone-input.js"
-    },
-    "./lightbox": {
-      "import": "./dist/esm/lightbox.js",
-      "require": "./dist/umd/lightbox.js"
     },
     "./accordion": {
       "import": "./dist/esm/accordion.js",
@@ -40,6 +36,30 @@
     "./toggle": {
       "import": "./dist/esm/toggle.js",
       "require": "./dist/umd/toggle.js"
+    },
+    "./select": {
+      "import": "./dist/esm/select.js",
+      "require": "./dist/umd/select.js"
+    },
+    "./slider": {
+      "import": "./dist/esm/slider.js",
+      "require": "./dist/umd/slider.js"
+    },
+    "./tooltip": {
+      "import": "./dist/esm/tooltip.js",
+      "require": "./dist/umd/tooltip.js"
+    },
+    "./dialog": {
+      "import": "./dist/esm/dialog.js",
+      "require": "./dist/umd/dialog.js"
+    },
+    "./dropdown": {
+      "import": "./dist/esm/dropdown.js",
+      "require": "./dist/umd/dropdown.js"
+    },
+    "./switch": {
+      "import": "./dist/esm/switch.js",
+      "require": "./dist/umd/switch.js"
     }
   },
   "scripts": {

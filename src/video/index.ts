@@ -490,31 +490,6 @@ export class PxmVideo extends HTMLElement implements PxmVideoAPI {
     });
   }
 
-
-
-  /**
-   * Creates a custom thumbnail from the provided URL
-   */
-  private createCustomThumbnail(): void {
-    const thumbnailDiv = this.createThumbnailContainer();
-
-    const img = document.createElement('img');
-    img.src = this.config.thumbnail!;
-    img.alt = this.config.title || 'Video thumbnail';
-    img.style.width = '100%';
-    img.style.height = 'auto';
-    img.style.objectFit = 'cover';
-
-    // Handle image load errors
-    img.addEventListener('error', () => {
-      console.warn('Failed to load custom thumbnail, falling back to generated thumbnail');
-      this.generateThumbnail();
-    });
-
-    thumbnailDiv.appendChild(img);
-    this.appendThumbnail(thumbnailDiv);
-  }
-
   /**
    * Generates a thumbnail based on the video source type
    */

@@ -301,7 +301,7 @@ async function main() {
   if (document.querySelector('pxm-dropdown')) {
     await import('./dropdown');
 
-    const dropdownContents = document.querySelectorAll('pxm-dropdown-content');
+    // const dropdownContents = document.querySelectorAll('pxm-dropdown-content');
     // dropdownContents.forEach(content => {
     //   // Remove default animations if available
     //   (content as any).removeDefaultAnimations?.();

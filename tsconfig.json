@@ -26,5 +26,5 @@
 
     "outDir": "dist"
   },
-  "include": ["src", "pxm-cli.ts"]
+  "include": ["src"]
 }

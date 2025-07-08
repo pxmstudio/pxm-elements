@@ -36,7 +36,7 @@ export class PxmDropdownItem extends HTMLElement {
     this.removeEventListener('blur', this._onBlur);
   }
 
-  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+  attributeChangedCallback(name: string) {
     if (name === 'disabled') {
       this._updateState();
     }

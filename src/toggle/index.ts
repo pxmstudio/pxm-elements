@@ -189,7 +189,7 @@ export class PxmToggle extends HTMLElement {
     this.animationPromises.clear();
   }
 
-  attributeChangedCallback(name: string, oldValue: string, newValue: string): void {
+  attributeChangedCallback(_: string, oldValue: string, newValue: string): void {
     if (oldValue === newValue) return;
     
     this.config = parseAttributes(this, TOGGLE_SCHEMA);

@@ -29,7 +29,7 @@ export class PxmDropdownTrigger extends HTMLElement {
     this.removeEventListener('keydown', this._onKeyDown);
   }
 
-  private _onClick = (e: Event) => {
+  private _onClick = () => {
     this._toggleDropdown();
   };
 

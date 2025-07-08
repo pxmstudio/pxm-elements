@@ -37,7 +37,7 @@ export class PxmDropdownSubmenu extends HTMLElement {
     this._removeListeners();
   }
 
-  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+  attributeChangedCallback(name: string) {
     if (name === 'open-on') {
       this._applyOpenOn();
     }

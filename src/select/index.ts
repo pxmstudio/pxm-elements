@@ -785,7 +785,7 @@ class PxmSelect extends HTMLElement {
       } as SelectEventDetail
     }));
 
-    this.dispatchStateChange();
+    this.dispatchStateChange(); 
   }
 
   public async toggle(): Promise<void> {

@@ -104,7 +104,7 @@ class PxmSwitch extends HTMLElement {
     this.mutationObserver?.disconnect();
   }
 
-  attributeChangedCallback(name: string, oldValue: string, newValue: string): void {
+  attributeChangedCallback(_: string, oldValue: string, newValue: string): void {
     if (oldValue === newValue || this.isUpdatingState) return;
     
     this.config = parseAttributes(this, SWITCH_SCHEMA);

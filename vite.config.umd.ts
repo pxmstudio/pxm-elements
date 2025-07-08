@@ -14,24 +14,34 @@ const PACKAGE_VERSION = packageJson.version;
 const componentEntries = {
     "index": resolve(__dirname, "src/main.ts"),
     "phone-input": resolve(__dirname, "src/phone-input/index.ts"),
-    "lightbox": resolve(__dirname, "src/lightbox/index.ts"),
     "accordion": resolve(__dirname, "src/accordion/index.ts"),
     "tabs": resolve(__dirname, "src/tabs/index.ts"),
     "video": resolve(__dirname, "src/video/index.ts"),
     "number-input": resolve(__dirname, "src/number-input/index.ts"),
     "toggle": resolve(__dirname, "src/toggle/index.ts"),
+    "select": resolve(__dirname, "src/select/index.ts"),
+    "slider": resolve(__dirname, "src/slider/index.ts"),
+    "tooltip": resolve(__dirname, "src/tooltip/index.ts"),
+    "dialog": resolve(__dirname, "src/dialog/index.ts"),
+    "dropdown": resolve(__dirname, "src/dropdown/index.ts"),
+    "switch": resolve(__dirname, "src/switch/index.ts")
 };
 
 // Global names for each component
 const globalNames = {
     "index": "PxmElements",
     "phone-input": "PxmPhoneInput",
-    "lightbox": "PxmLightbox",
     "accordion": "PxmAccordion",
     "tabs": "PxmTabs",
     "video": "PxmVideo",
     "number-input": "PxmNumberInput",
-    "toggle": "PxmToggle"
+    "toggle": "PxmToggle",
+    "select": "PxmSelect",
+    "slider": "PxmSlider",
+    "tooltip": "PxmTooltip",
+    "dialog": "PxmDialog",
+    "dropdown": "PxmDropdown",
+    "switch": "PxmSwitch"
 };
 
 export default defineConfig(({ mode }) => {

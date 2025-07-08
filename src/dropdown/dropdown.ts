@@ -1,4 +1,4 @@
-import { withErrorBoundary, parseAttributes } from '../core/component-utils';
+import { withErrorBoundary } from '../core/component-utils';
 import type { PxmDropdown as PxmDropdownElement } from './types';
 
 /**
@@ -160,15 +160,6 @@ export class PxmDropdown extends HTMLElement {
     // ARIA and data attributes
     this.setAttribute('aria-expanded', String(this._open));
     this.setAttribute('data-state', this._open ? 'open' : 'closed');
-  }
-
-  // Upgrade property if set before element definition
-  private _upgradeProperty(prop: string) {
-    if (this.hasOwnProperty(prop)) {
-      const value = (this as any)[prop];
-      delete (this as any)[prop];
-      (this as any)[prop] = value;
-    }
   }
 }
 

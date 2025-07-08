@@ -106,8 +106,7 @@ class PxmDialog extends HTMLElement {
         }
     }
 
-    attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-        if (oldValue === newValue) return;
+    attributeChangedCallback(_: string): void {
         this.config = parseAttributes(this, DIALOG_SCHEMA);
         this.updateState();
     }
@@ -172,7 +171,7 @@ class PxmDialog extends HTMLElement {
         this.removeEventListener('click', this.handleDialogClick);
     }
 
-    private openDialog = (e?: Event) => {
+    private openDialog = (_?: Event) => {
         if (this.config.disabled || this.state.open) return;
         
         const beforeEvent = new CustomEvent('pxm:dialog:before-open', {
@@ -250,7 +249,7 @@ class PxmDialog extends HTMLElement {
         this.dispatchEvent(new CustomEvent('pxm:dialog:after-open', { detail: { dialog: this, trigger: this.trigger, content: this.content } }));
     };
 
-    private closeDialog = (e?: Event) => {
+    private closeDialog = (_?: Event) => {
         if (this.config.disabled || !this.state.open) return;
         
         const beforeEvent = new CustomEvent('pxm:dialog:before-close', {
@@ -321,7 +320,7 @@ class PxmDialog extends HTMLElement {
         }
     }
 
-    private updateState(fireEvents = true) {
+    private updateState(_fireEvents = true) {
         // ARIA/data attributes for dialog
         this.setAttribute('aria-disabled', String(this.config.disabled));
         this.setAttribute('data-disabled', String(this.config.disabled));
