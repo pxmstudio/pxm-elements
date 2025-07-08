@@ -1,8 +1,16 @@
 {
   "name": "@pixelmakers/elements",
-  "version": "0.1.18",
+  "version": "0.1.20",
   "type": "module",
   "description": "A collection of custom web components by PixelMakers",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pxmstudio/pxm-elements.git"
+  },
+  "homepage": "https://github.com/pxmstudio/pxm-elements#readme",
+  "bugs": {
+    "url": "https://github.com/pxmstudio/pxm-elements/issues"
+  },
   "main": "dist/umd/index.js",
   "module": "dist/esm/index.js",
   "files": [
