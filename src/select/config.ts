@@ -12,7 +12,9 @@ export const SELECT_SCHEMA: AttributeSchema = {
   'disabled': { type: 'boolean', default: false },
   'close-on-select': { type: 'boolean', default: true },
   'scroll-lock': { type: 'boolean', default: true },
-  'icon-rotation': { type: 'number', default: 180 }
+  'icon-rotation': { type: 'number', default: 180 },
+  'value-separator': { type: 'string', default: ', ' },
+  'wrap-values': { type: 'boolean', default: true }
 };
 
 export const SELECT_CONSTANTS = {

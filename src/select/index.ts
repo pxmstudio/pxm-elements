@@ -101,6 +101,42 @@
  * </pxm-select>
  * ```
  * 
+ * Multiple Selection with Custom Separator and Wrapped Values:
+ * ```html
+ * <!-- Custom separator (default is ', ') -->
+ * <pxm-select multiple="true" value-separator=" | ">
+ *   <pxm-select-trigger>
+ *     <pxm-select-value>Select colors...</pxm-select-value>
+ *   </pxm-select-trigger>
+ *   <pxm-select-content>
+ *     <pxm-select-item value="red">Red</pxm-select-item>
+ *     <pxm-select-item value="green">Green</pxm-select-item>
+ *   </pxm-select-content>
+ * </pxm-select>
+ * 
+ * <!-- No separator between values -->
+ * <pxm-select multiple="true" value-separator="">
+ *   <pxm-select-trigger>
+ *     <pxm-select-value>Select tags...</pxm-select-value>
+ *   </pxm-select-trigger>
+ *   <pxm-select-content>
+ *     <pxm-select-item value="tag1">Tag 1</pxm-select-item>
+ *     <pxm-select-item value="tag2">Tag 2</pxm-select-item>
+ *   </pxm-select-content>
+ * </pxm-select>
+ * 
+ * <!-- Disable value wrapping (no spans, just text) -->
+ * <pxm-select multiple="true" wrap-values="false">
+ *   <pxm-select-trigger>
+ *     <pxm-select-value>Select options...</pxm-select-value>
+ *   </pxm-select-trigger>
+ *   <pxm-select-content>
+ *     <pxm-select-item value="opt1">Option 1</pxm-select-item>
+ *     <pxm-select-item value="opt2">Option 2</pxm-select-item>
+ *   </pxm-select-content>
+ * </pxm-select>
+ * ```
+ * 
  * With Groups and Labels:
  * ```html
  * <pxm-select>
@@ -148,6 +184,23 @@
  * 
  * select.setValues(['apple', 'banana']); // For multiple selection
  * console.log(select.getValues()); // ['apple', 'banana']
+ * 
+ * // Interact with individual wrapped values (when wrap-values="true")
+ * const valueElement = select.querySelector('pxm-select-value');
+ * const valueSpans = valueElement.querySelectorAll('.pxm-select-value-item');
+ * 
+ * valueSpans.forEach(span => {
+ *   span.addEventListener('click', (e) => {
+ *     e.stopPropagation(); // Prevent select from opening
+ *     const value = span.getAttribute('data-value');
+ *     console.log(`Clicked value: ${value}`);
+ *     
+ *     // Example: Remove value on click
+ *     const currentValues = select.getValues();
+ *     const newValues = currentValues.filter(v => v !== value);
+ *     select.setValues(newValues);
+ *   });
+ * });
  * ```
  * 
  * With Animation Library (via events - recommended for CDN):
@@ -265,6 +318,22 @@
  *   opacity: 0.6;
  * }
  * 
+ * /* Multiple value styling (when wrap-values="true") *\/
+ * .pxm-select-value-item {
+ *   /* Style individual selected values *\/
+ *   background: #e3f2fd;
+ *   border-radius: 4px;
+ *   padding: 2px 6px;
+ *   display: inline-block;
+ *   font-size: 0.875em;
+ * }
+ * 
+ * .pxm-select-value-item[data-value="important"] {
+ *   /* Style specific values by their data-value attribute *\/
+ *   background: #ffebee;
+ *   color: #c62828;
+ * }
+ * 
  * /* ❌ DON'T: Style based on ARIA attributes (bad practice) *\/
  * pxm-select-item[aria-selected="true"] {
  *   /* Don't use ARIA for styling *\/
@@ -307,6 +376,18 @@
  *     </pxm-select-item>
  *   </pxm-select-content>
  * </pxm-select>
+ * 
+ * <!-- Style wrapped values in multiple selection -->
+ * <style>
+ *   .pxm-select-value-item {
+ *     @apply inline-flex items-center bg-blue-100 text-blue-800 text-xs 
+ *            px-2 py-1 rounded-md mr-1 last:mr-0;
+ *   }
+ *   
+ *   .pxm-select-value-item[data-value^="tag-"] {
+ *     @apply bg-green-100 text-green-800;
+ *   }
+ * </style>
  * ```
  * 
  * SSR / Hydration Support:

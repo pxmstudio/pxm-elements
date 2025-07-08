@@ -159,9 +159,6 @@ async function main() {
   if (document.querySelector('pxm-phone-input')) {
     await import('./phone-input');
   }
-  if (document.querySelector('pxm-lightbox')) {
-    await import('./lightbox');
-  }
   if (document.querySelector('pxm-video')) {
     await import('./video');
   }

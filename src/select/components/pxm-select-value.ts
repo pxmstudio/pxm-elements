@@ -90,13 +90,45 @@ export class PxmSelectValue extends HTMLElement {
     if (shouldShowCount) {
       this.textContent = `${items.length} ${SELECT_CONSTANTS.UI.MULTIPLE_SELECTION_TEXT}`;
     } else {
-      // Optimize text extraction
-      const values = items.map(item => {
-        const valueElement = item.querySelector('pxm-select-item-text');
-        return valueElement?.textContent?.trim() || item.textContent?.trim();
-      }).filter(Boolean);
+      // Get configuration from parent select
+      const selectElement = this.closest('pxm-select') as any;
+      const config = selectElement?.config || {};
+      const wrapValues = config['wrap-values'] !== false; // Default to true
+      const separator = config['value-separator'] || ', '; // Default to ', '
       
-      this.textContent = values.join(', ');
+      if (wrapValues) {
+        // Create wrapped values with spans
+        this.innerHTML = '';
+        items.forEach((item, index) => {
+          const valueElement = item.querySelector('pxm-select-item-text');
+          const text = valueElement?.textContent?.trim() || item.textContent?.trim();
+          const value = (item as any).getValue?.() || item.getAttribute('value') || text;
+          
+          if (text) {
+            const span = document.createElement('span');
+            span.className = 'pxm-select-value-item';
+            span.setAttribute('data-value', value);
+            span.setAttribute('data-index', index.toString());
+            span.textContent = text;
+            
+            this.appendChild(span);
+            
+            // Add separator if not the last item and separator is not empty
+            if (index < items.length - 1 && separator) {
+              const separatorNode = document.createTextNode(separator);
+              this.appendChild(separatorNode);
+            }
+          }
+        });
+      } else {
+        // Fallback to text-only approach
+        const values = items.map(item => {
+          const valueElement = item.querySelector('pxm-select-item-text');
+          return valueElement?.textContent?.trim() || item.textContent?.trim();
+        }).filter(Boolean);
+        
+        this.textContent = values.join(separator);
+      }
     }
     
     this.setAttribute('data-placeholder', 'false');

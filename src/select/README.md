@@ -56,6 +56,43 @@ A flexible, accessible select component that provides dropdown functionality wit
 </pxm-select>
 ```
 
+### Multiple Selection with Custom Value Display
+
+```html
+<!-- Custom separator (default is ', ') -->
+<pxm-select multiple="true" value-separator=" | ">
+  <pxm-select-trigger>
+    <pxm-select-value placeholder="Select colors..."></pxm-select-value>
+  </pxm-select-trigger>
+  <pxm-select-content>
+    <pxm-select-item value="red">Red</pxm-select-item>
+    <pxm-select-item value="green">Green</pxm-select-item>
+  </pxm-select-content>
+</pxm-select>
+
+<!-- No separator between values -->
+<pxm-select multiple="true" value-separator="">
+  <pxm-select-trigger>
+    <pxm-select-value placeholder="Select tags..."></pxm-select-value>
+  </pxm-select-trigger>
+  <pxm-select-content>
+    <pxm-select-item value="tag1">Tag 1</pxm-select-item>
+    <pxm-select-item value="tag2">Tag 2</pxm-select-item>
+  </pxm-select-content>
+</pxm-select>
+
+<!-- Disable value wrapping (no spans, just text) -->
+<pxm-select multiple="true" wrap-values="false">
+  <pxm-select-trigger>
+    <pxm-select-value placeholder="Select options..."></pxm-select-value>
+  </pxm-select-trigger>
+  <pxm-select-content>
+    <pxm-select-item value="opt1">Option 1</pxm-select-item>
+    <pxm-select-item value="opt2">Option 2</pxm-select-item>
+  </pxm-select-content>
+</pxm-select>
+```
+
 ### With Groups and Labels
 
 ```html
@@ -92,6 +129,8 @@ A flexible, accessible select component that provides dropdown functionality wit
 | `close-on-select` | boolean | `true` | Close dropdown after item selection |
 | `scroll-lock` | boolean | `true` | Lock page scroll when dropdown is open |
 | `icon-rotation` | number | `180` | Icon rotation angle in degrees (0-360) |
+| `value-separator` | string | `', '` | Separator between multiple selected values |
+| `wrap-values` | boolean | `true` | Wrap individual values in spans with data attributes |
 
 ## Components
 
@@ -334,6 +373,32 @@ pxm-select-item[data-disabled="true"] {
 
 pxm-select[data-disabled="true"] {
   opacity: 0.6;
+}
+
+/* Style multiple value items (when wrap-values="true") */
+.pxm-select-value-item {
+  display: inline-block;
+  background: #e3f2fd;
+  color: #1976d2;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 0.875em;
+  margin-right: 4px;
+}
+
+.pxm-select-value-item:last-child {
+  margin-right: 0;
+}
+
+/* Style specific values by their data-value attribute */
+.pxm-select-value-item[data-value="priority"] {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.pxm-select-value-item[data-value^="tag-"] {
+  background: #e8f5e8;
+  color: #2e7d32;
 }
 ```
 

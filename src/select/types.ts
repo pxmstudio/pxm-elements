@@ -36,6 +36,8 @@ export interface SelectConfig {
   'close-on-select': boolean;
   'scroll-lock': boolean;
   'icon-rotation': number;
+  'value-separator': string;
+  'wrap-values': boolean;
 }
 
 // Internal state interface

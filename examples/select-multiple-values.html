@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PXM Select - Multiple Values Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 2rem;
+        }
+
+        .demo-section {
+            margin-bottom: 3rem;
+            padding: 1.5rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .demo-section h2 {
+            margin-top: 0;
+            color: #555;
+            font-size: 1.25rem;
+        }
+
+        /* Select component styling */
+        pxm-select {
+            position: relative;
+            display: inline-block;
+            min-width: 300px;
+            margin-bottom: 1rem;
+        }
+
+        pxm-select-trigger {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+        }
+
+        pxm-select-trigger:hover {
+            border-color: #ccc;
+        }
+
+        pxm-select[data-open="true"] pxm-select-trigger {
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        pxm-select-content {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 4px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-8px) scaleY(0.9);
+            transform-origin: top;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        pxm-select-content[data-open="true"] {
+            opacity: 1;
+            transform: translateY(0) scaleY(1);
+        }
+
+        pxm-select-item {
+            display: block;
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+
+        pxm-select-item:hover {
+            background: #f8f9fa;
+        }
+
+        pxm-select-item[data-focused="true"] {
+            background: #e3f2fd;
+        }
+
+        pxm-select-item[data-selected="true"] {
+            background: #007bff;
+            color: white;
+        }
+
+        /* Style wrapped values */
+        .pxm-select-value-item {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-radius: 12px;
+            padding: 4px 8px;
+            font-size: 0.875em;
+            margin-right: 4px;
+            margin-bottom: 2px;
+            border: 1px solid #bbdefb;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .pxm-select-value-item:hover {
+            background: #bbdefb;
+            transform: translateY(-1px);
+        }
+
+        .pxm-select-value-item:last-child {
+            margin-right: 0;
+        }
+
+        /* Style specific values by their data-value attribute */
+        .pxm-select-value-item[data-value="priority-high"] {
+            background: #ffebee;
+            color: #c62828;
+            border-color: #ffcdd2;
+        }
+
+        .pxm-select-value-item[data-value^="category-"] {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border-color: #c8e6c9;
+        }
+
+        /* Demo styling */
+        .output {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .controls {
+            margin-top: 1rem;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>PXM Select - Multiple Values with Custom Styling</h1>
+
+    <div class="demo-section">
+        <h2>1. Default Multiple Selection (with wrapped values)</h2>
+        <pxm-select id="default-multiple" multiple="true" close-on-select="false">
+            <pxm-select-trigger>
+                <pxm-select-value>Select fruits...</pxm-select-value>
+                <span data-select-icon>▼</span>
+            </pxm-select-trigger>
+            <pxm-select-content>
+                <pxm-select-item value="apple">Apple</pxm-select-item>
+                <pxm-select-item value="banana">Banana</pxm-select-item>
+                <pxm-select-item value="cherry">Cherry</pxm-select-item>
+                <pxm-select-item value="grape">Grape</pxm-select-item>
+                <pxm-select-item value="orange">Orange</pxm-select-item>
+            </pxm-select-content>
+        </pxm-select>
+        <div class="output" id="output-default"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>2. Custom Separator (pipe separator)</h2>
+        <pxm-select id="pipe-separator" multiple="true" value-separator=" | " close-on-select="false">
+            <pxm-select-trigger>
+                <pxm-select-value>Select colors...</pxm-select-value>
+                <span data-select-icon>▼</span>
+            </pxm-select-trigger>
+            <pxm-select-content>
+                <pxm-select-item value="red">Red</pxm-select-item>
+                <pxm-select-item value="green">Green</pxm-select-item>
+                <pxm-select-item value="blue">Blue</pxm-select-item>
+                <pxm-select-item value="yellow">Yellow</pxm-select-item>
+                <pxm-select-item value="purple">Purple</pxm-select-item>
+            </pxm-select-content>
+        </pxm-select>
+        <div class="output" id="output-pipe"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>3. No Separator (tags-like display)</h2>
+        <pxm-select id="no-separator" multiple="true" value-separator="" close-on-select="false">
+            <pxm-select-trigger>
+                <pxm-select-value>Select tags...</pxm-select-value>
+                <span data-select-icon>▼</span>
+            </pxm-select-trigger>
+            <pxm-select-content>
+                <pxm-select-item value="javascript">JavaScript</pxm-select-item>
+                <pxm-select-item value="typescript">TypeScript</pxm-select-item>
+                <pxm-select-item value="react">React</pxm-select-item>
+                <pxm-select-item value="vue">Vue</pxm-select-item>
+                <pxm-select-item value="svelte">Svelte</pxm-select-item>
+            </pxm-select-content>
+        </pxm-select>
+        <div class="output" id="output-no-separator"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>4. Values with Special Styling (based on data-value)</h2>
+        <pxm-select id="special-styling" multiple="true" close-on-select="false">
+            <pxm-select-trigger>
+                <pxm-select-value>Select tasks...</pxm-select-value>
+                <span data-select-icon>▼</span>
+            </pxm-select-trigger>
+            <pxm-select-content>
+                <pxm-select-item value="priority-high">High Priority Task</pxm-select-item>
+                <pxm-select-item value="category-feature">Feature Development</pxm-select-item>
+                <pxm-select-item value="category-bug">Bug Fix</pxm-select-item>
+                <pxm-select-item value="regular-task">Regular Task</pxm-select-item>
+                <pxm-select-item value="category-docs">Documentation</pxm-select-item>
+            </pxm-select-content>
+        </pxm-select>
+        <div class="output" id="output-special"></div>
+        <div class="controls">
+            <button onclick="addClickListeners()">Enable Click-to-Remove</button>
+            <button onclick="removeClickListeners()">Disable Click-to-Remove</button>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>5. Text-only Mode (wrap-values="false")</h2>
+        <pxm-select id="text-only" multiple="true" wrap-values="false" close-on-select="false">
+            <pxm-select-trigger>
+                <pxm-select-value>Select options...</pxm-select-value>
+                <span data-select-icon>▼</span>
+            </pxm-select-trigger>
+            <pxm-select-content>
+                <pxm-select-item value="option1">Option 1</pxm-select-item>
+                <pxm-select-item value="option2">Option 2</pxm-select-item>
+                <pxm-select-item value="option3">Option 3</pxm-select-item>
+                <pxm-select-item value="option4">Option 4</pxm-select-item>
+            </pxm-select-content>
+        </pxm-select>
+        <div class="output" id="output-text-only"></div>
+    </div>
+
+    <!-- Include the PXM Elements library -->
+    <script src="../src/main.ts" type="module"></script>
+
+    <script>
+        // Update outputs when values change
+        function setupValueChangeListeners() {
+            const selects = [
+                { id: 'default-multiple', outputId: 'output-default' },
+                { id: 'pipe-separator', outputId: 'output-pipe' },
+                { id: 'no-separator', outputId: 'output-no-separator' },
+                { id: 'special-styling', outputId: 'output-special' },
+                { id: 'text-only', outputId: 'output-text-only' }
+            ];
+
+            selects.forEach(({ id, outputId }) => {
+                const select = document.getElementById(id);
+                const output = document.getElementById(outputId);
+
+                select.addEventListener('pxm:select:value-change', (e) => {
+                    const values = e.detail.value;
+                    const valueElement = select.querySelector('pxm-select-value');
+                    const spans = valueElement.querySelectorAll('.pxm-select-value-item');
+                    
+                    output.innerHTML = `
+                        <strong>Selected Values:</strong> ${JSON.stringify(values)}<br>
+                        <strong>Value Element HTML:</strong> ${valueElement.innerHTML}<br>
+                        <strong>Wrapped Spans Count:</strong> ${spans.length}
+                    `;
+                });
+                
+                // Trigger initial update
+                output.innerHTML = `
+                    <strong>Selected Values:</strong> []<br>
+                    <strong>Value Element HTML:</strong> ${select.querySelector('pxm-select-value').innerHTML}<br>
+                    <strong>Wrapped Spans Count:</strong> 0
+                `;
+            });
+        }
+
+        let clickListenersAttached = false;
+
+        function addClickListeners() {
+            if (clickListenersAttached) return;
+            
+            const select = document.getElementById('special-styling');
+            const valueElement = select.querySelector('pxm-select-value');
+            
+            // Use event delegation to handle dynamic spans
+            valueElement.addEventListener('click', function(e) {
+                if (e.target.classList.contains('pxm-select-value-item')) {
+                    e.stopPropagation(); // Prevent select from opening
+                    const value = e.target.getAttribute('data-value');
+                    
+                    // Remove value from selection
+                    const currentValues = select.getValues();
+                    const newValues = currentValues.filter(v => v !== value);
+                    select.setValues(newValues);
+                    
+                    console.log(`Removed value: ${value}`);
+                }
+            });
+            
+            clickListenersAttached = true;
+            console.log('Click-to-remove enabled');
+        }
+
+        function removeClickListeners() {
+            if (!clickListenersAttached) return;
+            
+            // In a real implementation, you would need to store the listener
+            // reference to properly remove it. For demo purposes, we'll just
+            // recreate the component or use a flag.
+            clickListenersAttached = false;
+            console.log('Click-to-remove disabled (refresh page to fully reset)');
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            setupValueChangeListeners();
+        });
+    </script>
+</body>
+</html> 
