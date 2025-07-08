@@ -86,15 +86,21 @@ import { PxmAccordion } from '@pixelmakers/elements/accordion';
 
 | Component | Size (UMD) | Size (ESM) | Description |
 |-----------|------------|------------|-------------|
-| [Accordion](src/accordion/README.md) | 5.6KB | 5.9KB | Collapsible content sections |
-| [Tabs](src/tabs/README.md) | 4.7KB | 4.3KB | Tabbed interface navigation |
-| [Toggle](src/toggle/README.md) | 2.7KB | 2.8KB | Boolean switch/checkbox |
-| [Number Input](src/number-input/README.md) | 4.1KB | 3.7KB | Enhanced number input with controls |
-| [Video](src/video/README.md) | 11.5KB | 16.3KB | Multi-platform video player |
-| [Phone Input](src/phone-input/README.md) | 3.2KB* | 1.4KB* | International phone number input |
-| [Lightbox](src/lightbox/README.md) | 67.5KB* | 91.8KB* | Image/media gallery with zoom |
+| [Accordion](src/accordion/README.md) | 5.5KB | 5.8KB | Collapsible content sections with full accessibility, keyboard navigation, and event-driven animations |
+| [Tabs](src/tabs/README.md) | 4.6KB | 4.2KB | Accessible tabbed interface for organizing content, with keyboard navigation and custom animation support |
+| [Toggle](src/toggle/README.md) | 2.6KB | — | Boolean switch/checkbox with form integration, full keyboard support, and zero styling |
+| [Switch](src/switch/README.md) | 4.5KB | 4.5KB | Accessible, logic-only switch (toggle) component. No Shadow DOM or styling; bring your own CSS. |
+| [Dialog](src/dialog/README.md) | 7.9KB | 7.9KB | Flexible, accessible dialog (modal) component inspired by Radix UI. Handles keyboard navigation, focus management, and event-driven animations. No styling included. |
+| [Tooltip](src/tooltip/README.md) | 10KB | 10KB | Flexible, accessible tooltip with smart positioning, keyboard support, and event-driven architecture. All styling and positioning is consumer-controlled. |
+| [Dropdown](src/dropdown/README.md) | 3.4KB | 3.4KB | Logic-only dropdown menu with submenu support, keyboard navigation, and full ARIA/data attribute management. All styling and ARIA labeling is consumer-controlled. |
+| [Select](src/select/README.md) | 15KB | 15KB | Flexible, accessible select component with single/multiple selection, type-ahead search, and full keyboard navigation. All styling is consumer-controlled. |
+| [Number Input](src/number-input/README.md) | 4.0KB | 3.6KB | Enhanced number input with increment/decrement controls, validation, and form integration |
+| [Slider](src/slider/README.md) | 14KB | 14KB | Single or multi-thumb slider with keyboard navigation, form support, and full CSS control |
+| [Video](src/video/README.md) | 11KB | 16KB | Multi-platform video player supporting YouTube, Vimeo, MP4, and Mux, with auto-thumbnail and custom controls |
+| [Phone Input](src/phone-input/README.md) | 3.1KB* | 1.4KB* | International phone number input with validation and formatting (requires `intl-tel-input`) |
 
 > *Sizes marked with * use external dependencies (loaded separately for NPM)
+> Toggle ESM size not found; UMD size shown.
 
 ## Usage Patterns
 
@@ -106,6 +112,7 @@ Each component is self-contained and can be loaded independently:
 <!-- Load only the components you need -->
 <script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/accordion.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/tabs.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/slider.js"></script>
 
 <!-- Use immediately -->
 <pxm-accordion allow-multiple="true">
@@ -124,10 +131,11 @@ Tree-shakable imports ensure optimal bundle sizes:
 // Individual imports (recommended)
 import '@pixelmakers/elements/accordion';
 import '@pixelmakers/elements/tabs';
+import '@pixelmakers/elements/slider';
 
 // Dynamic imports for code splitting
-const loadLightbox = async () => {
-    await import('@pixelmakers/elements/lightbox');
+const loadSlider = async () => {
+    await import('@pixelmakers/elements/slider');
     // Component is now available
 };
 
@@ -145,14 +153,12 @@ PXM Elements provides zero styling - you're in complete control. Here are common
 ### CSS Custom Properties
 
 ```css
-/* Define your design tokens */
 :root {
     --border-radius: 8px;
     --transition-speed: 200ms;
     --primary-color: #3b82f6;
 }
 
-/* Style components using data attributes and CSS selectors */
 pxm-accordion-trigger {
     padding: 1rem;
     border: 1px solid #e5e7eb;
@@ -174,8 +180,8 @@ pxm-accordion-item[active="true"] pxm-accordion-trigger {
 ### Tailwind CSS
 
 ```html
-<pxm-toggle class="relative inline-block w-12 h-6 bg-gray-300 rounded-full transition-colors duration-200 ease-in-out data-[state=checked]:bg-blue-500">
-    <span class="block w-5 h-5 bg-white rounded-full shadow transform transition-transform duration-200 ease-in-out translate-x-0.5 data-[state=checked]:translate-x-6"></span>
+<pxm-toggle class="relative inline-block w-12 h-6 bg-gray-300 rounded-full transition-colors duration-200 ease-in-out data-[state=on]:bg-blue-500">
+    <span class="block w-5 h-5 bg-white rounded-full shadow transform transition-transform duration-200 ease-in-out translate-x-0.5 data-[state=on]:translate-x-6"></span>
 </pxm-toggle>
 ```
 
@@ -279,7 +285,9 @@ import type {
     PxmAccordion, 
     AccordionConfig,
     PxmTabs,
-    TabsConfig 
+    TabsConfig,
+    PxmSlider,
+    SliderConfig
 } from '@pixelmakers/elements';
 
 // Type-safe component usage
@@ -295,7 +303,7 @@ const config: AccordionConfig = {
 ### Bundle Sizes
 - **CDN**: Self-contained, cacheable across sites
 - **NPM**: Tree-shakable, only bundle what you use
-- **Dependencies**: Heavy deps (Swiper, intl-tel-input) are external for NPM builds
+- **Dependencies**: Heavy deps (intl-tel-input) are external for NPM builds
 
 ### Loading Strategy
 ```html
@@ -304,10 +312,10 @@ const config: AccordionConfig = {
 
 <!-- Load non-critical components lazily -->
 <script>
-    // Load lightbox only when needed
+    // Load slider only when needed
     document.addEventListener('click', async (e) => {
-        if (e.target.matches('[data-lightbox]')) {
-            await import('https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/lightbox.js');
+        if (e.target.matches('[data-slider]')) {
+            await import('https://cdn.jsdelivr.net/npm/@pixelmakers/elements/dist/umd/slider.js');
         }
     }, { once: true });
 </script>
