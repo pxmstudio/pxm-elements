@@ -1,0 +1,131 @@
+<context>
+# Overview
+PixelMakers Elements is being migrated from its previous version to a logic-only, animation-configurable web component library. The goal is to maximize reusability in vanilla JavaScript/TypeScript projects, as well as no-code/low-code platforms like Webflow, Shopify (Liquid), and Astro. This migration addresses the problem of inflexible, style-opinionated component libraries by providing pure logic and animation layers, allowing developers and designers to fully control styling in their own environments. The library is valuable for teams who want drop-in, copy-paste components with global animation configuration and zero CSS bloat, while ensuring a smooth upgrade path from the previous version.
+
+# Core Features
+- **Logic-Only Components**
+  - What: Components provide only interactivity and animation logic, no styles.
+  - Why: Ensures maximum compatibility with any design system or platform.
+  - How: All visual appearance is left to the user's own CSS or platform tools.
+
+- **Global Animation Configuration**
+  - What: Developers set animation type (e.g., 'gsap' or 'vanilla') and defaults in a single config file (pxm.config.ts/js).
+  - Why: Ensures consistent animation behavior across all components in a project.
+  - How: Components read from the config at runtime and use the selected animation engine.
+
+- **Copy-Paste Ready (JS & TS)**
+  - What: Every component is available in both .js and .ts for easy integration.
+  - Why: Supports both modern TypeScript and classic JavaScript projects.
+  - How: CLI detects project type and copies the right files.
+
+- **No CSS, No Styling**
+  - What: No CSS is shipped; all styling is up to the developer/designer.
+  - Why: Prevents style conflicts and maximizes flexibility.
+  - How: Only logic and animation code is included.
+
+- **CLI Tooling**
+  - What: Simple CLI for initializing config and copying components.
+  - Why: Streamlines setup and ensures correct file types are used.
+  - How: `pxm init` and `pxm copy <component>` commands.
+
+- **Migration Support**
+  - What: All existing components from the previous version will be migrated to the new approach.
+  - Why: Ensures continuity and compatibility for current users.
+  - How: Each component will be refactored to remove styling, support global animation config, and provide both JS and TS versions.
+
+# Existing Components to Migrate
+- Accordion
+- Tabs
+- Lightbox
+- Phone Input
+- Video
+- Number Input
+- Toggle
+- Modal
+
+# User Experience
+- **User Personas**
+  - Frontend developers using vanilla JS/TS
+  - No-code/low-code designers (Webflow, Shopify, etc.)
+  - Teams wanting to avoid style conflicts
+  - Existing users upgrading from the previous version
+
+- **Key User Flows**
+  1. Run `pxm init` to create a global config
+  2. Run `pxm copy <component>` to add a migrated component
+  3. Style the component in their own system (Webflow Designer, CSS, etc.)
+  4. All components use the same animation engine as defined in config
+  5. Existing users can replace old components with new logic-only versions
+
+- **UI/UX Considerations**
+  - Components must work with any HTML structure
+  - No visual output except for logic-driven state changes
+  - All styling is external
+  - Migration guides and upgrade notes will be provided
+
+<PRD>
+# Technical Architecture
+- **System Components**
+  - Logic-only web components (accordion, tabs, lightbox, phone input, video, number input, toggle, modal)
+  - Animation modules (gsap.js/ts, vanilla.js/ts)
+  - Global config file (pxm.config.ts/js)
+  - CLI tool (pxm-cli.js)
+  - Migration scripts and documentation
+
+- **Data Models**
+  - Config object for animation settings
+  - No persistent data; all state is in-DOM
+
+- **APIs and Integrations**
+  - No external APIs required
+  - Optional: GSAP as a peer dependency for advanced animations
+
+- **Infrastructure Requirements**
+  - Node.js for CLI
+  - No build step required for copy-paste usage
+
+# Development Roadmap
+- **MVP Requirements**
+  - Migrate Accordion, Tabs, Lightbox, Phone Input, Video, Number Input, Toggle, Modal (JS & TS)
+  - Animation modules (gsap, vanilla)
+  - Global config system
+  - CLI for init/copy
+  - Migration documentation/README
+
+- **Future Enhancements**
+  - More components (modal, dropdown, etc.)
+  - Additional animation engines (Framer, anime.js)
+  - Component-specific animation overrides
+  - Online config builder UI
+
+# Logical Dependency Chain
+- Foundation: Config system and CLI
+- Next: Animation modules (gsap, vanilla)
+- Then: Migrate core components (accordion, tabs, lightbox, phone input, video, number input, toggle, modal)
+- After: Documentation, migration guides, and usage examples
+- Finally: Additional components and advanced features
+
+# Risks and Mitigations
+- **Technical Challenges**
+  - Ensuring config is loaded before components initialize (Mitigation: Document required import order)
+  - Supporting both JS and TS (Mitigation: Generate JS from TS source)
+  - Migration complexity for existing users (Mitigation: Provide clear migration guides and upgrade scripts)
+
+- **MVP Scope**
+  - Risk of over-engineering (Mitigation: Focus on logic-only, no CSS, minimal abstraction)
+
+- **Resource Constraints**
+  - Small team/solo dev (Mitigation: Prioritize most-used components first)
+
+# Appendix
+- **Research Findings**
+  - ShadCN's config-driven approach is popular and developer-friendly
+  - Most Webflow/Shopify users want logic-only, style-free components
+  - Migration is a key concern for existing users
+
+- **Technical Specifications**
+  - All files must be ES module compatible
+  - No CSS or style dependencies
+  - Animation modules must be swappable via config
+  - Migration scripts and guides must be included
+</context> 

@@ -1,6 +1,9 @@
-export declare const iti: ({ input, initialCountry, separateDialCode, formatOnDisplay, }: {
-    input: HTMLInputElement;
-    initialCountry?: string;
-    separateDialCode?: boolean;
-    formatOnDisplay?: boolean;
-}) => any;
+export interface ITIOptions {
+  input: HTMLInputElement;
+  initialCountry?: string;
+  separateDialCode?: boolean;
+  formatOnDisplay?: boolean;
+  nationalMode?: boolean;
+}
+
+export declare const iti: (options: ITIOptions) => Promise<any>;

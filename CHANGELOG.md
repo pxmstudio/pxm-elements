@@ -5,10 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.17] - 2024-06-13
+## [0.1.18] - 2025-07-09
+- Refactor all components
+- Remove lightbox
+
+## [0.1.17] - 2025-06-13
 - Fix lightbox swiper buttons bug
 
-## [0.1.11] - 2024-03-27
+## [0.1.11] - 2025-06-13
 - Major refactoring of the lightbox component:
   - Split into modular components for better maintainability
   - Improved component communication and event handling
@@ -26,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Enhanced media item handling
   - Better state management between inline and modal views
 
-## [0.1.8] - 2024-03-26
+## [0.1.8] - 2025-05-29
 - Added new pxm-tabs component with the following features:
   - Flexible trigger elements (buttons, links, or any element with data-tab)
   - Keyboard navigation (arrow keys, home, end)
@@ -54,7 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Keyboard support
   - Accessible design
 
-## [0.1.7] - 2023-10-25
+## [0.1.7] - 2025-05-28
 - Added new pxm-video component with the following features:
   - Support for multiple video sources (YouTube, Vimeo, Mux, MP4)
   - Automatic thumbnail generation for all supported sources

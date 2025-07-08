@@ -1,14 +1,20 @@
-# Number Input Component
+# PXM Number Input Component
 
-Enhanced number input with increment/decrement controls and built-in validation.
+Enhanced number input with increment/decrement controls and validation.
+This component provides structure and behavior only - all styling is controlled by your CSS.
 
 ## Features
 
-✅ **Accessible** - Keyboard navigation and screen reader support  
-✅ **Validation** - Respects min, max, and step attributes  
+✅ **Logic-Only Component** - No Shadow DOM, full CSS control for consumers  
+✅ **Dynamic Content Support** - Buttons can be added/removed after initialization  
+✅ **Keyboard Navigation** - Arrow keys for increment/decrement, Enter to validate  
+✅ **Built-in Validation** - Respects min, max, step with customizable error messages  
+✅ **Event-Driven System** - Comprehensive events for custom handling  
+✅ **Public API** - Programmatic control and value access  
 ✅ **Auto-disable** - Buttons disable at limits  
-✅ **Form integration** - Works with standard forms  
-✅ **Lightweight** - Only 4.1KB gzipped
+✅ **Form Integration** - Works with standard forms  
+✅ **Accessible** - Manages essential ARIA attributes (aria-invalid)  
+✅ **Lightweight** - Efficient memory management and performance
 
 ## Quick Start
 
@@ -37,7 +43,7 @@ Enhanced number input with increment/decrement controls and built-in validation.
 import '@pixelmakers/elements/number-input';
 
 // Or with TypeScript support
-import type { PxmNumberInput } from '@pixelmakers/elements/number-input';
+import type { PxmNumberInput, NumberInputEventDetail } from '@pixelmakers/elements/number-input';
 
 const numberInput = document.querySelector('pxm-number-input') as PxmNumberInput;
 ```
@@ -49,15 +55,30 @@ const numberInput = document.querySelector('pxm-number-input') as PxmNumberInput
     <button data-minus>-</button>
     <input type="number" min="0" max="100" step="1" value="25">
     <button data-plus>+</button>
+    <div data-error></div> <!-- Optional: Created automatically if not present -->
 </pxm-number-input>
 ```
 
 ### Required Elements
 
-- `pxm-number-input` - Container
+- `pxm-number-input` - Container element
 - `input[type="number"]` - The number input field
-- `[data-minus]` - Decrement button (optional)
-- `[data-plus]` - Increment button (optional)
+
+### Optional Elements
+
+- `[data-minus]` - Decrement button(s) - can have multiple
+- `[data-plus]` - Increment button(s) - can have multiple  
+- `[data-error]` - Error message container (created automatically if not present)
+
+### Component Attributes
+
+Configure the component behavior using these attributes on `pxm-number-input`:
+
+- `auto-validate="true|false"` - Enable/disable automatic validation (default: true)
+- `error-message-min="text"` - Custom message for minimum value errors
+- `error-message-max="text"` - Custom message for maximum value errors
+- `error-message-step="text"` - Custom message for step validation errors
+- `error-message-invalid="text"` - Custom message for invalid input errors
 
 ### Input Attributes
 
@@ -70,72 +91,176 @@ The component respects all standard number input attributes:
 - `name` - Form field name
 - `disabled` - Disables the entire component
 
-## Styling Examples
+## Keyboard Navigation
 
-### Basic Styling
+- **ArrowUp** - Increment value by step amount
+- **ArrowDown** - Decrement value by step amount  
+- **Enter** - Validate current value
+- **Tab** - Standard input navigation
 
-```css
-pxm-number-input {
-    display: inline-flex;
-    align-items: center;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    overflow: hidden;
-}
+## Error Handling & Validation
 
-pxm-number-input input {
-    border: none;
-    outline: none;
-    text-align: center;
-    width: 60px;
-    padding: 0.5rem;
-    font-size: 1rem;
-}
-
-pxm-number-input button {
-    background: #f9fafb;
-    border: none;
-    width: 32px;
-    height: 32px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    transition: background-color 0.2s;
-}
-
-pxm-number-input button:hover:not(:disabled) {
-    background: #f3f4f6;
-}
-
-pxm-number-input button:disabled {
-    background: #f9fafb;
-    color: #9ca3af;
-    cursor: not-allowed;
-}
-
-pxm-number-input button[data-minus] {
-    border-right: 1px solid #d1d5db;
-}
-
-pxm-number-input button[data-plus] {
-    border-left: 1px solid #d1d5db;
-}
-```
-
-### Tailwind CSS
+### Automatic Validation
 
 ```html
-<pxm-number-input class="inline-flex items-center border border-gray-300 rounded-md overflow-hidden">
-    <button data-minus class="w-8 h-8 bg-gray-50 hover:bg-gray-100 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed border-r border-gray-300 flex items-center justify-center font-semibold text-gray-700">
-        −
-    </button>
-    <input type="number" min="0" max="100" step="1" value="1" 
-           class="w-16 px-2 py-1 text-center border-none outline-none focus:ring-2 focus:ring-blue-500">
-    <button data-plus class="w-8 h-8 bg-gray-50 hover:bg-gray-100 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed border-l border-gray-300 flex items-center justify-center font-semibold text-gray-700">
-        +
-    </button>
+<pxm-number-input auto-validate="true">
+  <button data-minus>-</button>
+  <input type="number" min="0" max="10" value="5">
+  <button data-plus>+</button>
+</pxm-number-input>
+```
+
+### Custom Error Messages
+
+```html
+<pxm-number-input 
+  error-message-min="Value too low!" 
+  error-message-max="Value too high!" 
+  error-message-invalid="Please enter a number!">
+  <button data-minus>-</button>
+  <input type="number" min="0" max="10" value="5">
+  <button data-plus>+</button>
+</pxm-number-input>
+```
+
+### Custom Validation
+
+```typescript
+const numberInput = document.querySelector('pxm-number-input') as PxmNumberInput;
+
+// Set custom validation rule
+numberInput.setCustomValidator((value) => {
+  if (value % 5 !== 0) return 'Value must be divisible by 5';
+  return null; // Valid
+});
+
+// Clear custom validation
+numberInput.clearCustomValidator();
+```
+
+## Public API
+
+### Value Management
+- `setValue(value: number)` — Set the input value programmatically
+- `getValue(): number` — Get the current value
+- `increment()` — Increment by step amount (respects max)
+- `decrement()` — Decrement by step amount (respects min)
+
+### Validation
+- `validate(): boolean` — Validate current value, show errors if invalid
+- `isValid(): boolean` — Check if current value is valid
+- `hasError(): boolean` — Check if there are validation errors
+
+### Custom Validation
+- `setCustomValidator(fn: (value: number) => string | null)` — Set custom validation function
+- `clearCustomValidator()` — Remove custom validation
+
+### Focus Management
+- `focus()` — Focus the input element
+- `blur()` — Blur the input element
+
+### Example: Using the Public API
+
+```typescript
+const numberInput = document.querySelector('pxm-number-input') as PxmNumberInput;
+
+// Set value and increment
+numberInput.setValue(7);
+numberInput.increment();
+console.log(numberInput.getValue()); // 8
+
+// Validation
+if (!numberInput.validate()) {
+  console.log('Validation failed');
+}
+
+// Custom validation for even numbers only
+numberInput.setCustomValidator((value) => {
+  if (value % 2 !== 0) return 'Only even numbers allowed!';
+  return null;
+});
+```
+
+## Events
+
+All events use the `pxm:number-input:` prefix and include detailed event data:
+
+- `pxm:number-input:change` — Value changed (user input or programmatic)
+- `pxm:number-input:increment` — Value was incremented  
+- `pxm:number-input:decrement` — Value was decremented
+- `pxm:number-input:error` — Validation error occurred
+- `pxm:number-input:valid` — Validation passed
+- `pxm:number-input:buttons-changed` — Buttons were dynamically added/removed
+
+### Event Handling Examples
+
+```typescript
+const numberInput = document.querySelector('pxm-number-input');
+
+// Listen for value changes
+numberInput.addEventListener('pxm:number-input:change', (e) => {
+  console.log(`Value changed from ${e.detail.previousValue} to ${e.detail.value}`);
+});
+
+// Listen for validation errors
+numberInput.addEventListener('pxm:number-input:error', (e) => {
+  console.log(`Validation error: ${e.detail.message} (type: ${e.detail.type})`);
+});
+
+// Listen for increment/decrement
+numberInput.addEventListener('pxm:number-input:increment', (e) => {
+  console.log(`Incremented to ${e.detail.value}`);
+});
+```
+
+## Dynamic Content Support
+
+Buttons can be added or removed dynamically after component initialization:
+
+```typescript
+const numberInput = document.querySelector('pxm-number-input');
+
+// Add a new increment button
+const newButton = document.createElement('button');
+newButton.setAttribute('data-plus', '');
+newButton.textContent = '++';
+numberInput.appendChild(newButton); // Automatically initialized
+
+// Listen for dynamic changes
+numberInput.addEventListener('pxm:number-input:buttons-changed', (e) => {
+  console.log(`Now has ${e.detail.minusButtonCount} minus and ${e.detail.plusButtonCount} plus buttons`);
+});
+```
+
+## Accessibility
+
+### What the Component Manages
+- `aria-invalid` - Set to "true" when validation fails, "false" when valid
+- `aria-describedby` - Links input to error message when errors are present
+- `tabindex` - For keyboard navigation functionality
+- `disabled` - On buttons when limits are reached
+
+### What Consumers Should Provide
+- `aria-label` or `aria-labelledby` on input for screen readers
+- `role` attributes if needed for complex layouts
+- `aria-live` regions for dynamic announcements
+- Additional ARIA relationships as needed
+
+### Example: Complete Accessibility
+
+```html
+<pxm-number-input>
+  <label for="quantity">Quantity</label>
+  <button data-minus aria-label="Decrease quantity">−</button>
+  <input 
+    id="quantity"
+    type="number" 
+    min="1" max="10" step="1" value="1"
+    aria-label="Quantity" 
+    aria-describedby="qty-help">
+  <button data-plus aria-label="Increase quantity">+</button>
+  <div data-error aria-live="polite"></div>
+  <div id="qty-help">Choose between 1 and 10 items</div>
 </pxm-number-input>
 ```
 
@@ -197,301 +322,40 @@ pxm-number-input button:disabled {
     cursor: not-allowed;
     transform: none;
 }
-```
 
-### Inline Label Style
-
-```html
-<pxm-number-input class="quantity-input">
-    <label>Qty:</label>
-    <button data-minus>−</button>
-    <input type="number" min="1" max="99" step="1" value="1">
-    <button data-plus>+</button>
-</pxm-number-input>
-
-<style>
-.quantity-input {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    background: white;
-}
-
-.quantity-input label {
-    font-weight: 500;
-    color: #374151;
+/* Error states */
+pxm-number-input [data-error]:not(:empty) {
+    color: #dc2626;
     font-size: 0.875rem;
+    margin-top: 0.25rem;
 }
 
-.quantity-input input {
-    width: 50px;
-    text-align: center;
-    border: 1px solid #e5e7eb;
-    border-radius: 4px;
-    padding: 0.25rem;
+pxm-number-input input[aria-invalid="true"] {
+    border-color: #dc2626 !important;
 }
-
-.quantity-input button {
-    width: 24px;
-    height: 24px;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    background: #f9fafb;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.875rem;
-}
-</style>
 ```
 
-## Accessibility
+## Architecture & Philosophy
 
-The component automatically provides:
+### Logic-Only Component
+- **No Shadow DOM** - Full CSS control for consumers
+- **No Internal Styling** - Only functional states (display/opacity for errors)
+- **Consumer Responsibility** - All visual design, animations, and comprehensive accessibility
+- **Framework Agnostic** - Works with any CSS methodology or design system
 
-- **Keyboard Support**
-  - Standard number input keyboard navigation
-  - Button activation with Enter/Space
-  - Arrow keys for increment/decrement
+### What the Component Provides
+- ✅ Structure (HTML element relationships)
+- ✅ Behavior (JavaScript logic and interactions) 
+- ✅ State management (value, validation, button states)
+- ✅ Event system (comprehensive event details)
+- ✅ Essential ARIA (aria-invalid, aria-describedby)
 
-- **Button Management**
-  - Automatically disables buttons at min/max limits
-  - Clear focus indicators
-  - Proper button roles
-
-- **Screen Reader Support**
-  - Maintains semantic input element
-  - Buttons announce their purpose
-  - Value changes are announced
-
-## Validation & Behavior
-
-### Automatic Validation
-
-```html
-<!-- This input validates against min/max automatically -->
-<pxm-number-input>
-    <button data-minus>-</button>
-    <input type="number" min="0" max="10" step="1" value="5">
-    <button data-plus>+</button>
-</pxm-number-input>
-```
-
-- Values below `min` are automatically corrected
-- Values above `max` are automatically corrected  
-- Buttons disable when limits are reached
-- Invalid input is sanitized on blur
-
-### Step Behavior
-
-```html
-<!-- Increment/decrement by 0.5 -->
-<pxm-number-input>
-    <button data-minus>-</button>
-    <input type="number" min="0" max="10" step="0.5" value="2.5">
-    <button data-plus>+</button>
-</pxm-number-input>
-
-<!-- Increment/decrement by 5 -->
-<pxm-number-input>
-    <button data-minus>-5</button>
-    <input type="number" min="0" max="100" step="5" value="10">
-    <button data-plus>+5</button>
-</pxm-number-input>
-```
-
-## Events
-
-The component dispatches standard input events:
-
-```javascript
-const numberInput = document.querySelector('pxm-number-input input');
-
-// Listen for value changes
-numberInput.addEventListener('change', (event) => {
-    console.log('Value changed to:', event.target.value);
-});
-
-numberInput.addEventListener('input', (event) => {
-    console.log('Value is:', event.target.value);
-});
-```
-
-## Examples
-
-### E-commerce Quantity Selector
-
-```html
-<div class="product-quantity">
-    <label for="qty">Quantity:</label>
-    <pxm-number-input>
-        <button data-minus aria-label="Decrease quantity">
-            <svg width="16" height="16" viewBox="0 0 16 16">
-                <path d="M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-        </button>
-        <input id="qty" type="number" min="1" max="99" step="1" value="1" name="quantity">
-        <button data-plus aria-label="Increase quantity">
-            <svg width="16" height="16" viewBox="0 0 16 16">
-                <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-        </button>
-    </pxm-number-input>
-    <span class="stock-info">23 in stock</span>
-</div>
-
-<style>
-.product-quantity {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin: 1rem 0;
-}
-
-.stock-info {
-    color: #059669;
-    font-size: 0.875rem;
-}
-</style>
-```
-
-### Settings Slider Alternative
-
-```html
-<div class="setting-group">
-    <div class="setting-info">
-        <h4>Auto-save interval</h4>
-        <p>How often to save your work (seconds)</p>
-    </div>
-    
-    <pxm-number-input>
-        <button data-minus>−</button>
-        <input type="number" min="10" max="300" step="10" value="60" name="autosave_interval">
-        <button data-plus>+</button>
-    </pxm-number-input>
-</div>
-
-<div class="setting-group">
-    <div class="setting-info">
-        <h4>Max file size</h4>
-        <p>Maximum upload size (MB)</p>
-    </div>
-    
-    <pxm-number-input>
-        <button data-minus>−</button>
-        <input type="number" min="1" max="100" step="1" value="10" name="max_file_size">
-        <button data-plus>+</button>
-    </pxm-number-input>
-</div>
-```
-
-### Form Integration
-
-```html
-<form id="order-form">
-    <div class="order-items">
-        <div class="item">
-            <img src="product1.jpg" alt="Product 1">
-            <div class="item-details">
-                <h3>Premium Widget</h3>
-                <p>$19.99 each</p>
-            </div>
-            <pxm-number-input>
-                <button data-minus>−</button>
-                <input type="number" min="0" max="10" step="1" value="1" name="item_1_qty">
-                <button data-plus>+</button>
-            </pxm-number-input>
-        </div>
-        
-        <div class="item">
-            <img src="product2.jpg" alt="Product 2">
-            <div class="item-details">
-                <h3>Deluxe Gadget</h3>
-                <p>$39.99 each</p>
-            </div>
-            <pxm-number-input>
-                <button data-minus>−</button>
-                <input type="number" min="0" max="5" step="1" value="0" name="item_2_qty">
-                <button data-plus>+</button>
-            </pxm-number-input>
-        </div>
-    </div>
-    
-    <button type="submit">Add to Cart</button>
-</form>
-
-<script>
-document.getElementById('order-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    
-    console.log({
-        item_1_qty: formData.get('item_1_qty'),
-        item_2_qty: formData.get('item_2_qty')
-    });
-});
-</script>
-```
-
-### Responsive Design
-
-```html
-<div class="responsive-number-input">
-    <label>Amount ($)</label>
-    <pxm-number-input>
-        <button data-minus>−</button>
-        <input type="number" min="0" max="1000" step="0.01" value="0.00" name="amount">
-        <button data-plus>+</button>
-    </pxm-number-input>
-</div>
-
-<style>
-.responsive-number-input {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.responsive-number-input pxm-number-input {
-    display: flex;
-    width: 100%;
-}
-
-.responsive-number-input input {
-    flex: 1;
-    min-width: 0;
-    text-align: center;
-    padding: 0.75rem;
-    font-size: 1.1rem;
-}
-
-.responsive-number-input button {
-    width: 44px;
-    height: 44px;
-    font-size: 1.2rem;
-}
-
-@media (min-width: 640px) {
-    .responsive-number-input {
-        flex-direction: row;
-        align-items: center;
-    }
-    
-    .responsive-number-input pxm-number-input {
-        width: auto;
-    }
-    
-    .responsive-number-input input {
-        width: 100px;
-        flex: none;
-    }
-}
-</style>
-```
+### What Consumers Control
+- 🎨 All visual styling (colors, fonts, spacing, borders)
+- 🎨 Layout and positioning (flexbox, grid, etc.)
+- 🎨 Responsive design (media queries, breakpoints)
+- 🎨 Animations and transitions
+- ♿ Full accessibility (labels, roles, descriptions)
 
 ## Platform Integration
 

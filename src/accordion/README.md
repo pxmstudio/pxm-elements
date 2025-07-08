@@ -1,13 +1,17 @@
 # Accordion Component
 
-Create collapsible content sections with smooth animations and full accessibility support.
+Create collapsible content sections with smooth, configurable animations and full accessibility support. The component provides extensive customization options through events.
 
 ## Features
 
-✅ **Accessible** - Full keyboard navigation and screen reader support  
-✅ **Smooth animations** - Configurable duration and easing  
-✅ **Icon rotation** - Built-in support for animated icons  
-✅ **Multiple modes** - Single or multiple sections open  
+✅ **Accessible** - Keyboard navigation
+✅ **Dynamic content support** - Items can be added/removed after initialization with automatic re-initialization
+✅ **Event-driven animations** - Bring your own animation library (GSAP, Anime.js, etc.) or use CSS transitions
+✅ **State synchronization** - Manual attribute changes automatically sync with component state
+✅ **Icon rotation** - Built-in support for animated icons with configurable rotation
+✅ **Multiple modes** - Single or multiple sections open simultaneously
+✅ **Keyboard navigation** - Enter/Space/Arrow/Home/End keys with wrapping
+✅ **Copy-paste friendly** - Works in vanilla JS/TS, Webflow, Shopify, Astro, etc.
 ✅ **Lightweight** - Only 5.6KB gzipped
 
 ## Quick Start
@@ -49,7 +53,6 @@ const accordion = document.querySelector('pxm-accordion') as PxmAccordion;
 | Attribute | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `allow-multiple` | boolean | `false` | Allow multiple sections to be open simultaneously |
-| `animation-duration` | number | `300` | Animation duration in milliseconds |
 | `icon-rotation` | number | `90` | Degrees to rotate icons when expanded |
 
 ## HTML Structure
@@ -70,14 +73,235 @@ const accordion = document.querySelector('pxm-accordion') as PxmAccordion;
 
 ### Required Elements
 
-- `pxm-accordion` - Container
-- `pxm-accordion-item` - Individual accordion section
-- `pxm-accordion-trigger` - Clickable header (button element)
-- `pxm-accordion-content` - Collapsible content area
+- `pxm-accordion` - Container (automatically gets `role="list"`)
+- `pxm-accordion-item` - Individual accordion section (automatically gets `role="listitem"`)
+- `pxm-accordion-trigger` - Clickable header (automatically gets `role="button"` and ARIA attributes)
+- `pxm-accordion-content` - Collapsible content area (automatically gets `role="region"` and ARIA attributes)
 
 ### Optional Elements
 
 - `[data-accordion-icon]` - Element to rotate when expanded
+
+## Accessibility
+
+The component automatically manages only the `aria-expanded` attribute on the trigger element (`pxm-accordion-trigger`).
+
+**All other ARIA attributes and roles must be set by the user in your HTML.**
+
+- You are responsible for setting:
+  - `role="list"` on `<pxm-accordion>`
+  - `role="listitem"` on each `<pxm-accordion-item>`
+  - `role="button"` and `id` on each `<pxm-accordion-trigger>`
+  - `role="region"`, `aria-labelledby`, and `id` on each `<pxm-accordion-content>`
+  - `aria-controls` on each `<pxm-accordion-trigger>` (should match the id of the corresponding content)
+- The component will automatically update `aria-expanded` to `true` or `false` on the trigger as the item is expanded/collapsed.
+
+**Keyboard Navigation:**
+  - `Enter` or `Space` - Toggle current item
+  - `ArrowUp` - Focus previous item (wraps to last)
+  - `ArrowDown` - Focus next item (wraps to first)
+  - `Home` - Focus first item
+  - `End` - Focus last item
+
+### Example with ARIA attributes
+
+```html
+<pxm-accordion role="list">
+  <pxm-accordion-item role="listitem">
+    <pxm-accordion-trigger
+      role="button"
+      id="accordion-trigger-0"
+      aria-controls="accordion-content-0"
+      aria-expanded="false"
+    >
+      <span>Section title</span>
+      <span data-accordion-icon>+</span>
+    </pxm-accordion-trigger>
+    <pxm-accordion-content
+      role="region"
+      id="accordion-content-0"
+      aria-labelledby="accordion-trigger-0"
+    >
+      <p>Section content goes here...</p>
+    </pxm-accordion-content>
+  </pxm-accordion-item>
+</pxm-accordion>
+```
+
+## Animation System
+
+The accordion supports multiple animation approaches:
+
+### Default CSS Transitions
+
+```css
+pxm-accordion-content {
+    transition: opacity 0.3s ease-in-out;
+}
+
+[data-accordion-icon] {
+    transition: transform 0.3s ease-in-out;
+}
+```
+
+### Custom Animations with Events
+
+```javascript
+const accordion = document.querySelector('pxm-accordion');
+
+// Custom expand animation
+accordion.addEventListener('pxm:accordion:before-expand', (e) => {
+    const { content, complete } = e.detail;
+    e.preventDefault(); // Take control of animation
+    
+    // Your animation library (GSAP example)
+    gsap.fromTo(content, 
+        { height: 0, opacity: 0 }, 
+        { 
+            height: 'auto', 
+            opacity: 1, 
+            duration: 0.3,
+            onComplete: complete // Signal animation finished
+        }
+    );
+});
+
+// Custom collapse animation
+accordion.addEventListener('pxm:accordion:before-collapse', (e) => {
+    const { content, complete } = e.detail;
+    e.preventDefault();
+    
+    gsap.to(content, { 
+        height: 0, 
+        opacity: 0, 
+        duration: 0.3,
+        onComplete: complete
+    });
+});
+
+// Custom icon animation
+accordion.addEventListener('pxm:accordion:icon-rotate', (e) => {
+    const { icon, isExpanding } = e.detail;
+    const rotation = isExpanding ? 90 : 0;
+    
+    gsap.to(icon, { 
+        rotation, 
+        duration: 0.3 
+    });
+});
+```
+
+## Events
+
+| Event | Cancelable | Description |
+|-------|------------|-------------|
+| `pxm:accordion:before-expand` | ✅ | Fired before expansion starts |
+| `pxm:accordion:after-expand` | ❌ | Fired after expansion completes |
+| `pxm:accordion:before-collapse` | ✅ | Fired before collapse starts |
+| `pxm:accordion:after-collapse` | ❌ | Fired after collapse completes |
+| `pxm:accordion:toggle` | ❌ | Fired when an item is toggled |
+| `pxm:accordion:icon-rotate` | ✅ | Fired when icon should rotate |
+| `pxm:accordion:items-changed` | ❌ | Fired when items are added/removed |
+| `pxm:accordion:state-sync` | ❌ | Fired when state syncs with DOM changes |
+
+### Event Details
+
+```typescript
+// Animation events
+interface AccordionEventDetail {
+  index: number;
+  item: HTMLElement;
+  content: HTMLElement;
+  trigger: HTMLElement;
+  complete: () => void; // Call when animation finishes
+}
+
+// Toggle event
+interface AccordionToggleEventDetail {
+  index: number;
+  item: HTMLElement;
+  isExpanding: boolean;
+}
+```
+
+## Dynamic Content Support
+
+Items can be added or removed after initialization:
+
+```javascript
+const accordion = document.querySelector('pxm-accordion');
+
+// Add new item dynamically
+const newItem = document.createElement('pxm-accordion-item');
+newItem.innerHTML = `
+    <pxm-accordion-trigger>New Section</pxm-accordion-trigger>
+    <pxm-accordion-content>New content here</pxm-accordion-content>
+`;
+accordion.appendChild(newItem); // Automatically initialized
+
+// Listen for changes
+accordion.addEventListener('pxm:accordion:items-changed', (e) => {
+    console.log(`Accordion now has ${e.detail.itemCount} items`);
+});
+```
+
+## State Synchronization
+
+Manual attribute changes are automatically synced:
+
+```javascript
+// Manual DOM changes are detected and synced
+const item = document.querySelector('pxm-accordion-item');
+item.setAttribute('active', 'true'); // Component state updates automatically
+
+// Listen for sync events
+accordion.addEventListener('pxm:accordion:state-sync', (e) => {
+    console.log(`Item ${e.detail.index} was ${e.detail.action}`);
+    // Actions: 'activated-from-dom' or 'deactivated-from-dom'
+});
+```
+
+## TypeScript API
+
+```typescript
+export interface PxmAccordion extends HTMLElement {
+  // Basic operations
+  toggleItem(index: number): Promise<void>;
+  expandItem(index: number): Promise<void>;
+  collapseItem(index: number): Promise<void>;
+  
+  // Bulk operations
+  expandAll(): Promise<void>;
+  collapseAll(): Promise<void>;
+  
+  // State queries
+  getActiveItems(): number[];
+  isItemActive(index: number): boolean;
+}
+
+export interface PxmAccordionItem extends HTMLElement {}
+export interface PxmAccordionTrigger extends HTMLElement {}
+export interface PxmAccordionContent extends HTMLElement {}
+```
+
+### Programmatic Control
+
+```typescript
+const accordion = document.querySelector('pxm-accordion') as PxmAccordion;
+
+// Control individual items
+await accordion.expandItem(0);
+await accordion.collapseItem(1);
+await accordion.toggleItem(2);
+
+// Bulk operations (requires allow-multiple="true" for expandAll)
+await accordion.expandAll();
+await accordion.collapseAll();
+
+// Query state
+const activeItems = accordion.getActiveItems(); // [0, 2]
+const isActive = accordion.isItemActive(0); // true
+```
 
 ## Styling Examples
 
@@ -130,10 +354,6 @@ pxm-accordion-content {
     font-size: 1.2em;
 }
 
-pxm-accordion-item[active="true"] [data-accordion-icon] {
-    transform: rotate(90deg); /* Will be overridden by icon-rotation attribute */
-}
-
 /* Active state styling */
 pxm-accordion-item[active="true"] pxm-accordion-trigger {
     background: #f0f9ff;
@@ -141,75 +361,24 @@ pxm-accordion-item[active="true"] pxm-accordion-trigger {
 }
 ```
 
-### Tailwind CSS
+### SSR / Hydration Support
 
-```html
-<pxm-accordion class="border border-gray-200 rounded-lg overflow-hidden">
-    <pxm-accordion-item class="border-b border-gray-200 last:border-b-0">
-        <pxm-accordion-trigger class="w-full px-4 py-3 text-left bg-white hover:bg-gray-50 flex justify-between items-center font-medium transition-colors">
-            <span>Frequently Asked Question</span>
-            <span data-accordion-icon class="transform transition-transform duration-300 text-gray-500">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </span>
-        </pxm-accordion-trigger>
-        <pxm-accordion-content class="px-4 pb-3 text-gray-600 bg-white">
-            The answer to your question goes here with all the details you need.
-        </pxm-accordion-content>
-    </pxm-accordion-item>
-</pxm-accordion>
-```
+```css
+/* Prevent hydration flash */
+pxm-accordion-item:not([active="true"]) pxm-accordion-content {
+    display: none;
+    opacity: 0;
+}
 
-## Accessibility
+pxm-accordion-item[active="true"] pxm-accordion-content {
+    display: block;
+    opacity: 1;
+}
 
-The accordion automatically provides:
-
-- **Keyboard Navigation**
-  - `Enter/Space` - Toggle accordion item
-  - `Arrow Up/Down` - Move between items
-  - `Home/End` - Go to first/last item
-
-- **ARIA Attributes**
-  - `role="list"` on container
-  - `role="listitem"` on items
-  - `role="button"` on triggers
-  - `aria-expanded` indicates open/closed state
-  - `aria-controls` links trigger to content
-  - `aria-labelledby` provides content labels
-
-- **Focus Management**
-  - Proper tab order
-  - Visible focus indicators
-  - Logical navigation flow
-
-## Events
-
-The accordion dispatches custom events you can listen to:
-
-```javascript
-const accordion = document.querySelector('pxm-accordion');
-
-// Listen for item toggle events
-accordion.addEventListener('toggle', (event) => {
-    console.log('Item toggled:', event.detail);
-});
-```
-
-## JavaScript API
-
-```typescript
-// Get accordion instance
-const accordion = document.querySelector('pxm-accordion') as PxmAccordion;
-
-// Programmatically expand/collapse items
-accordion.expandItem(0);    // Expand first item
-accordion.collapseItem(0);  // Collapse first item
-accordion.toggleItem(0);    // Toggle first item
-
-// Get state
-const isExpanded = accordion.isItemExpanded(0);
-const expandedItems = accordion.getExpandedItems();
+/* Hide content during hydration */
+pxm-accordion:not(:defined) pxm-accordion-content {
+    display: none;
+}
 ```
 
 ## Examples
@@ -250,7 +419,7 @@ const expandedItems = accordion.getExpandedItems();
 </pxm-accordion>
 ```
 
-### Settings Panel
+### Settings Panel with Multiple Open
 
 ```html
 <pxm-accordion allow-multiple="true" icon-rotation="180">
